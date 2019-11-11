@@ -9,7 +9,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <name>TinyMap</name>
-    <description>Memory Efficient immutable HashMap</description>
+    <description>Memory-Efficient Immutable HashMaps</description>
     <url>http://www.intelie.com/tinymap</url>
 
     <properties>

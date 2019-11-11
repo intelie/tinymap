@@ -1,6 +1,7 @@
 package net.intelie.tinymap.util;
 
 public class DoubleCache {
+    private final Double NEG_ZERO = -0.0;
     private final int smallCacheAmplitude;
     private final Double[] smallCache;
     private final CacheData<Double> data;
@@ -20,12 +21,15 @@ public class DoubleCache {
     }
 
     private static boolean eq(Double cached, double value) {
-        return cached != null && cached == value;
+        return cached != null && Double.doubleToLongBits(cached) == Double.doubleToLongBits(value);
     }
 
     public Double get(double value) {
-        if (value >= -smallCacheAmplitude && value < smallCacheAmplitude && value == (int) value)
+        if (value >= -smallCacheAmplitude && value < smallCacheAmplitude && value == (int) value) {
+            if (Double.doubleToLongBits(value) == 0x8000000000000000L)
+                return NEG_ZERO;
             return smallCache[(int) value + smallCacheAmplitude];
+        }
         int hash = Double.hashCode(value);
         int n = data.makeIndex(hash);
         Double cached = data.get(n);

@@ -111,7 +111,9 @@ public class TinyListTest {
             assertThat(list.get(i)).isEqualTo(expected.get(i));
         }
         assertThat(list.toString()).isEqualTo(expected.toString());
+
         assertThat(list).isEqualTo(expected);
+        assertThat(expected).isEqualTo(list);
         assertThat(list.hashCode()).isEqualTo(expected.hashCode());
     }
 }

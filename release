@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+if [ $# -lt 2 ]; then
+    echo "$0 <version> <next-version>"
+    echo "$0 0.1 0.2"
+    exit 0
+fi
+
+mvn versions:set -DnewVersion=$1
+mvn -P release clean deploy -Dgpg.executable=gpg2
+
+#prune old tags
+git fetch origin --prune +refs/tags/*:refs/tags/*
+
+git commit -am "Release version $1"
+git tag $1
+mvn versions:set -DnewVersion=$2-SNAPSHOT
+git commit -am "Developing version: $2"
+
+git push --tags
+

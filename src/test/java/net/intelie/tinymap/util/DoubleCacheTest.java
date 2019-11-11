@@ -31,6 +31,19 @@ public class DoubleCacheTest {
         assertThat(cached1).isSameAs(cached1b);
     }
 
+    @Test
+    public void testNegativeZero() {
+        DoubleCache cache = new DoubleCache();
+        Double original1 = Double.parseDouble("0.0");
+        Double original2 = Double.parseDouble("-0.0");
+
+        Double cached1 = cache.get(original1);
+        Double cached2 = cache.get(original2);
+
+        assertThat(cached1).isNotEqualTo(cached2);
+        assertThat(cached1.hashCode()).isNotEqualTo(cached2.hashCode());
+    }
+
 
     @Test
     public void testSmallCache() {

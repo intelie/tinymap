@@ -8,15 +8,19 @@ import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class TinyJsonBuilder {
+public class TinyJsonDecoder {
     private final ObjectCache cache;
     private final Deque<TinyMap.Builder<String, Object>> maps = new ArrayDeque<>();
     private final Deque<TinyList.Builder<Object>> lists = new ArrayDeque<>();
 
-    public TinyJsonBuilder(ObjectCache cache) {
+    public TinyJsonDecoder(ObjectCache cache) {
         this.cache = cache;
     }
 
+    public void clear() {
+        maps.clear();
+        lists.clear();
+    }
 
     public Object build(TinyJsonReader reader) throws IOException {
         JsonToken peeked = reader.peek();
@@ -51,7 +55,7 @@ public class TinyJsonBuilder {
             return cache.get(map);
         } finally {
             map.clear();
-            maps.add(map);
+            maps.push(map);
         }
     }
 
@@ -66,7 +70,7 @@ public class TinyJsonBuilder {
             return cache.get(list);
         } finally {
             list.clear();
-            lists.add(list);
+            lists.push(list);
         }
     }
 

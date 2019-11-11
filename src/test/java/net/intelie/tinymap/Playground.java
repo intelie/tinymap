@@ -1,13 +1,13 @@
 package net.intelie.tinymap;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
 import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.ThreadResources;
-import net.intelie.introspective.reflect.ReflectionCache;
-import net.intelie.introspective.util.IdentityVisitedSet;
 import net.intelie.tinymap.json.FastDouble;
 import net.intelie.tinymap.json.JsonToken;
-import net.intelie.tinymap.json.TinyJsonBuilder;
+import net.intelie.tinymap.json.TinyJsonDecoder;
 import net.intelie.tinymap.json.TinyJsonReader;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -69,67 +69,72 @@ public class Playground {
 
         ObjectCache cache = new ObjectCache();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json"))) {
+        TinyJsonDecoder builder = new TinyJsonDecoder(cache);
+        TinyOptimizer optimizer = new TinyOptimizer(cache);
+        Gson gson = new Gson();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_pps.json"))) {
             TinyJsonReader jsonReader = new TinyJsonReader(cache, new StringBuilder(), reader);
-            TinyJsonBuilder builder = new TinyJsonBuilder(cache);
-            while (jsonReader.peek() != JsonToken.END_DOCUMENT) {
-                objs.addAll(builder.buildList(jsonReader));
-//                String line = reader.readLine();
-//                if (line == null) break;
-//                Map map = (Map) LiveJson.fromJson(line, List.class).get(0);
-//                objs.add(map);
+            while (true) {
+//                if (jsonReader.peek() == JsonToken.END_DOCUMENT) break;
+//                objs.addAll(builder.buildList(jsonReader));
+                String line = reader.readLine();
+                if (line == null) break;
+                Map map = (Map) gson.fromJson(line, List.class).get(0);
+                objs.add(map);
             }
         }
-        System.out.println(SizeUtils.formatBytes(ThreadResources.allocatedBytes() - startMem));
+        System.out.println("allocated\t" + SizeUtils.formatBytes(ThreadResources.allocatedBytes() - startMem));
 
-        System.out.println(SizeUtils.formattedSize(objs));
+        List<Object> optimized = optimizer.optimizeList(objs);
+
+        System.out.println("cache size\t" + SizeUtils.formattedSize(cache));
+        System.out.println("regular\t" + SizeUtils.formattedSize(objs));
+        System.out.println("optimized\t" + SizeUtils.formattedSize(optimized));
+        System.out.println("equals\t" + objs.equals(optimized) + "\t" + optimized.equals(objs));
+
+        for (int i = 0; i < Math.max(objs.size(), optimized.size()); i++) {
+            if (!Objects.equals(objs.get(i), optimized.get(i)))
+                System.out.println("ne\t" + i + "\t" + objs.get(i) + "\t" + optimized.get(i));
+        }
 
         ObjectSizer sizer = new ObjectSizer();
-        sizer.resetTo(objs);
+        sizer.resetTo(optimized);
 
         Map<Class, AtomicLong> counts = new HashMap<>();
         Map<Class, AtomicLong> total = new HashMap<>();
-        Map<Object, AtomicLong> doubleCount = new HashMap<>();
 
         while (sizer.moveNext()) {
             counts.computeIfAbsent(sizer.type(), x -> new AtomicLong()).incrementAndGet();
             total.computeIfAbsent(sizer.type(), x -> new AtomicLong()).addAndGet(sizer.bytes());
-            doubleCount.computeIfAbsent(sizer.current(), x -> new AtomicLong()).incrementAndGet();
         }
         total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
             System.out.println(counts.get(entry.getKey()) + "   \t" + SizeUtils.formatBytes(entry.getValue().get()) + "\t" + entry.getKey());
         });
-
-        System.out.println(doubleCount.entrySet().stream()
-                .sorted(Comparator.comparingLong(x -> -x.getValue().get()))
-                .mapToLong(x -> x.getValue().get() - 1)
-                .sum());
-
-        List<Map.Entry<Object, AtomicLong>> list = doubleCount.entrySet().stream()
-                .sorted(Comparator.comparingLong(x -> -x.getValue().get()))
-                .limit(10)
-                .collect(Collectors.toList());
-
-//        System.out.println(list.size());
-        for (Map.Entry<Object, AtomicLong> entry : list) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-        System.out.println(SizeUtils.formattedSize(cache));
     }
 
-
     @Test
-    public void testDoubleParseDouble() throws IOException {
-        long[] test = new long[10000];
-        long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < test.length; i++) {
-            test[i] = ThreadResources.allocatedBytes() - startMem;
-            FastDouble.getDouble("123", 0, 3);
-        }
+    public void name() {
+        LinkedHashMap<Object, Object> pureJava = new LinkedHashMap<>();
+        pureJava.put("key1", "value1");
 
-        for (int i = 0; i < test.length; i++) {
-            if ((i - 1) % 100 == 0)
-                System.out.println(i + "\t" + test[i]);
-        }
+        ArrayList<Object> pureJavaList = new ArrayList<>();
+        pureJavaList.add(42.0);
+        pureJavaList.add("subvalue");
+        pureJava.put("key2", pureJavaList);
+
+        ImmutableMap<Object, Object> guava = ImmutableMap.builder()
+                .put("key1", "value1")
+                .put("key2", ImmutableList.builder().add(42.0).add("subvalue").build())
+                .build();
+
+TinyMap<Object, Object> built = TinyMap.builder()
+        .put("key1", "value1")
+        .put("key2", TinyList.builder().add(42.0).add("subvalue").build())
+        .build();
+
+        System.out.println(SizeUtils.formattedSize(pureJava));
+        System.out.println(SizeUtils.formattedSize(guava));
+        System.out.println(SizeUtils.formattedSize(built));
     }
 }

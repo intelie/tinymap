@@ -31,6 +31,8 @@ public class FastDouble {
 
     public static double getDouble(final CharSequence csq,
                                    final int offset, final int end) throws NumberFormatException {
+        if (true)
+            return Double.parseDouble(new StringBuilder().append(csq, offset, end).toString());
 
         int off = offset;
         int len = end - offset;
