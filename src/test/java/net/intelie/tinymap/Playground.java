@@ -1,12 +1,9 @@
 package net.intelie.tinymap;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.ThreadResources;
-import net.intelie.tinymap.json.FastDouble;
-import net.intelie.tinymap.json.JsonToken;
 import net.intelie.tinymap.json.TinyJsonDecoder;
 import net.intelie.tinymap.json.TinyJsonReader;
 import org.junit.Ignore;
@@ -15,9 +12,9 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 @Ignore
 public class Playground {
@@ -73,7 +70,7 @@ public class Playground {
         TinyOptimizer optimizer = new TinyOptimizer(cache);
         Gson gson = new Gson();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_pps.json"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json"))) {
             TinyJsonReader jsonReader = new TinyJsonReader(cache, new StringBuilder(), reader);
             while (true) {
 //                if (jsonReader.peek() == JsonToken.END_DOCUMENT) break;
@@ -111,30 +108,5 @@ public class Playground {
         total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
             System.out.println(counts.get(entry.getKey()) + "   \t" + SizeUtils.formatBytes(entry.getValue().get()) + "\t" + entry.getKey());
         });
-    }
-
-    @Test
-    public void name() {
-        LinkedHashMap<Object, Object> pureJava = new LinkedHashMap<>();
-        pureJava.put("key1", "value1");
-
-        ArrayList<Object> pureJavaList = new ArrayList<>();
-        pureJavaList.add(42.0);
-        pureJavaList.add("subvalue");
-        pureJava.put("key2", pureJavaList);
-
-        ImmutableMap<Object, Object> guava = ImmutableMap.builder()
-                .put("key1", "value1")
-                .put("key2", ImmutableList.builder().add(42.0).add("subvalue").build())
-                .build();
-
-TinyMap<Object, Object> built = TinyMap.builder()
-        .put("key1", "value1")
-        .put("key2", TinyList.builder().add(42.0).add("subvalue").build())
-        .build();
-
-        System.out.println(SizeUtils.formattedSize(pureJava));
-        System.out.println(SizeUtils.formattedSize(guava));
-        System.out.println(SizeUtils.formattedSize(built));
     }
 }
