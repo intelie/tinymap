@@ -1,0 +1,13 @@
+*.iml
+*.ipr
+*.iws
+*.log
+*.pyc
+*.versionsBackup
+.ideas
+.idea
+.DS_Store
+/target
+/*/target
+.jhw-cache
+ldapdata
