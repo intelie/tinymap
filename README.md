@@ -8,6 +8,12 @@ hashmaps.
 
 That is very useful to represent small immutable events. 
 
+Below you can find the memory cost of each `java.util.Map` implementation. Please note that both Guava's ImmutableMap and TinyMap keep the insertion order, just like LinkedHashMap and unlike a simple HashMap.
+
+![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=2125978251&format=image)
+
+Also note that this is just the hash table structure costs. This can be further improved by introducing aggressive value caching.
+
 ## Usage
 
 TinyMap is available through Maven Central repository, just add the following
