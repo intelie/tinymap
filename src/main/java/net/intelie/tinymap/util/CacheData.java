@@ -1,7 +1,5 @@
 package net.intelie.tinymap.util;
 
-import net.intelie.tinymap.util.Preconditions;
-
 public class CacheData<T> {
     private final Object[] cache;
     private final int bucketSize;

@@ -3,6 +3,7 @@ package net.intelie.tinymap;
 import net.intelie.introspective.reflect.ReflectionCache;
 import org.junit.Test;
 import org.mockito.InOrder;
+import org.omg.CORBA.OBJ_ADAPTER;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -65,6 +66,23 @@ public class TinyMapTest {
     }
 
     @Test
+    public void testContentEqualComparingOnlyKeys() {
+        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMap.KeysCacheAdapter<String, Object> adapter = new TinyMap.KeysCacheAdapter<>();
+
+        builder1.put("aaa", 111);
+        builder2.put("aaa", 222);
+
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+
+        builder1.put("bbb", 333);
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
+        builder2.put("ccc", 444);
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
+    }
+
+    @Test
     public void testBuildAndGet() {
         TinyMap.Builder<String, Object> builder = TinyMap.builder();
         assertThat(builder.size()).isEqualTo(0);
@@ -87,6 +105,21 @@ public class TinyMapTest {
         );
         assertThat(map.values()).containsExactly(123, 456.0);
         assertThat(map.keySet()).containsExactly("aaa", "bbb");
+    }
+
+    @Test
+    public void testReuseEmpty() {
+        TinyMap.KeysCacheAdapter<String, Object> adapter = new TinyMap.KeysCacheAdapter<>();
+
+        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+
+        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMap<String, Object> map1 = builder1.build();
+
+        TinyMap<String, Object> map2 = adapter.reuse(builder2, map1, null);
+
+        assertThat(map1).isSameAs(map2);
+        assertThat(map1.sharesKeysWith(map2)).isTrue();
     }
 
     @Test

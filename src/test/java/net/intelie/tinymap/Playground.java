@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.ThreadResources;
+import net.intelie.tinymap.json.JsonToken;
 import net.intelie.tinymap.json.TinyJsonDecoder;
 import net.intelie.tinymap.json.TinyJsonReader;
 import org.junit.Ignore;
@@ -23,23 +24,24 @@ public class Playground {
     public void gson() throws IOException {
         List<Object> objs = new ArrayList<>();
 
-        long startMem = ThreadResources.allocatedBytes();
 
         ObjectCache cache = new ObjectCache();
 
         TinyJsonDecoder builder = new TinyJsonDecoder(cache);
         TinyOptimizer optimizer = new TinyOptimizer(cache);
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json"))) {
+        long startMem;
+        try (BufferedReader reader = new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_star.json"))) {
             TinyJsonReader jsonReader = new TinyJsonReader(cache, new StringBuilder(), reader);
+            startMem = ThreadResources.allocatedBytes();
             while (true) {
-//                if (jsonReader.peek() == JsonToken.END_DOCUMENT) break;
-//                objs.addAll(builder.buildList(jsonReader));
-                String line = reader.readLine();
-                if (line == null) break;
-                Map map = (Map) gson.fromJson(line, List.class).get(0);
-                objs.add(map);
+                if (jsonReader.peek() == JsonToken.END_DOCUMENT) break;
+                objs.addAll(builder.buildList(jsonReader));
+//                String line = reader.readLine();
+//                if (line == null) break;
+//                Map map = (Map) gson.fromJson(line, List.class).get(0);
+//                objs.add(map);
             }
         }
         System.out.println("allocated\t" + SizeUtils.formatBytes(ThreadResources.allocatedBytes() - startMem));

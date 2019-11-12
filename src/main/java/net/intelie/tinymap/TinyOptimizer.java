@@ -2,6 +2,7 @@ package net.intelie.tinymap;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 
 public class TinyOptimizer {
@@ -17,8 +18,8 @@ public class TinyOptimizer {
         if (object instanceof CharSequence)
             return cache.get((CharSequence) object);
         if (object instanceof Double)
-            return cache.get((Double) object);
-        if (object instanceof Iterable<?>)
+            return cache.get(((Double) object));
+        if (object instanceof List<?>)
             return optimizeList((Iterable<?>) object);
         if (object instanceof Map<?, ?>)
             return optimizeMap((Map<?, ?>) object);

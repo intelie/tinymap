@@ -673,7 +673,7 @@ public class TinyJsonReader implements Closeable {
             throw new IllegalStateException("Expected a double but was " + peek() + locationString());
         }
 
-        double result = FastDouble.getDouble(builder, 0, builder.length());// don't catch this NumberFormatException.
+        double result = FastDouble.parseDouble(builder, 0, builder.length());// don't catch this NumberFormatException.
         if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
             throw new IllegalStateException(
                     "JSON forbids NaN and infinities: " + result + locationString());

@@ -23,7 +23,7 @@ public class ObjectCache {
 
     public ObjectCache(int bucketCount, int bucketSize) {
         this.data = new CacheData<>(bucketCount, bucketSize);
-        this.doubleCache = new DoubleCache(bucketCount, bucketSize, 512);
+        this.doubleCache = new DoubleCache(bucketCount, bucketSize, 0);
     }
 
     private <B, T> T eq(Bucket bucket, CacheAdapter<B, T> adapter, B builder, int hash) {
