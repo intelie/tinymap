@@ -49,6 +49,7 @@ public class FastDoubleTest {
         assertException("-e");
         assertException("1e");
         assertException("1e1.0");
+        assertException("1a2");
     }
 
     @Test

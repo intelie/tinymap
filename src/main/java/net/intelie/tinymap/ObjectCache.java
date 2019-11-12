@@ -5,31 +5,32 @@ import net.intelie.tinymap.util.DoubleCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class ObjectCache {
+    public static final AtomicLong CREATED = new AtomicLong(0);
     private static final StringCacheAdapter STRING_ADAPTER = new StringCacheAdapter();
-
     private final CacheData<Bucket> data;
     private final DoubleCache doubleCache;
 
     public ObjectCache() {
-        this(1 << 16);
+        this(1 << 14);
     }
+
 
     public ObjectCache(int bucketCount) {
         this(bucketCount, 4);
     }
 
-
     public ObjectCache(int bucketCount, int bucketSize) {
         this.data = new CacheData<>(bucketCount, bucketSize);
-        this.doubleCache = new DoubleCache(bucketCount, bucketSize, 0);
+        this.doubleCache = new DoubleCache(bucketCount, bucketSize, 512);
     }
 
     private <B, T> T eq(Bucket bucket, CacheAdapter<B, T> adapter, B builder, int hash) {
         if (bucket == null || bucket.hash != hash)
             return null;
-        T cached = adapter.contentEquals(builder, bucket.ref.get());
+        T cached = adapter.contentEquals(builder, bucket.get());
         if (cached == null)
             return null;
         return adapter.reuse(builder, cached, this);
@@ -69,12 +70,12 @@ public class ObjectCache {
         return data.finishCached(new Bucket(cached, hash), cached, n);
     }
 
-    private static class Bucket {
-        private final WeakReference<Object> ref;
+    private static class Bucket extends WeakReference<Object> {
         private final int hash;
 
         private Bucket(Object value, int hash) {
-            this.ref = new WeakReference<>(value);
+            super(value);
+            CREATED.incrementAndGet();
             this.hash = hash;
         }
     }

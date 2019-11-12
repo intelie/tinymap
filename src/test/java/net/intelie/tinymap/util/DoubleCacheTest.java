@@ -10,7 +10,7 @@ public class DoubleCacheTest {
     public void testCacheHit() {
         DoubleCache cache = new DoubleCache();
         Double cached1 = cache.get(Double.parseDouble("123.456"));
-        Double cached2 = cache.get(Double.parseDouble("123.456"));
+        Double cached2 = cache.get((Double)Double.parseDouble("123.456"));
 
         assertThat(cached1).isSameAs(cached2);
     }

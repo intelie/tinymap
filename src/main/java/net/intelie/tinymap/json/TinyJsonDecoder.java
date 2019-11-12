@@ -5,15 +5,17 @@ import net.intelie.tinymap.TinyList;
 import net.intelie.tinymap.TinyMap;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class TinyJsonDecoder {
+public class TinyJsonDecoder extends TinyJsonReader {
     private final ObjectCache cache;
     private final Deque<TinyMap.Builder<String, Object>> maps = new ArrayDeque<>();
     private final Deque<TinyList.Builder<Object>> lists = new ArrayDeque<>();
 
-    public TinyJsonDecoder(ObjectCache cache) {
+    public TinyJsonDecoder(ObjectCache cache, Reader reader) {
+        super(cache, new StringBuilder(), reader);
         this.cache = cache;
     }
 
@@ -22,19 +24,19 @@ public class TinyJsonDecoder {
         lists.clear();
     }
 
-    public Object build(TinyJsonReader reader) throws IOException {
-        JsonToken peeked = reader.peek();
+    public Object build() throws IOException {
+        JsonToken peeked = peek();
         switch (peeked) {
             case BEGIN_ARRAY:
-                return buildList(reader);
+                return nextList();
             case BEGIN_OBJECT:
-                return buildMap(reader);
+                return nextMap();
             case STRING:
-                return reader.nextString();
+                return nextString();
             case NUMBER:
-                return cache.get(reader.nextDouble());
+                return cache.get(nextDouble());
             case BOOLEAN:
-                return reader.nextBoolean();
+                return nextBoolean();
             case NULL:
                 return null;
             default:
@@ -42,16 +44,16 @@ public class TinyJsonDecoder {
         }
     }
 
-    public TinyMap<String, Object> buildMap(TinyJsonReader reader) throws IOException {
-        reader.beginObject();
+    public TinyMap<String, Object> nextMap() throws IOException {
+        beginObject();
         TinyMap.Builder<String, Object> map = maps.poll();
         if (map == null) map = TinyMap.builder();
         try {
-            while (reader.hasNext()) {
-                String name = reader.nextName();
-                map.put(name, build(reader));
+            while (hasNext()) {
+                String name = nextName();
+                map.put(name, build());
             }
-            reader.endObject();
+            endObject();
             return cache.get(map);
         } finally {
             map.clear();
@@ -59,14 +61,14 @@ public class TinyJsonDecoder {
         }
     }
 
-    public TinyList<Object> buildList(TinyJsonReader reader) throws IOException {
-        reader.beginArray();
+    public TinyList<Object> nextList() throws IOException {
+        beginArray();
         TinyList.Builder<Object> list = lists.poll();
         if (list == null) list = TinyList.builder();
         try {
-            while (reader.hasNext())
-                list.add(build(reader));
-            reader.endArray();
+            while (hasNext())
+                list.add(build());
+            endArray();
             return cache.get(list);
         } finally {
             list.clear();

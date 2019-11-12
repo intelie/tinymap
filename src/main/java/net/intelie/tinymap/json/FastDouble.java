@@ -1,7 +1,7 @@
 package net.intelie.tinymap.json;
 
 public class FastDouble {
-    private final static long MAX_DECIMAL = 999999999999999L;
+    public static final int MAX_DIGITS = 15;
     private final static int POW_RANGE = 23;
     private final static double[] POW10 = new double[POW_RANGE];
 
@@ -37,7 +37,7 @@ public class FastDouble {
             i++;
         }
 
-        while (i < end && value < MAX_DECIMAL) {
+        while (i < end) {
             char c = csq.charAt(i);
             if (c < '0' || c > '9') break;
             value = (value * 10) + (c - '0');
@@ -47,7 +47,7 @@ public class FastDouble {
 
         if (i < end && csq.charAt(i) == '.') {
             i++;
-            while (i < end && value < MAX_DECIMAL) {
+            while (i < end) {
                 char c = csq.charAt(i);
                 if (c < '0' || c > '9') break;
                 value = (value * 10) + (c - '0');
@@ -57,9 +57,8 @@ public class FastDouble {
             }
         }
 
-        if (digits == 0)
+        if (digits == 0 || digits > MAX_DIGITS)
             return fallback(csq, offset, end);
-
 
         if (i < end && (csq.charAt(i) == 'E' || csq.charAt(i) == 'e')) {
             i++;
@@ -87,7 +86,7 @@ public class FastDouble {
 
         i = trim(csq, end, i);
 
-        if (Math.abs(exp) >= POW_RANGE || digits == 0 || i < end || value > MAX_DECIMAL)
+        if (Math.abs(exp) >= POW_RANGE || i < end)
             return fallback(csq, offset, end);
 
         return finishDouble(negative, value, exp);

@@ -5,7 +5,11 @@ import net.intelie.introspective.reflect.ReflectionCache;
 import net.intelie.introspective.util.IdentityVisitedSet;
 
 import java.lang.ref.WeakReference;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class SizeUtils {
     public static String formatBytes(double value) {
@@ -33,9 +37,9 @@ public class SizeUtils {
         sizer.resetTo(obj);
         long total = 0;
         while (sizer.moveNext()) {
-            if (!sizer.type().equals(WeakReference.class))
-                total += sizer.bytes();
-            else
+            total += sizer.bytes();
+
+            if (WeakReference.class.isAssignableFrom(sizer.type()))
                 sizer.skipChildren();
         }
         return total;
@@ -50,5 +54,23 @@ public class SizeUtils {
                 total += sizer.bytes();
         }
         return total;
+    }
+
+    public static void dump(Object obj) {
+        ObjectSizer sizer = new ObjectSizer();
+        sizer.resetTo(obj);
+
+        Map<Class, AtomicLong> counts = new HashMap<>();
+        Map<Class, AtomicLong> total = new HashMap<>();
+
+        while (sizer.moveNext()) {
+            counts.computeIfAbsent(sizer.type(), x -> new AtomicLong()).incrementAndGet();
+            total.computeIfAbsent(sizer.type(), x -> new AtomicLong()).addAndGet(sizer.bytes());
+            if (WeakReference.class.isAssignableFrom(sizer.type()))
+                sizer.skipChildren();
+        }
+        total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
+            System.out.println(counts.get(entry.getKey()) + "   \t" + SizeUtils.formatBytes(entry.getValue().get()) + "\t" + entry.getKey());
+        });
     }
 }
