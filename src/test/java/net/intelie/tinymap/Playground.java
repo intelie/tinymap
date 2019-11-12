@@ -18,45 +18,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Ignore
 public class Playground {
-    @Test
-    public void map() {
-        ImmutableMap.Builder<String, Object> builder = ImmutableMap.builder();
-        Map<String, Object> map = new LinkedHashMap<>();
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
-        System.out.println(0 + "\t" + SizeUtils.sizeNoStrings(map) + "\t" + SizeUtils.sizeNoStrings(builder.build()) + "\t" + SizeUtils.sizeNoStrings(builder2.build()));
-        String[] keys = new String[100];
-        for (int i = 0; i < keys.length; i++) {
-            keys[i] = "key" + i;
-            map.put(keys[i], "value" + i);
-            builder.put(keys[i], "value" + i);
-            builder2.put(keys[i], "value" + i);
-            System.out.println((i + 1) + "\t" + SizeUtils.sizeNoStrings(map) + "\t" + SizeUtils.sizeNoStrings(builder.build()) + "\t" + SizeUtils.sizeNoStrings(builder2.build()));
-        }
-        //map = builder.build();
-        map = builder2.buildAndClear();
-
-        if (map instanceof TinyMap.Small) {
-            long total = 0;
-            for (String key : keys) {
-                total += ((TinyMap<String, Object>) map).debugCollisions(key);
-            }
-            System.out.println(total / (double) keys.length);
-        }
-
-        for (int i = 0; i < 100000; i++)
-            for (String key : keys)
-                map.get(key);
-
-
-        long startTime = System.nanoTime();
-        long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 10000000; i++)
-            for (String key : keys)
-                map.get(key);
-
-        System.out.println(ThreadResources.allocatedBytes() - startMem);
-        System.out.println((System.nanoTime() - startTime) / 1e9);
-    }
 
     @Test
     public void gson() throws IOException {

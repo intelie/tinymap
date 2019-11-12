@@ -233,6 +233,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
         @Override
         public int debugCollisions(Object key) {
+            byte[] table = this.table;
             int mask = this.mask;
             int hash = hash(key) & mask;
             int collisions = 0;
