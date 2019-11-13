@@ -2,7 +2,7 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
-import net.intelie.tinymap.SizeUtils;
+import net.intelie.tinymap.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class MapAccessTime {
         long endTime = System.nanoTime() - startTime;
 
         System.out.println(name);
-        System.out.println("  alloc: " + SizeUtils.formatBytes(endMem));
+        System.out.println("  alloc: " + TestSizeUtils.formatBytes(endMem));
         System.out.println("  time: " + endTime / 1e9);
 
         if (map instanceof TinyMap) {

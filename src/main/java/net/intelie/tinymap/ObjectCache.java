@@ -8,7 +8,6 @@ import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ObjectCache {
-    public static final AtomicLong CREATED = new AtomicLong(0);
     private static final StringCacheAdapter STRING_ADAPTER = new StringCacheAdapter();
     private final CacheData<Bucket> data;
     private final DoubleCache doubleCache;
@@ -75,7 +74,6 @@ public class ObjectCache {
 
         private Bucket(Object value, int hash) {
             super(value);
-            CREATED.incrementAndGet();
             this.hash = hash;
         }
     }

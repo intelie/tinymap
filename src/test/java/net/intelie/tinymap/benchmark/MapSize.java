@@ -1,8 +1,7 @@
 package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
-import net.intelie.introspective.ThreadResources;
-import net.intelie.tinymap.SizeUtils;
+import net.intelie.tinymap.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -41,7 +40,7 @@ public class MapSize {
 
     private void print(int i, Object... values) {
         System.out.println(i + "\t" + Arrays.stream(values)
-                .mapToLong(SizeUtils::sizeNoStrings)
+                .mapToLong(TestSizeUtils::sizeNoStrings)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining("\t")));
     }
