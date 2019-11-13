@@ -69,6 +69,7 @@ public class TestSizeUtils {
         while (sizer.moveNext()) {
             totalCount++;
             totalBytes += sizer.bytes();
+
             counts.computeIfAbsent(sizer.type(), x -> new AtomicLong()).incrementAndGet();
             total.computeIfAbsent(sizer.type(), x -> new AtomicLong()).addAndGet(sizer.bytes());
 

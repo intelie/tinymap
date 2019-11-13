@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Ignore
@@ -20,34 +21,29 @@ public class Playground {
     @Test
     public void gson() throws IOException {
         List<Object> objs = new ArrayList<>();
+        List<Object> objs2 = new ArrayList<>();
 
 
         ObjectCache cache = new ObjectCache();
 
         Gson gson = new Gson();
 
-        long startMem = ThreadResources.allocatedBytes();
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_star.json")))) {
+        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_star.json")));
+             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_star.json")))) {
+            reader2.setLenient(true);
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;
                 objs.addAll(reader.nextList());
-                //objs.add(reader.nextMap());
+
+                if (reader2.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
+                Collection<?> obj = gson.fromJson(reader2, List.class);
+                objs2.addAll(obj);
+
             }
         }
-//        try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_star.json")))) {
-//            reader.setLenient(true);
-//            while (true) {
-//                if (reader.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
-//                objs.addAll(gson.fromJson(reader, List.class));
-//                //objs.add(reader.nextMap());
-//            }
-//        }
 
-//        System.out.println("allocated\t" + TestSizeUtils.formatBytes(ThreadResources.allocatedBytes() - startMem));
-//
-//        System.out.println("cache size\t" + TestSizeUtils.formattedSize(cache));
+        System.out.println(objs.equals(objs2));
 
-
-        TestSizeUtils.dump(objs);
+        TestSizeUtils.dump(objs2);
     }
 }
