@@ -4,12 +4,15 @@ import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.reflect.ReflectionCache;
 import net.intelie.introspective.util.IdentityVisitedSet;
 
+import javax.security.auth.Refreshable;
 import java.lang.ref.WeakReference;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SizeUtils {
     public static String formatBytes(double value) {
@@ -36,23 +39,28 @@ public class SizeUtils {
         ObjectSizer sizer = new ObjectSizer();
         sizer.resetTo(obj);
         long total = 0;
+        long skipped = 0;
         while (sizer.moveNext()) {
             total += sizer.bytes();
 
-            if (WeakReference.class.isAssignableFrom(sizer.type()))
+            if (WeakReference.class.isAssignableFrom(sizer.type())) {
                 sizer.skipChildren();
+                skipped++;
+            }
         }
+        assertThat(sizer.skipped()).isEqualTo(skipped);
         return total;
     }
 
     public static long sizeNoStrings(Object obj) {
-        ObjectSizer sizer = new ObjectSizer();
+        ObjectSizer sizer = new ObjectSizer(new ReflectionCache(), new IdentityVisitedSet(), 1 << 20);
         sizer.resetTo(obj);
         long total = 0;
         while (sizer.moveNext()) {
             if (!sizer.type().equals(String.class))
                 total += sizer.bytes();
         }
+        assertThat(sizer.skipped()).isZero();
         return total;
     }
 
@@ -63,13 +71,16 @@ public class SizeUtils {
         Map<Class, AtomicLong> counts = new HashMap<>();
         Map<Class, AtomicLong> total = new HashMap<>();
         Map<Object, AtomicLong> doubleCount = new HashMap<>();
+        long skipped = 0;
 
         while (sizer.moveNext()) {
             counts.computeIfAbsent(sizer.type(), x -> new AtomicLong()).incrementAndGet();
             total.computeIfAbsent(sizer.type(), x -> new AtomicLong()).addAndGet(sizer.bytes());
             doubleCount.computeIfAbsent(sizer.current(), x -> new AtomicLong()).incrementAndGet();
-            if (WeakReference.class.isAssignableFrom(sizer.type()))
+            if (WeakReference.class.isAssignableFrom(sizer.type())) {
                 sizer.skipChildren();
+                skipped++;
+            }
         }
         System.out.println("histogram:");
         total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
@@ -84,6 +95,8 @@ public class SizeUtils {
                 .forEach(entry -> {
                     System.out.println("  " + entry.getKey() + "   \t" + entry.getValue().get());
                 });
+
+        assertThat(sizer.skipped()).isEqualTo(skipped);
 
 
     }

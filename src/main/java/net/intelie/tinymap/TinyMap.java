@@ -259,6 +259,69 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
     }
 
+    public static class Medium<K, V> extends TinyMap<K, V> {
+        private final short[] table;
+        private final int mask;
+
+        private Medium(K[] keys, V[] values, short[] table) {
+            super(keys, values);
+            this.table = table;
+            this.mask = table.length - 1;
+        }
+
+        public static <K, V> Medium<K, V> create(K[] keys, V[] values, int size) {
+            short[] table = new short[makeTableSize(size)];
+            Arrays.fill(table, (short) 0xFFFF);
+
+            int newSize = initTable(keys, values, size, (position, key) -> {
+                int collisions = 0;
+                int mask = table.length - 1;
+                int hash = hash(key) & mask;
+
+                for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                    if (Objects.equals(keys[i], key)) {
+                        position = i;
+                        break;
+                    }
+                table[hash] = (short) position;
+                return position;
+            });
+            return new Medium<>(Arrays.copyOf(keys, newSize), Arrays.copyOf(values, newSize), table);
+        }
+
+        @Override
+        protected Medium<K, V> withValues(V[] values) {
+            Preconditions.checkArgument(values.length == keys.length, "must have same length");
+            return new Medium<>(keys, values, table);
+        }
+
+        @Override
+        public int debugCollisions(Object key) {
+            short[] table = this.table;
+            int mask = this.mask;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                if (Objects.equals(keys[i], key))
+                    return collisions;
+
+            return collisions;
+        }
+
+        @Override
+        public Object getUnsafe(Object key, Object defaultValue) {
+            short[] table = this.table;
+            int mask = this.mask;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                if (Objects.equals(keys[i], key))
+                    return values[i];
+
+            return defaultValue;
+        }
+    }
+
     public static class Large<K, V> extends TinyMap<K, V> {
         private final int[] table;
         private final int mask;
@@ -351,6 +414,8 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
                 return new Empty<>();
             else if (size < 0xFF)
                 return Small.create(keys, values, size);
+            else if (size < 0xFFFF)
+                return Medium.create(keys, values, size);
             else
                 return Large.create(keys, values, size);
         }

@@ -24,7 +24,7 @@ public class MapSize {
         Map<String, Object> compact = new CompactHashMap<>();
         TinyMap.Builder<String, Object> tiny = TinyMap.builder();
 
-        String[] keys = new String[100];
+        String[] keys = new String[100000];
 
         print(0, linked, map, guava.build(), tiny.build());
         for (int i = 0; i < keys.length; i++) {
@@ -34,13 +34,15 @@ public class MapSize {
             compact.put(keys[i], "value" + i);
             guava.put(keys[i], "value" + i);
             tiny.put(keys[i], "value" + i);
-            print(i + 1, linked, map, guava.build(), tiny.build());
+            if (i % (keys.length / 100) == 0)
+                print(i + 1, linked, map, guava.build(), tiny.build());
         }
     }
 
     private void print(int i, Object... values) {
         System.out.println(i + "\t" + Arrays.stream(values)
-                .map(SizeUtils::formattedSizeNoStrings)
+                .mapToLong(SizeUtils::sizeNoStrings)
+                .mapToObj(String::valueOf)
                 .collect(Collectors.joining("\t")));
     }
 }

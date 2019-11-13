@@ -18,6 +18,7 @@ public class TinyMapTest {
         ReflectionCache reflection = new ReflectionCache();
         assertThat(reflection.get(TinyMap.Empty.class).size()).isEqualTo(24);
         assertThat(reflection.get(TinyMap.Small.class).size()).isEqualTo(32);
+        assertThat(reflection.get(TinyMap.Medium.class).size()).isEqualTo(32);
         assertThat(reflection.get(TinyMap.Large.class).size()).isEqualTo(32);
     }
 
@@ -140,7 +141,7 @@ public class TinyMapTest {
     }
 
     @Test
-    public void testBuildLargeWithCache() {
+    public void testBuildMediumWithCache() {
         ObjectCache cache = new ObjectCache();
 
         TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
@@ -151,6 +152,23 @@ public class TinyMapTest {
         TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
         for (int i = 0; i < 1000; i++)
             builder2.put(cache.get("aaa" + i), 2000 * i);
+        TinyMap<String, Object> map2 = cache.get(builder2);
+
+        assertThat(map1.sharesKeysWith(map2)).isTrue();
+    }
+
+    @Test
+    public void testBuildLargeWithCache() {
+        ObjectCache cache = new ObjectCache(1 << 20);
+
+        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        for (int i = 0; i < 100000; i++)
+            builder1.put(cache.get("aaa" + i), 100000 * i);
+        TinyMap<String, Object> map1 = cache.get(builder1);
+
+        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        for (int i = 0; i < 100000; i++)
+            builder2.put(cache.get("aaa" + i), 100000 * i);
         TinyMap<String, Object> map2 = cache.get(builder2);
 
         assertThat(map1.sharesKeysWith(map2)).isTrue();
@@ -172,7 +190,7 @@ public class TinyMapTest {
     }
 
     @Test
-    public void canBuildWithDuplicateKeysGiantMap() {
+    public void canBuildMediumWithDuplicateKeys() {
         TinyMap.Builder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("aaa", 456.0);
@@ -180,6 +198,17 @@ public class TinyMapTest {
             builder.put("aaa" + i, i);
         }
         assertThat(builder.buildAndClear().size()).isEqualTo(1001);
+    }
+
+    @Test
+    public void canBuildLargeWithDuplicateKeys() {
+        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        builder.put("aaa", 123);
+        builder.put("aaa", 456.0);
+        for (int i = 0; i < 0x10000; i++) {
+            builder.put("aaa" + i, i);
+        }
+        assertThat(builder.buildAndClear().size()).isEqualTo(65537);
     }
 
     @Test
@@ -232,9 +261,14 @@ public class TinyMapTest {
     }
 
     @Test
-    public void testBuildGiant() {
+    public void testBuildMedium() {
         testCount(1000, false);
         testCount(1000, true);
+    }
+
+    @Test
+    public void testBuildLarge() {
+        testCount(0x10000, true);
     }
 
     @Test
@@ -274,23 +308,27 @@ public class TinyMapTest {
 
     @Test
     public void testMaxCollisions() {
-        for (int count = 0; count < 10000; count += 100) {
-            TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMap.Builder<String, Object> builder = TinyMap.builder();
 
-            for (int i = 0; i < count; i++) {
-                builder.put("aaa" + i, i);
-            }
+        for (int count = 0; count < 1000; count += 20)
+            testCollisions(builder, count);
+        for (int count = 1000; count < 100000; count += 5000)
+            testCollisions(builder, count);
+    }
 
-            TinyMap<String, Object> map = builder.buildAndClear();
-            map.debugCollisions("abcdef");
+    private void testCollisions(TinyMap.Builder<String, Object> builder, int count) {
+        while (builder.size() < count)
+            builder.put("aaa" + builder.size(), builder.size());
 
-            long total = 0;
-            for (int i = 0; i < count; i++) {
-                total += map.debugCollisions("aaa" + i);
-            }
-            //System.out.println(count + "\t" + (total / (double) count));
-            assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
+        TinyMap<String, Object> map = builder.buildAndClear();
+        map.debugCollisions("abcdef");
+
+        long total = 0;
+        for (int i = 0; i < count; i++) {
+            total += map.debugCollisions("aaa" + i);
         }
+        //System.out.println(count + "\t" + (total / (double) count));
+        assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
     }
 
     private void testCount(int count, boolean withNull) {
@@ -298,7 +336,8 @@ public class TinyMapTest {
         LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
 
         for (int i = 0; i < count; i++) {
-            builder.build();
+            if (count < 1000)
+                builder.build();
 
             builder.put("aaa" + i, i);
             expectedMap.put("aaa" + i, i);
@@ -315,12 +354,26 @@ public class TinyMapTest {
         assertThat(map.values().size()).isEqualTo(count);
         assertThat(map.entrySet().size()).isEqualTo(count);
 
-        assertThat(map.keySet()).containsExactlyElementsOf(expectedMap.keySet());
-        assertThat(map.entrySet()).containsExactlyElementsOf(expectedMap.entrySet());
+        Iterator<String> keysIterator = map.keySet().iterator();
+        Iterator<Object> valuesIterator = map.values().iterator();
+        Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
 
         for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
             assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
+
+            assertThat(keysIterator.hasNext()).isTrue();
+            assertThat(keysIterator.next()).isEqualTo(entry.getKey());
+
+            assertThat(valuesIterator.hasNext()).isTrue();
+            assertThat(valuesIterator.next()).isEqualTo(entry.getValue());
+
+            assertThat(entriesIterator.hasNext()).isTrue();
+            assertThat(entriesIterator.next()).isEqualTo(entry);
         }
+        assertThat(keysIterator.hasNext()).isFalse();
+        assertThat(valuesIterator.hasNext()).isFalse();
+        assertThat(entriesIterator.hasNext()).isFalse();
+
         assertThat(map.get("bbb")).isNull();
         assertThat(map.isEmpty()).isEqualTo(count == 0);
         assertThat(expectedMap).isEqualTo(map);
