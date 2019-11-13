@@ -62,15 +62,29 @@ public class SizeUtils {
 
         Map<Class, AtomicLong> counts = new HashMap<>();
         Map<Class, AtomicLong> total = new HashMap<>();
+        Map<Object, AtomicLong> doubleCount = new HashMap<>();
 
         while (sizer.moveNext()) {
             counts.computeIfAbsent(sizer.type(), x -> new AtomicLong()).incrementAndGet();
             total.computeIfAbsent(sizer.type(), x -> new AtomicLong()).addAndGet(sizer.bytes());
+            doubleCount.computeIfAbsent(sizer.current(), x -> new AtomicLong()).incrementAndGet();
             if (WeakReference.class.isAssignableFrom(sizer.type()))
                 sizer.skipChildren();
         }
+        System.out.println("histogram:");
         total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
-            System.out.println(counts.get(entry.getKey()) + "   \t" + SizeUtils.formatBytes(entry.getValue().get()) + "\t" + entry.getKey());
+            System.out.printf("  %6d %10s %s\n", counts.get(entry.getKey()).get(), SizeUtils.formatBytes(entry.getValue().get()), entry.getKey().getCanonicalName());
         });
+
+        System.out.println("duplicates:");
+        doubleCount.entrySet().stream()
+                .filter(x -> x.getValue().get() > 1)
+                .sorted((Comparator.comparing(x -> -x.getValue().get())))
+                .limit(20)
+                .forEach(entry -> {
+                    System.out.println("  " + entry.getKey() + "   \t" + entry.getValue().get());
+                });
+
+
     }
 }

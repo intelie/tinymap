@@ -13,7 +13,10 @@ public class FastDoubleTest {
         assertParseFast("1");
         assertParseFast("0.1");
         assertParseFast("  -0.1  ");
+        assertParseFast("  +0.1  ");
         assertParseFast("1E2");
+        assertParseFast("1E+2");
+        assertParseFast("1E-2");
         assertParseFast("1e-2");
         assertParseFast(".1");
         assertParseFast("-0");

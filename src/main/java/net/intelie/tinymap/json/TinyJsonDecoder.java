@@ -16,31 +16,26 @@ public class TinyJsonDecoder extends TinyJsonReader {
 
     public TinyJsonDecoder(ObjectCache cache, Reader reader) {
         super(cache, new StringBuilder(), reader);
+        setLenient(true);
         this.cache = cache;
     }
 
-    public void clear() {
-        maps.clear();
-        lists.clear();
-    }
-
-    public Object build() throws IOException {
+    public Object nextObject() throws IOException {
         JsonToken peeked = peek();
         switch (peeked) {
             case BEGIN_ARRAY:
                 return nextList();
             case BEGIN_OBJECT:
                 return nextMap();
-            case STRING:
-                return nextString();
             case NUMBER:
                 return cache.get(nextDouble());
             case BOOLEAN:
                 return nextBoolean();
             case NULL:
+                nextNull();
                 return null;
             default:
-                throw new IllegalStateException("Illegal token: " + peeked);
+                return nextString();
         }
     }
 
@@ -51,7 +46,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
         try {
             while (hasNext()) {
                 String name = nextName();
-                map.put(name, build());
+                map.put(name, nextObject());
             }
             endObject();
             return cache.get(map);
@@ -67,7 +62,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
         if (list == null) list = TinyList.builder();
         try {
             while (hasNext())
-                list.add(build());
+                list.add(nextObject());
             endArray();
             return cache.get(list);
         } finally {

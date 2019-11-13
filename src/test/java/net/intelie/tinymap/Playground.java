@@ -1,5 +1,7 @@
 package net.intelie.tinymap;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 import net.intelie.introspective.ThreadResources;
 import net.intelie.tinymap.json.JsonToken;
 import net.intelie.tinymap.json.TinyJsonDecoder;
@@ -23,20 +25,24 @@ public class Playground {
         ObjectCache cache = new ObjectCache();
 
         TinyOptimizer optimizer = new TinyOptimizer(cache);
-        //Gson gson = new Gson();
+        Gson gson = new Gson();
 
-        long startMem;
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_pps.json")))) {
-            startMem = ThreadResources.allocatedBytes();
-            while (true) {
-                if (reader.peek() == JsonToken.END_DOCUMENT) break;
-                objs.addAll(reader.nextList());
-//                String line = reader.readLine();
-//                if (line == null) break;
-//                Map map = (Map) gson.fromJson(line, List.class).get(0);
-//                objs.add(map);
-            }
+        long startMem= ThreadResources.allocatedBytes();;
+//        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/rows.json")))) {
+//            startMem = ThreadResources.allocatedBytes();
+//            while (true) {
+//                if (reader.peek() == JsonToken.END_DOCUMENT) break;
+//                //objs.addAll(reader.nextList());
+//                objs.add(reader.nextMap());
+//            }
+//        }
+        try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/repositories.json")))) {
+            objs.addAll(gson.fromJson(reader, List.class));
         }
+        try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/repositories2.json")))) {
+            objs.addAll(gson.fromJson(reader, List.class));
+        }
+
         System.out.println("allocated\t" + SizeUtils.formatBytes(ThreadResources.allocatedBytes() - startMem));
 
         List<Object> optimized = optimizer.optimizeList(objs);
@@ -52,7 +58,7 @@ public class Playground {
         }
 
 
-        SizeUtils.dump(cache);
+        SizeUtils.dump(optimized);
         System.out.println(ObjectCache.CREATED.get());
     }
 }

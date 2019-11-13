@@ -17,9 +17,9 @@
 package net.intelie.tinymap.json;
 
 import net.intelie.tinymap.ObjectCache;
+import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Closeable;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -75,7 +75,7 @@ public class TinyJsonReader implements Closeable {
     /**
      * True to accept non-spec compliant JSON
      */
-    private boolean lenient = true;
+    private boolean lenient = false;
     private int pos = 0;
     private int limit = 0;
     private int lineNumber = 0;
@@ -91,13 +91,6 @@ public class TinyJsonReader implements Closeable {
      * this after reading a number.
      */
     private int peekedNumberLength;
-
-    /**
-     * A peeked string that should be parsed on the next double, long or string.
-     * This is populated before a numeric value is parsed and used if that parsing
-     * fails.
-     */
-    private String peekedString;
 
     /*
      * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
@@ -117,6 +110,15 @@ public class TinyJsonReader implements Closeable {
 
     {
         stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
+    }
+
+    /**
+     * Creates a new instance that reads a JSON-encoded stream from {@code in}.
+     *
+     * @param in
+     */
+    public TinyJsonReader(Reader in) {
+        this(new ObjectCache(), new StringBuilder(), in);
     }
 
     /**
@@ -241,11 +243,11 @@ public class TinyJsonReader implements Closeable {
             case PEEKED_LONG:
             case PEEKED_NUMBER:
                 return JsonToken.NUMBER;
-            case PEEKED_EOF:
+            default: //case PEEKED_EOF:
+                assert p == PEEKED_EOF;
                 return JsonToken.END_DOCUMENT;
-            default:
-                throw new AssertionError();
         }
+
     }
 
     int doPeek() throws IOException {
@@ -589,8 +591,7 @@ public class TinyJsonReader implements Closeable {
         } else if (p == PEEKED_DOUBLE_QUOTED) {
             result = cache.get(nextQuotedValue('"'));
         } else if (p == PEEKED_BUFFERED) {
-            result = peekedString;
-            peekedString = null;
+            result = cache.get(stringBuilder);
         } else if (p == PEEKED_LONG) {
             result = Long.toString(peekedLong);
         } else if (p == PEEKED_NUMBER) {
@@ -659,9 +660,8 @@ public class TinyJsonReader implements Closeable {
             return (double) peekedLong;
         }
 
-        StringBuilder builder;
+        StringBuilder builder = this.stringBuilder;
         if (p == PEEKED_NUMBER) {
-            builder = stringBuilder;
             builder.setLength(0);
             builder.append(buffer, pos, peekedNumberLength);
             pos += peekedNumberLength;
@@ -669,16 +669,20 @@ public class TinyJsonReader implements Closeable {
             builder = nextQuotedValue(p == PEEKED_SINGLE_QUOTED ? '\'' : '"');
         } else if (p == PEEKED_UNQUOTED) {
             builder = nextUnquotedValue();
-        } else {
+        } else if (p != PEEKED_BUFFERED) {
             throw new IllegalStateException("Expected a double but was " + peek() + locationString());
         }
 
+        peeked = PEEKED_BUFFERED;
+
         double result = FastDouble.parseDouble(builder, 0, builder.length());// don't catch this NumberFormatException.
+        //Preconditions.checkState(Double.parseDouble(builder.toString()) == result);
+
         if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
             throw new IllegalStateException(
                     "JSON forbids NaN and infinities: " + result + locationString());
         }
-        peekedString = null;
+        builder.setLength(0);
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
         return result;
@@ -1029,7 +1033,7 @@ public class TinyJsonReader implements Closeable {
             }
         }
         if (throwOnEof) {
-            throw new EOFException("End of input" + locationString());
+            throw new IllegalStateException("End of input" + locationString());
         } else {
             return -1;
         }
@@ -1218,52 +1222,52 @@ public class TinyJsonReader implements Closeable {
         pos += NON_EXECUTE_PREFIX.length;
     }
 
-    final class JsonScope {
+    interface JsonScope {
 
         /**
          * An array with no elements requires no separators or newlines before
          * it is closed.
          */
-        static final int EMPTY_ARRAY = 1;
+        int EMPTY_ARRAY = 1;
 
         /**
          * A array with at least one value requires a comma and newline before
          * the next element.
          */
-        static final int NONEMPTY_ARRAY = 2;
+        int NONEMPTY_ARRAY = 2;
 
         /**
          * An object with no name/value pairs requires no separators or newlines
          * before it is closed.
          */
-        static final int EMPTY_OBJECT = 3;
+        int EMPTY_OBJECT = 3;
 
         /**
          * An object whose most recent element is a key. The next element must
          * be a value.
          */
-        static final int DANGLING_NAME = 4;
+        int DANGLING_NAME = 4;
 
         /**
          * An object with at least one name/value pair requires a comma and
          * newline before the next element.
          */
-        static final int NONEMPTY_OBJECT = 5;
+        int NONEMPTY_OBJECT = 5;
 
         /**
          * No object or array has been started.
          */
-        static final int EMPTY_DOCUMENT = 6;
+        int EMPTY_DOCUMENT = 6;
 
         /**
          * A document with at an array or object.
          */
-        static final int NONEMPTY_DOCUMENT = 7;
+        int NONEMPTY_DOCUMENT = 7;
 
         /**
          * A document that's been closed and cannot be accessed.
          */
-        static final int CLOSED = 8;
+        int CLOSED = 8;
     }
 
 }

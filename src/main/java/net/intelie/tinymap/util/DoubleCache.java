@@ -25,6 +25,16 @@ public class DoubleCache {
     }
 
     public Double get(double value) {
+        return getCached(value, null);
+
+    }
+
+    public Double get(Double value) {
+        if (value == null) return null;
+        return getCached(value, value);
+    }
+
+    private Double getCached(double value, Double boxed) {
         if (value >= -smallCacheAmplitude && value < smallCacheAmplitude && value == (int) value) {
             if (Double.doubleToLongBits(value) == 0x8000000000000000L)
                 return NEG_ZERO;
@@ -38,24 +48,6 @@ public class DoubleCache {
         for (int k = 1; k < data.bucketSize(); k++)
             if (eq(cached = data.get(n + k), value))
                 return data.finish(cached, n, k);
-        return data.finish(value, n);
-    }
-
-    public Double get(Double value) {
-        if (value == null) return null;
-        if (value >= -smallCacheAmplitude && value < smallCacheAmplitude && value == value.intValue()) {
-            if (Double.doubleToLongBits(value) == 0x8000000000000000L)
-                return NEG_ZERO;
-            return smallCache[value.intValue() + smallCacheAmplitude];
-        }
-        int hash = value.hashCode();
-        int n = data.makeIndex(hash);
-        Double cached = data.get(n);
-        if (eq(cached, value))
-            return cached;
-        for (int k = 1; k < data.bucketSize(); k++)
-            if (eq(cached = data.get(n + k), value))
-                return data.finish(cached, n, k);
-        return data.finish(value, n);
+        return data.finish(boxed != null ? boxed : value, n);
     }
 }

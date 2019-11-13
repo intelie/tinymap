@@ -32,9 +32,13 @@ public class FastDouble {
         int exp = 0;
         int digits = 0;
 
-        if (i < end && csq.charAt(i) == '-') {
-            negative = true;
-            i++;
+        if (i < end) {
+            if (csq.charAt(i) == '-') {
+                negative = true;
+                i++;
+            } else if (csq.charAt(i) == '+') {
+                i++;
+            }
         }
 
         while (i < end) {
@@ -60,14 +64,19 @@ public class FastDouble {
         if (digits == 0 || digits > MAX_DIGITS)
             return fallback(csq, offset, end);
 
+
         if (i < end && (csq.charAt(i) == 'E' || csq.charAt(i) == 'e')) {
             i++;
             boolean expNegative = false;
             int expExp = 0;
             int expDigits = 0;
-            if (i < end && csq.charAt(i) == '-') {
-                expNegative = true;
-                i++;
+            if (i < end) {
+                if (csq.charAt(i) == '-') {
+                    expNegative = true;
+                    i++;
+                } else if (csq.charAt(i) == '+') {
+                    i++;
+                }
             }
             while (i < end) {
                 char c = csq.charAt(i);
@@ -77,7 +86,7 @@ public class FastDouble {
                 i++;
             }
 
-            if (expDigits == 0)
+            if (expDigits == 0 || expDigits > 4)
                 return fallback(csq, offset, end);
 
             exp += (expNegative ? -expExp : expExp);
