@@ -66,6 +66,8 @@ public class TestSizeUtils {
         long skipped = 0;
         long totalCount = 0, uniqueCount = 0, totalBytes = 0, uniqueBytes = 0;
 
+        Map<Integer, AtomicLong> mapCounts = new HashMap<>();
+
         while (sizer.moveNext()) {
             totalCount++;
             totalBytes += sizer.bytes();
@@ -78,11 +80,15 @@ public class TestSizeUtils {
                 uniqueBytes += sizer.bytes();
             }
 
+            if (sizer.current() instanceof Map)
+                mapCounts.computeIfAbsent(((Map) sizer.current()).size(), x -> new AtomicLong()).incrementAndGet();
+
             if (WeakReference.class.isAssignableFrom(sizer.type())) {
                 sizer.skipChildren();
                 skipped++;
             }
         }
+        System.out.println(mapCounts);
         System.out.printf("total     %10d %10s\n", totalCount, formatBytes(totalBytes));
         System.out.printf("unique    %10d %10s\n", uniqueCount, formatBytes(uniqueBytes));
         System.out.printf("duplicate %10d %10s\n", (totalCount - uniqueCount), formatBytes(totalBytes - uniqueBytes));
