@@ -444,8 +444,8 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         public int contentHashCode(Builder<K, V> builder) {
             int hash = 1;
             for (int i = 0; i < builder.size; i++) {
-                hash = (hash * 31) + Objects.hashCode(builder.keys[i]);
-                hash = (hash * 31) + Objects.hashCode(builder.values[i]);
+                hash = (hash * 31) + System.identityHashCode(builder.keys[i]);
+                hash = (hash * 31) + System.identityHashCode(builder.values[i]);
             }
             return hash;
         }
@@ -477,7 +477,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         public int contentHashCode(Builder<K, V> builder) {
             int hash = 1;
             for (int i = 0; i < builder.size; i++) {
-                hash = (hash * 31) + Objects.hashCode(builder.keys[i]);
+                hash = (hash * 31) + System.identityHashCode(builder.keys[i]);
             }
             return hash;
         }

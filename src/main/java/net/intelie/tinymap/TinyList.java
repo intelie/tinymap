@@ -54,7 +54,7 @@ public class TinyList<T> extends AbstractList<T> {
         public int contentHashCode(Builder<T> builder) {
             int hash = 1;
             for (int i = 0; i < builder.size; i++)
-                hash = 31 * hash + Objects.hashCode(builder.values[i]);
+                hash = 31 * hash + System.identityHashCode(builder.values[i]);
             return hash;
         }
 
@@ -62,10 +62,12 @@ public class TinyList<T> extends AbstractList<T> {
         public TinyList<T> contentEquals(Builder<T> builder, Object cached) {
             if (!(cached instanceof TinyList<?>) || builder.size != ((TinyList) cached).size())
                 return null;
-            for (int i = 0; i < builder.size; i++)
-                if (builder.values[i] != ((TinyList<?>) cached).values[i])
+            TinyList<T> list = (TinyList<T>) cached;
+            for (int i = 0; i < builder.size; i++) {
+                if (builder.values[i] != list.values[i])
                     return null;
-            return (TinyList<T>) cached;
+            }
+            return list;
         }
 
         @Override

@@ -29,7 +29,7 @@ public class TinyJsonDecoderTest {
         TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{a:1}"));
         assertThat(decoder.isLenient()).isTrue();
 
-        TinyJsonReader reader = new TinyJsonReader(cache, new StringBuilder(), new StringReader("{a:1}"));
+        TinyJsonReader reader = new TinyJsonReader(cache, new StringReader("{a:1}"));
         assertThat(reader.isLenient()).isFalse();
 
         assertThat(decoder.toString()).isEqualTo("TinyJsonDecoder at line 1 column 1 path $");
@@ -115,16 +115,6 @@ public class TinyJsonDecoderTest {
         assertListOf("[null, null]", JsonReader::nextNull, TinyJsonReader::nextNull);
     }
 
-    @FunctionalInterface
-    public interface CheckedFunction<T, R> {
-        R apply(T t) throws Exception;
-    }
-
-    @FunctionalInterface
-    public interface VoidCheckedFunction<T> {
-        void apply(T t) throws Exception;
-    }
-
     private void assertInvalidJson(boolean lenient, String exception, String s, VoidCheckedFunction<JsonReader> expectedFn, VoidCheckedFunction<TinyJsonReader> actualFn) throws IOException {
         assertInvalidJson(lenient, exception, s, x -> {
             expectedFn.apply(x);
@@ -206,6 +196,16 @@ public class TinyJsonDecoderTest {
             }
         }
         assertThat(actualDocs).isEqualTo(expectedDocs);
+    }
+
+    @FunctionalInterface
+    public interface CheckedFunction<T, R> {
+        R apply(T t) throws Exception;
+    }
+
+    @FunctionalInterface
+    public interface VoidCheckedFunction<T> {
+        void apply(T t) throws Exception;
     }
 
 }

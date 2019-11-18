@@ -59,7 +59,7 @@ public class TinyJsonReader implements Closeable {
     private static final int NUMBER_CHAR_EXP_SIGN = 6;
     private static final int NUMBER_CHAR_EXP_DIGIT = 7;
     private final ObjectCache cache;
-    private final StringBuilder stringBuilder;
+    private final StringBuilder stringBuilder = new StringBuilder();
     /**
      * The input JSON.
      */
@@ -118,18 +118,15 @@ public class TinyJsonReader implements Closeable {
      * @param in
      */
     public TinyJsonReader(Reader in) {
-        this(new ObjectCache(), new StringBuilder(), in);
+        this(new ObjectCache(), in);
     }
 
     /**
      * Creates a new instance that reads a JSON-encoded stream from {@code in}.
      */
-    public TinyJsonReader(ObjectCache cache, StringBuilder stringBuilder, Reader in) {
+    public TinyJsonReader(ObjectCache cache, Reader in) {
+        Preconditions.checkNotNull(in, "in == null");
         this.cache = cache;
-        this.stringBuilder = stringBuilder;
-        if (in == null) {
-            throw new NullPointerException("in == null");
-        }
         this.in = in;
     }
 

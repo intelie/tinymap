@@ -15,7 +15,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
     private final Deque<TinyList.Builder<Object>> lists = new ArrayDeque<>();
 
     public TinyJsonDecoder(ObjectCache cache, Reader reader) {
-        super(cache, new StringBuilder(), reader);
+        super(cache, reader);
         setLenient(true);
         this.cache = cache;
     }
