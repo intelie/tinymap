@@ -23,7 +23,7 @@ public class MapSize {
         Map<String, Object> compact = new CompactHashMap<>();
         TinyMap.Builder<String, Object> tiny = TinyMap.builder();
 
-        String[] keys = new String[100000];
+        String[] keys = new String[10000];
 
         print(0, linked, map, guava.build(), tiny.build());
         for (int i = 0; i < keys.length; i++) {

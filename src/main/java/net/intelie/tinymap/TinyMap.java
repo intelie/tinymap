@@ -10,16 +10,10 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
     private static final Object SENTINEL = new Object();
     protected final K[] keys;
     protected final V[] values;
-    private final int cachedHash;
 
     private TinyMap(K[] keys, V[] values) {
         this.keys = keys;
         this.values = values;
-
-        int hash = 0;
-        for (int i = 0; i < keys.length; i++)
-            hash += Objects.hashCode(keys[i]) ^ Objects.hashCode(values[i]);
-        this.cachedHash = hash;
     }
 
     public static <K, V> Builder<K, V> builder() {
@@ -73,6 +67,8 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
     public abstract int debugCollisions(Object key);
 
+    public abstract int getIndex(Object key);
+
     public abstract Object getUnsafe(Object key, Object defaultValue);
 
     @SuppressWarnings("unchecked")
@@ -85,6 +81,14 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
     @Override
     public V get(Object key) {
         return (V) getUnsafe(key, null);
+    }
+
+    public K getKeyAt(int index) {
+        return keys[index];
+    }
+
+    public V getValueAt(int index) {
+        return values[index];
     }
 
     @Override
@@ -147,7 +151,10 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
     @Override
     public int hashCode() {
-        return cachedHash;
+        int hash = 0;
+        for (int i = 0; i < keys.length; i++)
+            hash += Objects.hashCode(keys[i]) ^ Objects.hashCode(values[i]);
+        return hash;
     }
 
     @Override
@@ -179,6 +186,11 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         }
 
         @Override
+        public int getIndex(Object key) {
+            return -1;
+        }
+
+        @Override
         protected TinyMap<K, V> withValues(Object[] values) {
             Preconditions.checkArgument(values.length == 0, "must be empty");
             return this;
@@ -193,16 +205,16 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         public Object getUnsafe(Object key, Object defaultValue) {
             return defaultValue;
         }
+
+
     }
 
     public static class Small<K, V> extends TinyMap<K, V> {
         private final byte[] table;
-        private final int mask;
 
         private Small(K[] keys, V[] values, byte[] table) {
             super(keys, values);
             this.table = table;
-            this.mask = table.length - 1;
         }
 
         public static <K, V> Small<K, V> create(K[] keys, V[] values, int size) {
@@ -234,7 +246,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         @Override
         public int debugCollisions(Object key) {
             byte[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
@@ -245,9 +257,22 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         }
 
         @Override
+        public int getIndex(Object key) {
+            byte[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
+                if (Objects.equals(keys[i], key))
+                    return i;
+
+            return -1;
+        }
+
+        @Override
         public Object getUnsafe(Object key, Object defaultValue) {
             byte[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
@@ -261,12 +286,10 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
     public static class Medium<K, V> extends TinyMap<K, V> {
         private final short[] table;
-        private final int mask;
 
         private Medium(K[] keys, V[] values, short[] table) {
             super(keys, values);
             this.table = table;
-            this.mask = table.length - 1;
         }
 
         public static <K, V> Medium<K, V> create(K[] keys, V[] values, int size) {
@@ -298,7 +321,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         @Override
         public int debugCollisions(Object key) {
             short[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
@@ -309,9 +332,22 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         }
 
         @Override
+        public int getIndex(Object key) {
+            short[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                if (Objects.equals(keys[i], key))
+                    return i;
+
+            return -1;
+        }
+
+        @Override
         public Object getUnsafe(Object key, Object defaultValue) {
             short[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
@@ -368,6 +404,18 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
                 if (Objects.equals(keys[i], key))
                     return collisions;
             return collisions;
+        }
+
+        @Override
+        public int getIndex(Object key) {
+            int[] table = this.table;
+            int mask = this.mask;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
+                if (Objects.equals(keys[i], key))
+                    return i;
+            return -1;
         }
 
         @Override

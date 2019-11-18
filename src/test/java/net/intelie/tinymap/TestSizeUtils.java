@@ -1,6 +1,8 @@
 package net.intelie.tinymap;
 
 import net.intelie.introspective.ObjectSizer;
+import net.intelie.introspective.reflect.ReflectionCache;
+import net.intelie.introspective.util.IdentityVisitedSet;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -45,7 +47,7 @@ public class TestSizeUtils {
     }
 
     public static long sizeNoStrings(Object obj) {
-        ObjectSizer sizer = new ObjectSizer();
+        ObjectSizer sizer = new ObjectSizer(new ReflectionCache(), new IdentityVisitedSet(), 1 << 20);
         sizer.resetTo(obj);
         long total = 0;
         while (sizer.moveNext()) {

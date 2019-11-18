@@ -16,10 +16,10 @@ public class TinyMapTest {
     @Test
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
-        assertThat(reflection.get(TinyMap.Empty.class).size()).isEqualTo(24);
-        assertThat(reflection.get(TinyMap.Small.class).size()).isEqualTo(32);
-        assertThat(reflection.get(TinyMap.Medium.class).size()).isEqualTo(32);
-        assertThat(reflection.get(TinyMap.Large.class).size()).isEqualTo(32);
+        assertThat(reflection.get(TinyMap.Empty.class).size()).isEqualTo(20);
+        assertThat(reflection.get(TinyMap.Small.class).size()).isEqualTo(24);
+        assertThat(reflection.get(TinyMap.Medium.class).size()).isEqualTo(24);
+        assertThat(reflection.get(TinyMap.Large.class).size()).isEqualTo(24);
     }
 
     @Test
@@ -358,8 +358,12 @@ public class TinyMapTest {
         Iterator<Object> valuesIterator = map.values().iterator();
         Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
 
+        int index = 0;
         for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
             assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
+            assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
+            assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
+            assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
 
             assertThat(keysIterator.hasNext()).isTrue();
             assertThat(keysIterator.next()).isEqualTo(entry.getKey());
@@ -369,12 +373,14 @@ public class TinyMapTest {
 
             assertThat(entriesIterator.hasNext()).isTrue();
             assertThat(entriesIterator.next()).isEqualTo(entry);
+            index++;
         }
         assertThat(keysIterator.hasNext()).isFalse();
         assertThat(valuesIterator.hasNext()).isFalse();
         assertThat(entriesIterator.hasNext()).isFalse();
 
         assertThat(map.get("bbb")).isNull();
+        assertThat(map.getIndex("bbb")).isEqualTo(-1);
         assertThat(map.isEmpty()).isEqualTo(count == 0);
         assertThat(expectedMap).isEqualTo(map);
         assertThat(map.toString()).isEqualTo(expectedMap.toString());

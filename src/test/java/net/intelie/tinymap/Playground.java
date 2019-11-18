@@ -28,8 +28,8 @@ public class Playground {
 
         Gson gson = new Gson();
 
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/rtolive.json")));
-             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/rtolive.json")))) {
+        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json")));
+             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json")))) {
             reader2.setLenient(true);
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;
