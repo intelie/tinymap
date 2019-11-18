@@ -23,7 +23,7 @@ public class MapAccessTime {
         Map<String, Object> compact = new CompactHashMap<>();
         TinyMap.Builder<String, Object> tiny = TinyMap.builder();
 
-        String[] keys = new String[100];
+        String[] keys = new String[1000];
 
         Random random = new Random();
 
@@ -54,7 +54,7 @@ public class MapAccessTime {
 
         long startTime = System.nanoTime();
         long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 5000000; i++)
+        for (int i = 0; i < 1000000; i++)
             for (String key : keys)
                 map.get(key);
 

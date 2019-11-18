@@ -360,12 +360,10 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
     public static class Large<K, V> extends TinyMap<K, V> {
         private final int[] table;
-        private final int mask;
 
         private Large(K[] keys, V[] values, int[] table) {
             super(keys, values);
             this.table = table;
-            this.mask = table.length - 1;
         }
 
         private static <K, V> Large<K, V> create(K[] keys, V[] values, int size) {
@@ -397,7 +395,8 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
 
         @Override
         public int debugCollisions(Object key) {
-            int mask = this.mask;
+            int[] table = this.table;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
@@ -409,7 +408,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         @Override
         public int getIndex(Object key) {
             int[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
@@ -421,7 +420,7 @@ public abstract class TinyMap<K, V> implements Map<K, V> {
         @Override
         public Object getUnsafe(Object key, Object defaultValue) {
             int[] table = this.table;
-            int mask = this.mask;
+            int mask = table.length - 1;
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
