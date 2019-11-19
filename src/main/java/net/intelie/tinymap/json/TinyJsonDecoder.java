@@ -15,7 +15,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
     private final Deque<TinyList.Builder<Object>> lists = new ArrayDeque<>();
 
     public TinyJsonDecoder(ObjectCache cache, Reader reader) {
-        super(cache, reader);
+        super(reader);
         setLenient(true);
         this.cache = cache;
     }
@@ -35,7 +35,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
                 nextNull();
                 return null;
             default:
-                return nextString();
+                return cache.get(nextString());
         }
     }
 
@@ -45,7 +45,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
         if (map == null) map = TinyMap.builder();
         try {
             while (hasNext()) {
-                String name = nextName();
+                String name = cache.get(nextName());
                 map.put(name, nextObject());
             }
             endObject();

@@ -58,7 +58,6 @@ public class TinyJsonReader implements Closeable {
     private static final int NUMBER_CHAR_EXP_E = 5;
     private static final int NUMBER_CHAR_EXP_SIGN = 6;
     private static final int NUMBER_CHAR_EXP_DIGIT = 7;
-    private final ObjectCache cache;
     private final StringBuilder stringBuilder = new StringBuilder();
     /**
      * The input JSON.
@@ -105,28 +104,21 @@ public class TinyJsonReader implements Closeable {
      * that array. Otherwise the value is undefined, and we take advantage of that
      * by incrementing pathIndices when doing so isn't useful.
      */
-    private String[] pathNames = new String[32];
+    private StringBuilder[] pathNames = new StringBuilder[32];
     private int[] pathIndices = new int[32];
 
     {
         stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
+        for (int i = 0; i < pathNames.length; i++) {
+            pathNames[i] = new StringBuilder();
+        }
     }
 
     /**
      * Creates a new instance that reads a JSON-encoded stream from {@code in}.
-     *
-     * @param in
      */
     public TinyJsonReader(Reader in) {
-        this(new ObjectCache(), in);
-    }
-
-    /**
-     * Creates a new instance that reads a JSON-encoded stream from {@code in}.
-     */
-    public TinyJsonReader(ObjectCache cache, Reader in) {
         Preconditions.checkNotNull(in, "in == null");
-        this.cache = cache;
         this.in = in;
     }
 
@@ -186,7 +178,7 @@ public class TinyJsonReader implements Closeable {
         }
         if (p == PEEKED_END_OBJECT) {
             stackSize--;
-            pathNames[stackSize] = null; // Free the last path name so that it can be garbage collected!
+            pathNames[stackSize].setLength(0); // Free the last path name so that it can be garbage collected!
             pathIndices[stackSize - 1]++;
             peeked = PEEKED_NONE;
         } else {
@@ -555,42 +547,45 @@ public class TinyJsonReader implements Closeable {
         }
     }
 
-    public String nextName() throws IOException {
+    public StringBuilder nextName() throws IOException {
         int p = peeked;
         if (p == PEEKED_NONE) {
             p = doPeek();
         }
-        String result;
+        StringBuilder result;
         if (p == PEEKED_UNQUOTED_NAME) {
-            result = cache.get(nextUnquotedValue());
+            result = nextUnquotedValue();
         } else if (p == PEEKED_SINGLE_QUOTED_NAME) {
-            result = cache.get(nextQuotedValue('\''));
+            result = nextQuotedValue('\'');
         } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
-            result = cache.get(nextQuotedValue('"'));
+            result = nextQuotedValue('"');
         } else {
             throw new IllegalStateException("Expected a name but was " + peek() + locationString());
         }
         peeked = PEEKED_NONE;
-        pathNames[stackSize - 1] = result;
+        pathNames[stackSize - 1].setLength(0);
+        pathNames[stackSize - 1].append(result);
         return result;
     }
 
-    public String nextString() throws IOException {
+    public StringBuilder nextString() throws IOException {
         int p = peeked;
         if (p == PEEKED_NONE) {
             p = doPeek();
         }
-        String result;
+        StringBuilder result;
         if (p == PEEKED_UNQUOTED) {
-            result = cache.get(nextUnquotedValue());
+            result = nextUnquotedValue();
         } else if (p == PEEKED_SINGLE_QUOTED) {
-            result = cache.get(nextQuotedValue('\''));
+            result = nextQuotedValue('\'');
         } else if (p == PEEKED_DOUBLE_QUOTED) {
-            result = cache.get(nextQuotedValue('"'));
+            result = nextQuotedValue('"');
         } else if (p == PEEKED_BUFFERED) {
-            result = cache.get(stringBuilder);
+            result = stringBuilder;
         } else if (p == PEEKED_LONG) {
-            result = Long.toString(peekedLong);
+            result = stringBuilder;
+            result.setLength(0);
+            result.append(peekedLong);
         } else if (p == PEEKED_NUMBER) {
             result = makeStringFromBuffer(buffer, pos, peekedNumberLength);
             pos += peekedNumberLength;
@@ -602,10 +597,10 @@ public class TinyJsonReader implements Closeable {
         return result;
     }
 
-    private String makeStringFromBuffer(char[] buffer, int pos, int length) {
+    private StringBuilder makeStringFromBuffer(char[] buffer, int pos, int length) {
         stringBuilder.setLength(0);
         stringBuilder.append(buffer, pos, length);
-        return cache.get(stringBuilder);
+        return stringBuilder;
     }
 
     public boolean nextBoolean() throws IOException {
@@ -889,17 +884,20 @@ public class TinyJsonReader implements Closeable {
         } while (count != 0);
 
         pathIndices[stackSize - 1]++;
-        pathNames[stackSize - 1] = "null";
+        pathNames[stackSize - 1].setLength(0);
+        pathNames[stackSize - 1].append("null");
     }
 
     private void push(int newTop) {
         if (stackSize == stack.length) {
             int[] newStack = new int[stackSize * 2];
             int[] newPathIndices = new int[stackSize * 2];
-            String[] newPathNames = new String[stackSize * 2];
+            StringBuilder[] newPathNames = new StringBuilder[stackSize * 2];
             System.arraycopy(stack, 0, newStack, 0, stackSize);
             System.arraycopy(pathIndices, 0, newPathIndices, 0, stackSize);
             System.arraycopy(pathNames, 0, newPathNames, 0, stackSize);
+            for (int i = stackSize; i < newPathNames.length; i++)
+                newPathNames[i] = new StringBuilder();
             stack = newStack;
             pathIndices = newPathIndices;
             pathNames = newPathNames;
@@ -1097,7 +1095,7 @@ public class TinyJsonReader implements Closeable {
      * Returns a <a href="http://goessner.net/articles/JsonPath/">JsonPath</a> to
      * the current location in the JSON value.
      */
-    public String getPath() {
+    public StringBuilder getPath() {
 
         StringBuilder result = stringBuilder;
         result.setLength(0);
@@ -1113,7 +1111,7 @@ public class TinyJsonReader implements Closeable {
                 case JsonScope.DANGLING_NAME:
                 case JsonScope.NONEMPTY_OBJECT:
                     result.append('.');
-                    if (pathNames[i] != null) {
+                    if (pathNames[i].length() > 0) {
                         result.append(pathNames[i]);
                     }
                     break;
@@ -1124,7 +1122,7 @@ public class TinyJsonReader implements Closeable {
                     break;
             }
         }
-        return cache.get(result);
+        return result;
     }
 
     /**

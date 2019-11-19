@@ -29,7 +29,7 @@ public class TinyJsonDecoderTest {
         TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{a:1}"));
         assertThat(decoder.isLenient()).isTrue();
 
-        TinyJsonReader reader = new TinyJsonReader(cache, new StringReader("{a:1}"));
+        TinyJsonReader reader = new TinyJsonReader(new StringReader("{a:1}"));
         assertThat(reader.isLenient()).isFalse();
 
         assertThat(decoder.toString()).isEqualTo("TinyJsonDecoder at line 1 column 1 path $");
@@ -110,7 +110,9 @@ public class TinyJsonDecoderTest {
     public void testLists() throws Exception {
         assertListOf("[1, 2, 3, 0.3e+5, 0.3e-5]", JsonReader::nextDouble, TinyJsonReader::nextDouble);
         assertListOf("[1, '2', \"3\", 4.5, NaN]", JsonReader::nextDouble, TinyJsonReader::nextDouble);
-        assertListOf("[1, '2', \"3\", 4.5, NaN]", JsonReader::nextString, TinyJsonReader::nextString);
+        assertListOf("[1, '2', \"3\", 4.5, NaN]", JsonReader::nextString, tinyJsonReader -> {
+            return tinyJsonReader.nextString().toString();
+        });
         assertListOf("[true, false]", JsonReader::nextBoolean, TinyJsonReader::nextBoolean);
         assertListOf("[null, null]", JsonReader::nextNull, TinyJsonReader::nextNull);
     }
