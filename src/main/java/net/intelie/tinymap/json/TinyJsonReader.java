@@ -563,9 +563,10 @@ public class TinyJsonReader implements Closeable {
             throw new IllegalStateException("Expected a name but was " + peek() + locationString());
         }
         peeked = PEEKED_NONE;
-        pathNames[stackSize - 1].setLength(0);
-        pathNames[stackSize - 1].append(result);
-        return result;
+        StringBuilder target = pathNames[stackSize - 1];
+        target.setLength(0);
+        target.append(result);
+        return target;
     }
 
     public StringBuilder nextString() throws IOException {

@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class TinyOptimizer {
     private final ObjectCache cache;
-    private final Deque<TinyMap.Builder<?, ?>> maps = new ArrayDeque<>();
-    private final Deque<TinyList.Builder<?>> lists = new ArrayDeque<>();
+    private final Deque<TinyMapBuilder<?, ?>> maps = new ArrayDeque<>();
+    private final Deque<TinyListBuilder<?>> lists = new ArrayDeque<>();
 
     public TinyOptimizer(ObjectCache cache) {
         this.cache = cache;
@@ -27,7 +27,7 @@ public class TinyOptimizer {
     }
 
     public <K, V> TinyMap<K, V> optimizeMap(Map<K, V> object) {
-        TinyMap.Builder<K, V> map = makeMapBuilder();
+        TinyMapBuilder<K, V> map = makeMapBuilder();
         try {
             object.forEach((k, v) -> {
                 map.put((K) optimize(k), (V) optimize(v));
@@ -39,14 +39,14 @@ public class TinyOptimizer {
         }
     }
 
-    private <K, V> TinyMap.Builder<K, V> makeMapBuilder() {
-        TinyMap.Builder<?, ?> map = maps.poll();
+    private <K, V> TinyMapBuilder<K, V> makeMapBuilder() {
+        TinyMapBuilder<?, ?> map = maps.poll();
         if (map == null) map = TinyMap.builder();
-        return (TinyMap.Builder<K, V>) map;
+        return (TinyMapBuilder<K, V>) map;
     }
 
     public <T> TinyList<T> optimizeList(Iterable<T> object) {
-        TinyList.Builder<T> list = makeListBuilder();
+        TinyListBuilder<T> list = makeListBuilder();
         try {
             object.forEach(x -> {
                 list.add((T) optimize(x));
@@ -58,10 +58,10 @@ public class TinyOptimizer {
         }
     }
 
-    private <T> TinyList.Builder<T> makeListBuilder() {
-        TinyList.Builder<?> list = lists.poll();
+    private <T> TinyListBuilder<T> makeListBuilder() {
+        TinyListBuilder<?> list = lists.poll();
         if (list == null) list = TinyList.builder();
-        return (TinyList.Builder<T>) list;
+        return (TinyListBuilder<T>) list;
     }
 
 }

@@ -3,6 +3,8 @@ package net.intelie.tinymap;
 import java.util.Map;
 
 public interface ListMap<K, V> extends Map<K, V> {
+    Object TOMBSTONE = new Object();
+
     int getIndex(Object key);
 
     K getKeyAt(int index);

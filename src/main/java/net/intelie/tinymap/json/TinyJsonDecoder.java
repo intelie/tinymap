@@ -1,8 +1,6 @@
 package net.intelie.tinymap.json;
 
-import net.intelie.tinymap.ObjectCache;
-import net.intelie.tinymap.TinyList;
-import net.intelie.tinymap.TinyMap;
+import net.intelie.tinymap.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -11,8 +9,8 @@ import java.util.Deque;
 
 public class TinyJsonDecoder extends TinyJsonReader {
     private final ObjectCache cache;
-    private final Deque<TinyMap.Builder<String, Object>> maps = new ArrayDeque<>();
-    private final Deque<TinyList.Builder<Object>> lists = new ArrayDeque<>();
+    private final Deque<TinyMapBuilder<String, Object>> maps = new ArrayDeque<>();
+    private final Deque<TinyListBuilder<Object>> lists = new ArrayDeque<>();
 
     public TinyJsonDecoder(ObjectCache cache, Reader reader) {
         super(reader);
@@ -41,7 +39,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
 
     public TinyMap<String, Object> nextMap() throws IOException {
         beginObject();
-        TinyMap.Builder<String, Object> map = maps.poll();
+        TinyMapBuilder<String, Object> map = maps.poll();
         if (map == null) map = TinyMap.builder();
         try {
             while (hasNext()) {
@@ -58,7 +56,7 @@ public class TinyJsonDecoder extends TinyJsonReader {
 
     public TinyList<Object> nextList() throws IOException {
         beginArray();
-        TinyList.Builder<Object> list = lists.poll();
+        TinyListBuilder<Object> list = lists.poll();
         if (list == null) list = TinyList.builder();
         try {
             while (hasNext())

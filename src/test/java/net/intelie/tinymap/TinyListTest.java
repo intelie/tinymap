@@ -17,15 +17,15 @@ public class TinyListTest {
     @Test
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
-        assertThat(reflection.get(TinyList.class).size()).isEqualTo(24);
+        assertThat(reflection.get(TinyList.class).size()).isEqualTo(20);
     }
 
     @Test
     public void testBuilderHashCode() {
-        TinyList.Builder<String> builder1 = TinyList.builder();
-        TinyList.Builder<String> builder2 = TinyList.builder();
+        TinyListBuilder<String> builder1 = TinyList.builder();
+        TinyListBuilder<String> builder2 = TinyList.builder();
 
-        TinyList.FullCacheAdapter<String> adapter = builder1.adapter();
+        TinyListBuilder.Adapter<String> adapter = builder1.adapter();
 
         assertThat(adapter.contentHashCode(builder1)).isEqualTo(adapter.contentHashCode(builder2));
         assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
@@ -49,7 +49,7 @@ public class TinyListTest {
 
     @Test
     public void testBuildAndGet() {
-        TinyList.Builder<Object> builder = TinyList.builder();
+        TinyListBuilder<Object> builder = TinyList.builder();
         assertThat(builder.size()).isEqualTo(0);
         builder.add("aaa");
         builder.add(123);
@@ -66,7 +66,7 @@ public class TinyListTest {
 
     @Test
     public void testForEach() {
-        TinyList.Builder<Object> builder = TinyList.builder();
+        TinyListBuilder<Object> builder = TinyList.builder();
         builder.add("aaa");
         builder.add(123);
         List<Object> map = builder.buildAndClear();
@@ -97,7 +97,7 @@ public class TinyListTest {
     }
 
     private void testCount(int count) {
-        TinyList.Builder<Object> builder = TinyList.builder();
+        TinyListBuilder<Object> builder = TinyList.builder();
         ArrayList<String> expected = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             builder.add("aaa" + i);

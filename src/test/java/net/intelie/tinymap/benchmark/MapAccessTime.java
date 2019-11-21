@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
 import net.intelie.tinymap.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
+import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 import vlsi.utils.CompactHashMap;
@@ -21,7 +22,7 @@ public class MapAccessTime {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> linked = new LinkedHashMap<>();
         Map<String, Object> compact = new CompactHashMap<>();
-        TinyMap.Builder<String, Object> tiny = TinyMap.builder();
+        TinyMapBuilder<String, Object> tiny = TinyMap.builder();
 
         String[] keys = new String[1000];
 

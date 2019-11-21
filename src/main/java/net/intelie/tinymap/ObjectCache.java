@@ -5,7 +5,6 @@ import net.intelie.tinymap.util.DoubleCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class ObjectCache {
     private static final StringCacheAdapter STRING_ADAPTER = new StringCacheAdapter();
@@ -43,11 +42,7 @@ public class ObjectCache {
         return get(cs, STRING_ADAPTER);
     }
 
-    public <K, V> TinyMap<K, V> get(TinyMap.Builder<K, V> builder) {
-        return get(builder, builder.adapter());
-    }
-
-    public <T> TinyList<T> get(TinyList.Builder<T> builder) {
+    public <B extends CacheableBuilder<B, T>, T> T get(B builder) {
         return get(builder, builder.adapter());
     }
 

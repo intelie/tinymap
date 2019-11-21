@@ -4,8 +4,6 @@ import java.util.*;
 import java.util.function.BiConsumer;
 
 public abstract class ListMapBase<K, V> implements ListMap<K, V> {
-    private static final Object SENTINEL = new Object();
-
     @SuppressWarnings("unchecked")
     @Override
     public V getOrDefault(Object key, V defaultValue) {
@@ -20,7 +18,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        return getUnsafe(key, SENTINEL) != SENTINEL;
+        return getUnsafe(key, TOMBSTONE) != TOMBSTONE;
     }
 
     @Override
@@ -90,7 +88,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         if (!(o instanceof Map) || size() != ((Map) o).size()) return false;
 
         for (Entry<?, ?> entry : ((Map<?, ?>) o).entrySet())
-            if (!Objects.equals(getUnsafe(entry.getKey(), SENTINEL), entry.getValue()))
+            if (!Objects.equals(getUnsafe(entry.getKey(), TOMBSTONE), entry.getValue()))
                 return false;
         return true;
     }
@@ -190,7 +188,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         public boolean contains(Object o) {
             if (o instanceof Entry) {
                 Entry entry = (Entry) o;
-                return Objects.equals(getUnsafe(entry.getKey(), SENTINEL), entry.getValue());
+                return Objects.equals(getUnsafe(entry.getKey(), TOMBSTONE), entry.getValue());
             }
             return false;
         }

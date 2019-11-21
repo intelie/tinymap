@@ -1,9 +1,9 @@
 package net.intelie.tinymap;
 
+import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.reflect.ReflectionCache;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.omg.CORBA.OBJ_ADAPTER;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -24,10 +24,10 @@ public class TinyMapTest {
 
     @Test
     public void testBuilderHashCode() {
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
 
-        TinyMap.FullCacheAdapter<String, Object> adapter = builder1.adapter();
+        TinyMapBuilder.Adapter<String, Object> adapter = builder1.adapter();
 
         assertThat(adapter.contentHashCode(builder1)).isEqualTo(adapter.contentHashCode(builder2));
         assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
@@ -51,26 +51,40 @@ public class TinyMapTest {
 
     @Test
     public void testContentEqualWithDuplicateKeys() {
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
-        TinyMap.FullCacheAdapter<String, Object> adapter = builder1.adapter();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder.Adapter<String, Object> adapter = builder1.adapter();
 
-        assertThat(adapter.contentEquals(builder1, builder1.build())).isNotNull();
-        builder1.put("aaa", 111);
-        assertThat(adapter.contentEquals(builder1, builder1.build())).isNotNull();
-        builder1.put("bbb", 222);
-        assertThat(adapter.contentEquals(builder1, builder1.build())).isNotNull();
-        builder1.put("aaa", 333);
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+        String aaa1 = "aaa";
+        String aaa2 = "aaa";
+        String bbb = "bbb";
+
+        Integer v111 = 111;
+        Integer v222 = 222;
+        Integer v333 = 333;
+
+        builder1.put(aaa1, v111);
+        builder2.put(aaa1, v111);
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+
+        builder1.put(bbb, v222);
+        builder2.put(bbb, v222);
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+
+        builder1.put(aaa2, v333);
+        builder2.put(aaa2, v333);
 
         //even if this builder alwyas build the same map, the duplicate keys make it impossible
         //to predict it without actually creating the map
-        assertThat(adapter.contentEquals(builder1, builder1.build())).isNull();
+        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
     }
 
     @Test
     public void testContentEqualComparingOnlyKeys() {
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
-        TinyMap.KeysCacheAdapter<String, Object> adapter = new TinyMap.KeysCacheAdapter<>();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder.KeysAdapter<String, Object> adapter = new TinyMapBuilder.KeysAdapter<>();
 
         builder1.put("aaa", 111);
         builder2.put("aaa", 222);
@@ -85,7 +99,7 @@ public class TinyMapTest {
 
     @Test
     public void testBuildAndGet() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         assertThat(builder.size()).isEqualTo(0);
         builder.put("aaa", 333);
         builder.put("bbb", 456.0);
@@ -110,11 +124,11 @@ public class TinyMapTest {
 
     @Test
     public void testReuseEmpty() {
-        TinyMap.KeysCacheAdapter<String, Object> adapter = new TinyMap.KeysCacheAdapter<>();
+        TinyMapBuilder.KeysAdapter<String, Object> adapter = new TinyMapBuilder.KeysAdapter<>();
 
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
 
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
         TinyMap<String, Object> map1 = builder1.build();
 
         TinyMap<String, Object> map2 = adapter.reuse(builder2, map1, null);
@@ -127,12 +141,12 @@ public class TinyMapTest {
     public void testBuildSmallWithCache() {
         ObjectCache cache = new ObjectCache();
 
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
         builder1.put("aaa", 111);
         builder1.put("bbb", 222);
         TinyMap<String, Object> map1 = cache.get(builder1);
 
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
         builder2.put("aaa", 333);
         builder2.put("bbb", 444);
         TinyMap<String, Object> map2 = cache.get(builder2);
@@ -144,12 +158,12 @@ public class TinyMapTest {
     public void testBuildMediumWithCache() {
         ObjectCache cache = new ObjectCache();
 
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
         for (int i = 0; i < 1000; i++)
             builder1.put(cache.get("aaa" + i), 1000 * i);
         TinyMap<String, Object> map1 = cache.get(builder1);
 
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
         for (int i = 0; i < 1000; i++)
             builder2.put(cache.get("aaa" + i), 2000 * i);
         TinyMap<String, Object> map2 = cache.get(builder2);
@@ -161,12 +175,12 @@ public class TinyMapTest {
     public void testBuildLargeWithCache() {
         ObjectCache cache = new ObjectCache(1 << 20);
 
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
         for (int i = 0; i < 100000; i++)
             builder1.put(cache.get("aaa" + i), 100000 * i);
         TinyMap<String, Object> map1 = cache.get(builder1);
 
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
         for (int i = 0; i < 100000; i++)
             builder2.put(cache.get("aaa" + i), 100000 * i);
         TinyMap<String, Object> map2 = cache.get(builder2);
@@ -176,22 +190,29 @@ public class TinyMapTest {
 
     @Test
     public void canBuildWithDuplicateKeys() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("aaa", 456.0);
-        assertThat(builder.buildAndClear()).isEqualTo(Collections.singletonMap("aaa", 456.0));
+        builder.put("bbb", 789.0);
+
+        assertThat(builder.size()).isEqualTo(3);
+        assertThat(builder.build()).isEqualTo(ImmutableMap.of("aaa", 456.0, "bbb", 789.0));
+
+        assertThat(builder.size()).isEqualTo(2);
+        assertThat(builder.build()).isEqualTo(ImmutableMap.of("aaa", 456.0, "bbb", 789.0));
     }
+
 
     @Test
     public void canBuildWithNull() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put(null, 123);
         assertThat(builder.buildAndClear()).isEqualTo(Collections.singletonMap(null, 123));
     }
 
     @Test
     public void canBuildMediumWithDuplicateKeys() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("aaa", 456.0);
         for (int i = 0; i < 1000; i++) {
@@ -202,7 +223,7 @@ public class TinyMapTest {
 
     @Test
     public void canBuildLargeWithDuplicateKeys() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("aaa", 456.0);
         for (int i = 0; i < 0x10000; i++) {
@@ -213,7 +234,7 @@ public class TinyMapTest {
 
     @Test
     public void testForEach() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("bbb", 456.0);
         TinyMap<String, Object> map = builder.buildAndClear();
@@ -230,7 +251,7 @@ public class TinyMapTest {
 
     @Test
     public void testContains() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", null);
         builder.put("bbb", 456.0);
 
@@ -279,8 +300,8 @@ public class TinyMapTest {
 
     @Test
     public void testValueArrayTwoDifferentMaps() {
-        TinyMap.Builder<String, Object> builder1 = TinyMap.builder();
-        TinyMap.Builder<String, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
         for (int i = 0; i < 100; i++) {
             builder1.put("aaa" + i, i);
             builder2.put("aaa" + i, i);
@@ -295,7 +316,7 @@ public class TinyMapTest {
 
     @Test
     public void testGiantShortProblem() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
 
         for (int i = 0; i < 100000; i++) {
             builder.put("aaa" + i, i);
@@ -308,7 +329,7 @@ public class TinyMapTest {
 
     @Test
     public void testMaxCollisions() {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
 
         for (int count = 0; count < 1000; count += 20)
             testCollisions(builder, count);
@@ -316,7 +337,7 @@ public class TinyMapTest {
             testCollisions(builder, count);
     }
 
-    private void testCollisions(TinyMap.Builder<String, Object> builder, int count) {
+    private void testCollisions(TinyMapBuilder<String, Object> builder, int count) {
         while (builder.size() < count)
             builder.put("aaa" + builder.size(), builder.size());
 
@@ -332,7 +353,7 @@ public class TinyMapTest {
     }
 
     private void testCount(int count, boolean withNull) {
-        TinyMap.Builder<String, Object> builder = TinyMap.builder();
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
         LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
 
         for (int i = 0; i < count; i++) {

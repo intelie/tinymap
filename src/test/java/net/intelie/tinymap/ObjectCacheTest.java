@@ -1,6 +1,5 @@
 package net.intelie.tinymap;
 
-import net.intelie.tinymap.util.DoubleCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 import org.junit.Test;
 
@@ -11,8 +10,8 @@ public class ObjectCacheTest {
     public void testListCacheHit() {
         ObjectCache cache = new ObjectCache();
 
-        TinyList.Builder<Object> builder1 = TinyList.builder();
-        TinyList.Builder<Object> builder2 = TinyList.builder();
+        TinyListBuilder<Object> builder1 = TinyList.builder();
+        TinyListBuilder<Object> builder2 = TinyList.builder();
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
 
@@ -26,8 +25,8 @@ public class ObjectCacheTest {
     public void testMapCacheHit() {
         ObjectCache cache = new ObjectCache();
 
-        TinyMap.Builder<Object, Object> builder1 = TinyMap.builder();
-        TinyMap.Builder<Object, Object> builder2 = TinyMap.builder();
+        TinyMapBuilder<Object, Object> builder1 = TinyMap.builder();
+        TinyMapBuilder<Object, Object> builder2 = TinyMap.builder();
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
 
