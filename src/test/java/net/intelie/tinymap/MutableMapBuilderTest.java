@@ -13,12 +13,36 @@ public class MutableMapBuilderTest {
         MutableMapBuilder<String, Object> builder = new MutableMapBuilder<>();
 
         builder.put("abc", 123);
+        builder.put("abc", 456);
 
+        assertThat(builder.size()).isEqualTo(1);
         assertThat(builder.containsKey("abc")).isTrue();
-        assertThat(builder.get("abc")).isEqualTo(123);
+        assertThat(builder.get("abc")).isEqualTo(456);
 
-        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 123));
-        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 123));
+        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
+        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
+    }
+
+    @Test
+    public void testAddAndRemove() {
+        MutableMapBuilder<String, Object> builder = new MutableMapBuilder<>();
+
+        for (int i = 0; i < 100; i++)
+            assertThat(builder.put("aaa" + i, i)).isNull();
+        for (int i = 0; i < 100; i++)
+            assertThat(builder.containsKey("aaa" + i)).isTrue();
+
+        assertThat(builder.size()).isEqualTo(100);
+
+        for (int i = 0; i < 100; i += 2)
+            assertThat(builder.remove("aaa" + i)).isEqualTo(i);
+
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.containsKey("aaa" + i)).isEqualTo(i % 2 != 0);
+        }
+
+        assertThat(builder.size()).isEqualTo(50);
+        assertThat(builder.build().size()).isEqualTo(50);
     }
 
     @Test

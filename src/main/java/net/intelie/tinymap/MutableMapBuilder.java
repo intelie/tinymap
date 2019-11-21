@@ -82,8 +82,10 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
             values = Arrays.copyOf(values, values.length * 2);
             inverse = Arrays.copyOf(inverse, inverse.length * 2);
         }
-        if (4 * (size + 1) > 3 * table.length)
+        if (4 * (size + 1) > 3 * table.length) {
             rehashTo(newTable(table.length * 2));
+            index = findIndex(table, key);
+        }
 
         int hash = ~index;
         int newIndex = size++;
@@ -101,19 +103,28 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
     }
 
     public V get(K key) {
-        int index = findIndex(table, key);
-        if (index < 0) return null;
+        return (V) getUnsafe(key, null);
+    }
 
-        return (V) values[index];
+    public V getOrDefault(K key, V defaultValue) {
+        return (V) getUnsafe(key, defaultValue);
+    }
+
+    public Object getUnsafe(Object key, Object defaultValue) {
+        int index = findIndex(table, key);
+        if (index < 0) return defaultValue;
+
+        return values[index];
     }
 
     public V remove(K key) {
         int index = findIndex(table, key);
         if (index < 0) return null;
-        keys[index] = ListMap.TOMBSTONE;
-        values[index] = ListMap.TOMBSTONE;
+        Object old = values[index];
+        keys[index] = TinyMap.TOMBSTONE;
+        values[index] = TinyMap.TOMBSTONE;
         realSize--;
-        return (V) values[index];
+        return (V) old;
 
     }
 
