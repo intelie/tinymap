@@ -2,12 +2,12 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
+import net.intelie.tinymap.MutableTinyMap;
 import net.intelie.tinymap.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
 import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
-import vlsi.utils.CompactHashMap;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -21,10 +21,10 @@ public class MapAccessTime {
         ImmutableMap.Builder<String, Object> guava = ImmutableMap.builder();
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> linked = new LinkedHashMap<>();
-        Map<String, Object> compact = new CompactHashMap<>();
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
+        MutableTinyMap<String, Object> mutable = new MutableTinyMap<>();
 
-        String[] keys = new String[1000];
+        String[] keys = new String[100];
 
         Random random = new Random();
 
@@ -32,22 +32,19 @@ public class MapAccessTime {
             keys[i] = "key" + random.nextInt();
             map.put(keys[i], "value" + i);
             linked.put(keys[i], "value" + i);
-            compact.put(keys[i], "value" + i);
             guava.put(keys[i], "value" + i);
             tiny.put(keys[i], "value" + i);
+            mutable.put(keys[i], "value" + i);
         }
 
         test("Tiny", keys, tiny.build());
+        test("MutableTiny", keys, mutable);
         test("LinkedHashMap", keys, linked);
         test("HashMap", keys, map);
         test("Guava", keys, guava.build());
-        //test("Compact", keys, compact);
-
-
     }
 
     private void test(String name, String[] keys, Map<String, Object> map) {
-
         for (int i = 0; i < 100000; i++)
             for (String key : keys)
                 map.get(key);
@@ -55,7 +52,7 @@ public class MapAccessTime {
 
         long startTime = System.nanoTime();
         long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 1000000; i++)
+        for (int i = 0; i < 2000000; i++)
             for (String key : keys)
                 map.get(key);
 

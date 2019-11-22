@@ -1,5 +1,7 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.Preconditions;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -38,29 +40,52 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
     @Override
     public Entry<K, V> getEntryAt(int index) {
-        return new AbstractMap.SimpleImmutableEntry<>(getKeyAt(index), getValueAt(index));
+        return new ListEntry(index);
     }
 
     @Override
     public void forEach(BiConsumer<? super K, ? super V> action) {
-        int size = size();
+        int size = rawSize();
         for (int i = 0; i < size; i++)
-            action.accept(getKeyAt(i), getValueAt(i));
+            if (!isRemoved(i))
+                action.accept(getKeyAt(i), getValueAt(i));
+    }
+
+    @Override
+    public V removeAt(int index) {
+        throw new UnsupportedOperationException("modification not supported: " + this);
+    }
+
+    @Override
+    public V setValueAt(int index, V value) {
+        throw new UnsupportedOperationException("modification not supported: " + this);
+    }
+
+    @Override
+    public boolean isRemoved(int index) {
+        return false;
+    }
+
+    @Override
+    public int rawSize() {
+        return size();
+    }
+
+    @Override
+    public Object getUnsafe(Object key, Object defaultValue) {
+        int index = getIndex(key);
+        if (index < 0) return defaultValue;
+        return getValueAt(index);
     }
 
     @Override
     public V put(K key, V value) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
+        return setValueAt(getIndex(key), value);
     }
 
     @Override
     public V remove(Object key) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
-    }
-
-    @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
+        return removeAt(getIndex(key));
     }
 
     @Override
@@ -68,6 +93,10 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         throw new UnsupportedOperationException("modification not supported: " + this);
     }
 
+    @Override
+    public void putAll(Map<? extends K, ? extends V> m) {
+        m.forEach(this::put);
+    }
 
     @Override
     public Set<K> keySet() {
@@ -98,8 +127,9 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     @Override
     public int hashCode() {
         int hash = 0;
-        for (int i = 0; i < size(); i++)
-            hash += Objects.hashCode(getKeyAt(i)) ^ Objects.hashCode(getValueAt(i));
+        for (int i = 0; i < rawSize(); i++)
+            if (!isRemoved(i))
+                hash += Objects.hashCode(getKeyAt(i)) ^ Objects.hashCode(getValueAt(i));
         return hash;
     }
 
@@ -108,7 +138,9 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     public String toString() {
         StringBuilder sb = new StringBuilder().append('{');
         boolean first = true;
-        for (int i = 0; i < size(); i++) {
+        for (int i = 0; i < rawSize(); i++) {
+            if (isRemoved(i)) continue;
+
             if (!first)
                 sb.append(", ");
             first = false;
@@ -118,38 +150,41 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     }
 
 
-    private abstract class SimpleIterator<T> implements Iterator<T> {
+    private abstract class ListIterator<T> implements Iterator<T> {
+        private int current = -1;
         private int next = 0;
 
         @Override
         public boolean hasNext() {
-            return next < ListMapBase.this.size();
+            return next < ListMapBase.this.rawSize();
         }
 
         public abstract T makeObject(int index);
 
         @Override
+        public void remove() {
+            Preconditions.checkState(current >= 0, "no iteration occurred");
+            removeAt(current);
+        }
+
+        @Override
         public T next() {
-            T key = makeObject(next);
-            next++;
+            current = next;
+            T key = makeObject(current);
+            do next++; while (isRemoved(next));
             return key;
         }
     }
 
-    private class ValuesView extends AbstractList<V> {
+    private class ValuesView extends AbstractCollection<V> {
         @Override
         public Iterator<V> iterator() {
-            return new SimpleIterator<V>() {
+            return new ListIterator<V>() {
                 @Override
                 public V makeObject(int index) {
                     return getValueAt(index);
                 }
             };
-        }
-
-        @Override
-        public V get(int index) {
-            return getValueAt(index);
         }
 
         @Override
@@ -161,6 +196,11 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         public int size() {
             return ListMapBase.this.size();
         }
+
+        @Override
+        public void clear() {
+            ListMapBase.this.clear();
+        }
     }
 
     private class KeysView extends AbstractSet<K> {
@@ -171,7 +211,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public Iterator<K> iterator() {
-            return new SimpleIterator<K>() {
+            return new ListIterator<K>() {
                 @Override
                 public K makeObject(int index) {
                     return getKeyAt(index);
@@ -182,6 +222,11 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         @Override
         public int size() {
             return ListMapBase.this.size();
+        }
+
+        @Override
+        public void clear() {
+            ListMapBase.this.clear();
         }
     }
 
@@ -197,7 +242,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public Iterator<Entry<K, V>> iterator() {
-            return new SimpleIterator<Entry<K, V>>() {
+            return new ListIterator<Entry<K, V>>() {
                 @Override
                 public Entry<K, V> makeObject(int index) {
                     return getEntryAt(index);
@@ -208,6 +253,52 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         @Override
         public int size() {
             return ListMapBase.this.size();
+        }
+
+        @Override
+        public void clear() {
+            ListMapBase.this.clear();
+        }
+    }
+
+    private class ListEntry implements Entry<K, V> {
+        private final int index;
+
+        public ListEntry(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public K getKey() {
+            return getKeyAt(index);
+        }
+
+        @Override
+        public V getValue() {
+            return getValueAt(index);
+        }
+
+        @Override
+        public V setValue(V value) {
+            return setValueAt(index, value);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Entry<?, ?>)) return false;
+            Entry<?, ?> that = (Entry<?, ?>) o;
+            return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(getKeyAt(index)) ^ Objects.hashCode(getValueAt(index));
+        }
+
+        @Override
+        public String toString() {
+            return getKey() + "=" + getValue();
         }
     }
 }
