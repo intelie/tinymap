@@ -226,7 +226,7 @@ public class TinyMapTest {
             if (count < 1000)
                 builder.build();
 
-            builder.put("aaa" + i, i);
+            builder.putAll(Collections.singletonMap("aaa" + i, i));
             expectedMap.put("aaa" + i, i);
         }
         if (withNull) {

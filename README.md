@@ -1,6 +1,6 @@
 # TinyMap
 
-Memory-Efficient Immutable HashMaps
+Memory-Efficient Immutable HashMap
 
 This library provides a straightforward open-addressing ordered hash table implementation. That implementation, along
 with an aggressive caching strategy (also provided here) can lead to incredibly low memory usage for semi-structured 
@@ -13,6 +13,13 @@ Below you can find the memory cost of each `java.util.Map` implementation. Pleas
 ![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=2125978251&format=image)
 
 Also note that this is just the hash table structure costs. This can be further improved by introducing aggressive value caching.
+
+### Are there any downsides?
+
+Yes. We save some memory by not storing Entry<K, V> objects, only arrays of keys and values. 
+So, iterating through the map's `entrySet` performs more allocations than a typical Map implementation.
+
+This can be mitigated by using `Map#forEach` or using `getKeyAt(index)` and `getValueAt(index)` methods in a for loop.
 
 ## Usage
 

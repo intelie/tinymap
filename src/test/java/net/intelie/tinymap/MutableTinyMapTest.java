@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MutableTinyMapTest {
     @Test
     public void testAddAndGet() {
-        MutableTinyMap<String, Object> builder = new MutableTinyMap<>();
+        MutableTinyMap<String, Object> builder = TinyMap.mutable();
 
         builder.put("abc", 123);
         builder.put("abc", 456);

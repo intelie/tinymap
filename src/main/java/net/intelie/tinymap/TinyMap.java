@@ -19,6 +19,10 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> implements Seriali
         return new TinyMapBuilder<>();
     }
 
+    public static <K, V> MutableTinyMap<K, V> mutable() {
+        return new MutableTinyMap<>();
+    }
+
     public static int tableSize(int length) {
         return Integer.highestOneBit((int) Math.ceil(length * 4.0 / 3) - 1) * 2;
     }
