@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
-    public static final Object TOMBSTONE = new Object();
 
     protected final Object[] keys;
     protected final Object[] values;
@@ -32,7 +31,6 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
     public static int initTable(Object[] keys, Object[] values, int size, InitInsert insert) {
         int newSize = 0;
         for (int j = 0; j < size; j++) {
-            if (keys[j] == TinyMap.TOMBSTONE) continue;
             int position = insert.perform(newSize, keys[j]);
             keys[position] = keys[j];
             values[position] = values[j];

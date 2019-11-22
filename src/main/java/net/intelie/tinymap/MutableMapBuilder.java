@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuilder<K, V>, TinyMap<K, V>> {
+    private static final Object TOMBSTONE = new Object();
     private final Adapter<K, V> adapter = new Adapter<>(new KeysAdapter<>());
 
     private Object[] keys = new Object[4];
@@ -46,22 +47,23 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
     private void rehashTo(int[] table) {
         int index = 0;
         for (int i = 0; i < size; i++) {
-            if (keys[i] == TinyMap.TOMBSTONE) continue;
+            if (keys[i] == TOMBSTONE) continue;
             keys[index] = keys[i];
             values[index] = values[i];
 
             int hash = ~findIndex(table, keys[index]);
-            Preconditions.checkState(hash >= 0, "duplicate key, this is a bug");
+            assert hash >= 0;
             table[hash] = index;
             inverse[index] = hash;
             index++;
         }
-        for (int i = index; i < size; i++) {
-            keys[i] = values[i] = null;
-        }
+        Arrays.fill(keys, index, size, null);
+        Arrays.fill(values, index, size, null);
+
+        assert realSize == index;
 
         this.table = table;
-        this.size = this.realSize = index;
+        this.size = index;
     }
 
     private void softClearTable() {
@@ -121,11 +123,17 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
         int index = findIndex(table, key);
         if (index < 0) return null;
         Object old = values[index];
-        keys[index] = TinyMap.TOMBSTONE;
-        values[index] = TinyMap.TOMBSTONE;
+        keys[index] = TOMBSTONE;
+        values[index] = null;
         realSize--;
         return (V) old;
 
+    }
+
+    public void rehash() {
+        if (size == realSize) return;
+        softClearTable();
+        rehashTo(table);
     }
 
     @Override
@@ -139,14 +147,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
 
     @Override
     public TinyMap<K, V> build() {
-        TinyMap<K, V> built = innerBuild();
-        softClearTable();
-        size = realSize = built.size();
-        rehashTo(table);
-        return built;
-    }
-
-    private TinyMap<K, V> innerBuild() {
+        rehash();
         if (size == 0)
             return new TinyMap.Empty<>();
         else if (size < 0xFF)
@@ -165,7 +166,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
     }
 
     public TinyMap<K, V> buildAndClear() {
-        TinyMap<K, V> answer = innerBuild();
+        TinyMap<K, V> answer = build();
         clear();
         return answer;
     }
@@ -180,6 +181,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
 
         @Override
         public int contentHashCode(MutableMapBuilder<K, V> builder) {
+            builder.rehash();
             int hash = 1;
             for (int i = 0; i < builder.size; i++) {
                 hash = (hash * 31) + System.identityHashCode(builder.keys[i]);
@@ -190,6 +192,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
 
         @Override
         public TinyMap<K, V> contentEquals(MutableMapBuilder<K, V> builder, Object cached) {
+            builder.rehash();
             if (!(cached instanceof TinyMap<?, ?>) || builder.size != ((TinyMap) cached).size())
                 return null;
             TinyMap<?, ?> map = (TinyMap<?, ?>) cached;
@@ -213,6 +216,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
     public static class KeysAdapter<K, V> implements CacheAdapter<MutableMapBuilder<K, V>, TinyMap<K, V>> {
         @Override
         public int contentHashCode(MutableMapBuilder<K, V> builder) {
+            builder.rehash();
             int hash = 1;
             for (int i = 0; i < builder.size; i++) {
                 hash = (hash * 31) + System.identityHashCode(builder.keys[i]);
@@ -222,6 +226,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
 
         @Override
         public TinyMap<K, V> contentEquals(MutableMapBuilder<K, V> builder, Object cached) {
+            builder.rehash();
             if (!(cached instanceof TinyMap<?, ?>) || builder.size != ((TinyMap) cached).size())
                 return null;
             TinyMap<?, ?> map = (TinyMap<?, ?>) cached;
@@ -238,6 +243,7 @@ public class MutableMapBuilder<K, V> implements CacheableBuilder<MutableMapBuild
 
         @Override
         public TinyMap<K, V> reuse(MutableMapBuilder<K, V> builder, TinyMap<K, V> old, ObjectCache cache) {
+            builder.rehash();
             return old.withValues(builder.values, builder.size);
         }
     }
