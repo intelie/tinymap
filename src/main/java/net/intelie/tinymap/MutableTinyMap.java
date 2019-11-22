@@ -1,22 +1,31 @@
 package net.intelie.tinymap;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements CacheableBuilder<MutableTinyMap<K, V>, TinyMap<K, V>> {
-    private static final Object TOMBSTONE = new Object();
+public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements CacheableBuilder<MutableTinyMap<K, V>, TinyMap<K, V>>, Serializable {
+    private static final Object TOMBSTONE = new Serializable() {
+    };
     private static final Adapter<?, ?> adapter = new Adapter<>(new KeysAdapter<>());
 
-    private Object[] keys = new Object[4];
-    private Object[] values = new Object[4];
+    private Object[] keys;
+    private Object[] values;
     //we keep an inverse table to make clear proportional to size even if the builder table has grown way too big
-    private int[] inverse = new int[4];
+    private int[] inverse;
     private int[] table;
     private int rawSize = 0;
     private int size = 0;
 
     public MutableTinyMap() {
-        rehashTo(newTable(16));
+        this(16);
+    }
+
+    public MutableTinyMap(int expectedSize) {
+        keys = new Object[expectedSize];
+        values = new Object[expectedSize];
+        inverse = new int[expectedSize];
+        rehashTo(newTable(TinyMap.tableSize(expectedSize)));
     }
 
     private static int hash(Object key) {
@@ -106,16 +115,19 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
         return findIndex(table, key);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public K getKeyAt(int index) {
         return (K) keys[index];
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public V getValueAt(int index) {
         return (V) values[index];
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public V setValueAt(int index, V value) {
         Object old = values[index];
@@ -123,6 +135,7 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
         return (V) old;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public V removeAt(int index) {
         Object old = values[index];
@@ -143,6 +156,7 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
         rehashTo(table);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Adapter<K, V> adapter() {
         return (Adapter<K, V>) adapter;
@@ -160,14 +174,7 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
     @Override
     public TinyMap<K, V> build() {
         rehash();
-        if (rawSize == 0)
-            return new TinyMap.Empty<>();
-        else if (rawSize < 0xFF)
-            return TinyMap.Small.create(keys, values, rawSize);
-        else if (rawSize < 0xFFFF)
-            return TinyMap.Medium.create(keys, values, rawSize);
-        else
-            return TinyMap.Large.create(keys, values, rawSize);
+        return TinyMap.create(keys, values, rawSize);
     }
 
     @Override
@@ -202,6 +209,7 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
             return hash;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public TinyMap<K, V> contentEquals(MutableTinyMap<K, V> builder, Object cached) {
             if (!(cached instanceof TinyMap<?, ?>) || builder.rawSize != ((TinyMap) cached).size())
@@ -240,6 +248,7 @@ public class MutableTinyMap<K, V> extends ListMapBase<K, V> implements Cacheable
             return hash;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public TinyMap<K, V> contentEquals(MutableTinyMap<K, V> builder, Object cached) {
             builder.rehash();

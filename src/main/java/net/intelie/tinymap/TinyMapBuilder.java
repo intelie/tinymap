@@ -1,13 +1,19 @@
 package net.intelie.tinymap;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class TinyMapBuilder<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>> {
-    private final Adapter<K, V> adapter = new Adapter<>(new KeysAdapter<>());
+    private static final Adapter<?, ?> adapter = new Adapter<>(new KeysAdapter<>());
 
     private Object[] keys = new Object[4];
     private Object[] values = new Object[4];
     private int size = 0;
+
+    public TinyMapBuilder<K, V> putAll(Map<K, V> map) {
+        map.forEach(this::put);
+        return this;
+    }
 
     public TinyMapBuilder<K, V> put(K key, V value) {
         if (size == keys.length) {
@@ -22,7 +28,7 @@ public class TinyMapBuilder<K, V> implements CacheableBuilder<TinyMapBuilder<K, 
 
     @Override
     public Adapter<K, V> adapter() {
-        return adapter;
+        return (Adapter<K, V>) adapter;
     }
 
     public int size() {
@@ -43,14 +49,7 @@ public class TinyMapBuilder<K, V> implements CacheableBuilder<TinyMapBuilder<K, 
     }
 
     private TinyMap<K, V> innerBuild() {
-        if (size == 0)
-            return new TinyMap.Empty<>();
-        else if (size < 0xFF)
-            return TinyMap.Small.create(keys, values, size);
-        else if (size < 0xFFFF)
-            return TinyMap.Medium.create(keys, values, size);
-        else
-            return TinyMap.Large.create(keys, values, size);
+        return TinyMap.create(keys, values, size);
     }
 
     public TinyMap<K, V> buildAndClear() {

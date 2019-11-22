@@ -3,7 +3,7 @@ package net.intelie.tinymap.benchmark;
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
 import net.intelie.tinymap.MutableTinyMap;
-import net.intelie.tinymap.TestSizeUtils;
+import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
 import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 
 @Ignore
 public class MapAccessTime {
@@ -24,12 +23,12 @@ public class MapAccessTime {
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
         MutableTinyMap<String, Object> mutable = new MutableTinyMap<>();
 
-        String[] keys = new String[100];
+        String[] keys = new String[1000];
 
-        Random random = new Random();
+        //Random random = new Random();
 
         for (int i = 0; i < keys.length; i++) {
-            keys[i] = "key" + random.nextInt();
+            keys[i] = "key" + i;
             map.put(keys[i], "value" + i);
             linked.put(keys[i], "value" + i);
             guava.put(keys[i], "value" + i);
@@ -52,7 +51,7 @@ public class MapAccessTime {
 
         long startTime = System.nanoTime();
         long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 2000000; i++)
+        for (int i = 0; i < 1000000; i++)
             for (String key : keys)
                 map.get(key);
 

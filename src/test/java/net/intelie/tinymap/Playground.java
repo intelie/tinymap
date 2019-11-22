@@ -2,9 +2,9 @@ package net.intelie.tinymap;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import net.intelie.introspective.ThreadResources;
 import net.intelie.tinymap.json.JsonToken;
 import net.intelie.tinymap.json.TinyJsonDecoder;
+import net.intelie.tinymap.support.TestSizeUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 

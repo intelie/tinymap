@@ -2,6 +2,7 @@ package net.intelie.tinymap;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.reflect.ReflectionCache;
+import net.intelie.tinymap.support.SerializationHelper;
 import org.junit.Test;
 import org.mockito.InOrder;
 
@@ -47,7 +48,7 @@ public class TinyMapTest {
         assertThat(map.keySet()).containsExactly("aaa", "bbb");
     }
 
-      @Test
+    @Test
     public void canBuildWithDuplicateKeys() {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
@@ -135,26 +136,32 @@ public class TinyMapTest {
     }
 
     @Test
-    public void testBuildEmpty() {
+    public void testBuildEmpty() throws Exception {
         testCount(0, false);
         testCount(0, true);
     }
 
     @Test
-    public void testBuildMedium() {
+    public void testBuildMedium() throws Exception {
         testCount(1000, false);
         testCount(1000, true);
     }
 
     @Test
-    public void testBuildLarge() {
+    public void testBuildLarge() throws Exception {
         testCount(0x10000, true);
     }
 
     @Test
-    public void testBuildAlmostThere() {
+    public void testBuildAlmostThere() throws Exception {
         testCount(255, false);
         testCount(255, true);
+    }
+
+    @Test
+    public void testBuildSmall() throws Exception {
+        testCount(123, false);
+        testCount(123, true);
     }
 
     @Test
@@ -211,7 +218,7 @@ public class TinyMapTest {
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
     }
 
-    private void testCount(int count, boolean withNull) {
+    private void testCount(int count, boolean withNull) throws Exception {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
         LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
 
@@ -275,6 +282,13 @@ public class TinyMapTest {
         unordered.put("aaa0", "different");
         assertThat(map).isNotEqualTo(unordered);
         assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
+
+        byte[] serialized = SerializationHelper.testSerialize(map);
+        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
+        assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
+
+        TinyMap<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
+        assertThat(deserialized).isEqualTo(map);
     }
 
     @Test

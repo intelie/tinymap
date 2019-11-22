@@ -11,13 +11,17 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     @SuppressWarnings("unchecked")
     @Override
     public V getOrDefault(Object key, V defaultValue) {
-        return (V) getUnsafe(key, defaultValue);
+        int index = getIndex(key);
+        if (index < 0) return defaultValue;
+        return getValueAt(index);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public V get(Object key) {
-        return (V) getUnsafe(key, null);
+        int index = getIndex(key);
+        if (index < 0) return null;
+        return getValueAt(index);
     }
 
     @Override

@@ -1,7 +1,9 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.support.SerializationHelper;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +47,7 @@ public class MutableTinyMapTest {
     }
 
     @Test
-    public void testIteratorChanges() {
+    public void testIteratorChanges() throws IOException, ClassNotFoundException {
         MutableTinyMap<String, Object> builder = new MutableTinyMap<>();
         LinkedHashMap<String, Object> expected = new LinkedHashMap<>();
 
@@ -71,35 +73,35 @@ public class MutableTinyMapTest {
     }
 
     @Test
-    public void testBuildEmpty() {
+    public void testBuildEmpty() throws IOException, ClassNotFoundException {
         assertMapWithCount(0, false);
         assertMapWithCount(0, true);
     }
 
     @Test
-    public void testBuildMedium() {
+    public void testBuildMedium() throws IOException, ClassNotFoundException {
         assertMapWithCount(1000, false);
         assertMapWithCount(1000, true);
         assertMapWithCount(1000, true, 200, 500);
     }
 
     @Test
-    public void testBuildAlmostThere() {
+    public void testBuildAlmostThere() throws IOException, ClassNotFoundException {
         assertMapWithCount(255, false);
         assertMapWithCount(255, true);
         assertMapWithCount(255, true, 100, 200);
     }
 
     @Test
-    public void testBuildLarge() {
+    public void testBuildLarge() throws IOException, ClassNotFoundException {
         assertMapWithCount(0x10000, true);
     }
 
-    private void assertMapWithCount(int count, boolean withNull) {
+    private void assertMapWithCount(int count, boolean withNull) throws IOException, ClassNotFoundException {
         assertMapWithCount(count, withNull, 0, 0);
     }
 
-    private void assertMapWithCount(int count, boolean withNull, int removeFrom, int removeTo) {
+    private void assertMapWithCount(int count, boolean withNull, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
         MutableTinyMap<String, Object> builder = new MutableTinyMap<>();
         LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
 
@@ -124,7 +126,7 @@ public class MutableTinyMapTest {
         }
     }
 
-    private void mapIteration(int count, boolean withNull, int removeFrom, int removeTo, MutableTinyMap<String, Object> builder, LinkedHashMap<String, Object> expectedMap) {
+    private void mapIteration(int count, boolean withNull, int removeFrom, int removeTo, MutableTinyMap<String, Object> builder, LinkedHashMap<String, Object> expectedMap) throws IOException, ClassNotFoundException {
         for (int i = 0; i < count; i++)
             expectedMap.put("aaa" + i, i);
         builder.putAll(expectedMap);
@@ -143,7 +145,7 @@ public class MutableTinyMapTest {
         assertMap(expectedMap, builder.build(), 0, 0);
     }
 
-    private void assertMap(LinkedHashMap<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) {
+    private void assertMap(LinkedHashMap<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
         assertThat(map.keySet().size()).isEqualTo(expectedMap.size());
         assertThat(map.values().size()).isEqualTo(expectedMap.size());
         assertThat(map.entrySet().size()).isEqualTo(expectedMap.size());
@@ -156,6 +158,7 @@ public class MutableTinyMapTest {
         for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
             if (index == removeFrom) index = removeTo;
             assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
+            assertThat(map.getOrDefault(entry.getKey(), null)).isEqualTo(entry.getValue());
             assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
             assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
             assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
@@ -188,6 +191,7 @@ public class MutableTinyMapTest {
         });
 
         assertThat(map.get("bbb")).isNull();
+        assertThat(map.getOrDefault("bbb", "xxx")).isEqualTo("xxx");
         assertThat(map.getIndex("bbb")).isLessThan(0);
         assertThat(map.isEmpty()).isEqualTo(expectedMap.isEmpty());
         assertThat(expectedMap).isEqualTo(map);
@@ -203,6 +207,14 @@ public class MutableTinyMapTest {
         unordered.put("aaa0", "different");
         assertThat(map).isNotEqualTo(unordered);
         assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
+
+        byte[] serialized = SerializationHelper.testSerialize(map);
+        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
+        if (expectedMap.size() > 10 && removeTo - removeFrom == 0)
+            assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
+
+        Map<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
+        assertThat(deserialized).isEqualTo(map);
     }
 
 

@@ -2,11 +2,12 @@ package net.intelie.tinymap;
 
 import net.intelie.tinymap.util.Preconditions;
 
+import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class TinyList<T> extends AbstractList<T> {
+public class TinyList<T> extends AbstractList<T> implements Serializable {
     private final T[] values;
 
     public TinyList(T[] values) {

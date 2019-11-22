@@ -1,4 +1,4 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.support;
 
 import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.reflect.ReflectionCache;

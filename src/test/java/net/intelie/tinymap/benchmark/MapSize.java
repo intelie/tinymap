@@ -2,7 +2,7 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.tinymap.MutableTinyMap;
-import net.intelie.tinymap.TestSizeUtils;
+import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
 import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;

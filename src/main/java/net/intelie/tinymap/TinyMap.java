@@ -2,11 +2,11 @@ package net.intelie.tinymap;
 
 import net.intelie.tinymap.util.Preconditions;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
-
+public abstract class TinyMap<K, V> extends ListMapBase<K, V> implements Serializable {
     protected final Object[] keys;
     protected final Object[] values;
 
@@ -19,7 +19,7 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
         return new TinyMapBuilder<>();
     }
 
-    public static int makeTableSize(int length) {
+    public static int tableSize(int length) {
         return Integer.highestOneBit((int) Math.ceil(length * 4.0 / 3) - 1) * 2;
     }
 
@@ -38,6 +38,17 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
                 newSize++;
         }
         return newSize;
+    }
+
+    public static <K, V> TinyMap<K, V> create(Object[] keys, Object[] values, int size) {
+        if (size == 0)
+            return new TinyMap.Empty<>();
+        else if (size < 0xFF)
+            return TinyMap.Small.innerCreate(keys, values, size);
+        else if (size < 0xFFFF)
+            return TinyMap.Medium.innerCreate(keys, values, size);
+        else
+            return TinyMap.Large.innerCreate(keys, values, size);
     }
 
     public boolean sharesKeysWith(TinyMap<K, V> other) {
@@ -72,7 +83,7 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
     public static class Empty<K, V> extends TinyMap<K, V> {
         private static final Object[] EMPTY = new Object[0];
 
-        public Empty() {
+        private Empty() {
             super(EMPTY, EMPTY);
         }
 
@@ -96,11 +107,6 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
         public int size() {
             return 0;
         }
-
-        @Override
-        public Object getUnsafe(Object key, Object defaultValue) {
-            return defaultValue;
-        }
     }
 
     public static class Small<K, V> extends TinyMap<K, V> {
@@ -111,8 +117,8 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
             this.table = table;
         }
 
-        public static <K, V> Small<K, V> create(Object[] keys, Object[] values, int size) {
-            byte[] table = new byte[makeTableSize(size)];
+        private static <K, V> Small<K, V> innerCreate(Object[] keys, Object[] values, int size) {
+            byte[] table = new byte[tableSize(size)];
             Arrays.fill(table, (byte) 0xFF);
 
             int newSize = initTable(keys, values, size, (position, key) -> {
@@ -162,20 +168,6 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
 
             return -1;
         }
-
-        @Override
-        public Object getUnsafe(Object key, Object defaultValue) {
-            byte[] table = this.table;
-            int mask = table.length - 1;
-            int hash = hash(key) & mask;
-            int collisions = 0;
-            for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
-                if (Objects.equals(keys[i], key))
-                    return values[i];
-
-            return defaultValue;
-        }
-
     }
 
     public static class Medium<K, V> extends TinyMap<K, V> {
@@ -186,8 +178,8 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
             this.table = table;
         }
 
-        public static <K, V> Medium<K, V> create(Object[] keys, Object[] values, int size) {
-            short[] table = new short[makeTableSize(size)];
+        private static <K, V> Medium<K, V> innerCreate(Object[] keys, Object[] values, int size) {
+            short[] table = new short[tableSize(size)];
             Arrays.fill(table, (short) 0xFFFF);
 
             int newSize = initTable(keys, values, size, (position, key) -> {
@@ -237,19 +229,6 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
 
             return -1;
         }
-
-        @Override
-        public Object getUnsafe(Object key, Object defaultValue) {
-            short[] table = this.table;
-            int mask = table.length - 1;
-            int hash = hash(key) & mask;
-            int collisions = 0;
-            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
-                if (Objects.equals(keys[i], key))
-                    return values[i];
-
-            return defaultValue;
-        }
     }
 
     public static class Large<K, V> extends TinyMap<K, V> {
@@ -260,8 +239,8 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
             this.table = table;
         }
 
-        public static <K, V> Large<K, V> create(Object[] keys, Object[] values, int size) {
-            int[] table = new int[makeTableSize(size)];
+        private static <K, V> Large<K, V> innerCreate(Object[] keys, Object[] values, int size) {
+            int[] table = new int[tableSize(size)];
             Arrays.fill(table, -1);
 
             int newSize = initTable(keys, values, size, (position, key) -> {
@@ -309,18 +288,6 @@ public abstract class TinyMap<K, V> extends ListMapBase<K, V> {
                 if (Objects.equals(keys[i], key))
                     return i;
             return -1;
-        }
-
-        @Override
-        public Object getUnsafe(Object key, Object defaultValue) {
-            int[] table = this.table;
-            int mask = table.length - 1;
-            int hash = hash(key) & mask;
-            int collisions = 0;
-            for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
-                if (Objects.equals(keys[i], key))
-                    return values[i];
-            return defaultValue;
         }
     }
 }
