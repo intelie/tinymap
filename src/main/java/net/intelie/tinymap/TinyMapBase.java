@@ -5,7 +5,7 @@ import net.intelie.tinymap.util.Preconditions;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract class ListMapBase<K, V> implements ListMap<K, V> {
+public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
     private static final Object SENTINEL = new Object();
 
     @SuppressWarnings("unchecked")
@@ -84,12 +84,14 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        return setValueAt(getIndex(key), value);
+        throw new UnsupportedOperationException("modification not supported: " + this);
     }
 
     @Override
     public V remove(Object key) {
-        return removeAt(getIndex(key));
+        int index = getIndex(key);
+        if (index < 0) return null;
+        return removeAt(index);
     }
 
     @Override
@@ -137,7 +139,6 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         return hash;
     }
 
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder().append('{');
@@ -153,14 +154,13 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         return sb.append('}').toString();
     }
 
-
     private abstract class ListIterator<T> implements Iterator<T> {
         private int current = -1;
         private int next = 0;
 
         @Override
         public boolean hasNext() {
-            return next < ListMapBase.this.rawSize();
+            return next < TinyMapBase.this.rawSize();
         }
 
         public abstract T makeObject(int index);
@@ -198,12 +198,12 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return TinyMapBase.this.size();
         }
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            TinyMapBase.this.clear();
         }
     }
 
@@ -225,12 +225,12 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return TinyMapBase.this.size();
         }
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            TinyMapBase.this.clear();
         }
     }
 
@@ -256,12 +256,12 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return TinyMapBase.this.size();
         }
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            TinyMapBase.this.clear();
         }
     }
 

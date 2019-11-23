@@ -1,10 +1,9 @@
 package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
-import net.intelie.tinymap.MutableTinyMap;
+import net.intelie.tinymap.TinyMapBuilder;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
-import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -22,20 +21,18 @@ public class MapSize {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> linked = new LinkedHashMap<>();
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
-        MutableTinyMap<String, Object> mutable = new MutableTinyMap<>();
 
         String[] keys = new String[10000];
 
-        print(0, linked, map, guava.build(), mutable, tiny.build());
+        print(0, linked, map, guava.build(), tiny, tiny.build());
         for (int i = 0; i < keys.length; i++) {
             keys[i] = "key" + i;
             map.put(keys[i], "value" + i);
             linked.put(keys[i], "value" + i);
             guava.put(keys[i], "value" + i);
             tiny.put(keys[i], "value" + i);
-            mutable.put(keys[i], "value" + i);
             if (i % (keys.length / 100) == 0)
-                print(i + 1, linked, map, guava.build(), mutable, tiny.build());
+                print(i + 1, linked, map, guava.build(), tiny, tiny.build());
         }
     }
 

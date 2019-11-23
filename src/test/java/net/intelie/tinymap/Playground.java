@@ -28,20 +28,22 @@ public class Playground {
 
         Gson gson = new Gson();
 
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json")));
-             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/everything50k.json")))) {
+        long start = System.nanoTime();
+        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/rtolive.json")));
+             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/rtolive.json")))) {
             reader2.setLenient(true);
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;
                 objs.addAll(reader.nextList());
-
-                if (reader2.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
-                Collection<?> obj = gson.fromJson(reader2, List.class);
-                objs2.addAll(obj);
+//
+//                if (reader2.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
+//                Collection<?> obj = gson.fromJson(reader2, List.class);
+//                objs2.addAll(obj);
 
             }
         }
 
+        System.out.println((System.nanoTime() - start) / 1e9);
         System.out.println(objs.equals(objs2));
         System.out.println(TestSizeUtils.formattedSize(objs2));
         TestSizeUtils.dump(objs);

@@ -17,10 +17,7 @@ public class TinyMapTest {
     @Test
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
-        assertThat(reflection.get(TinyMap.Empty.class).size()).isEqualTo(20);
-        assertThat(reflection.get(TinyMap.Small.class).size()).isEqualTo(24);
-        assertThat(reflection.get(TinyMap.Medium.class).size()).isEqualTo(24);
-        assertThat(reflection.get(TinyMap.Large.class).size()).isEqualTo(24);
+        assertThat(reflection.get(TinyMap.class).size()).isEqualTo(20);
     }
 
     @Test
@@ -30,8 +27,8 @@ public class TinyMapTest {
         builder.put("aaa", 333);
         builder.put("bbb", 456.0);
         builder.put("aaa", 123);
-        assertThat(builder.size()).isEqualTo(3);
-        TinyMap<String, Object> map = builder.buildAndClear();
+        assertThat(builder.size()).isEqualTo(2);
+        TinyMap<String, Object> map = builder.build();
 
         assertThat(map.get("aaa")).isEqualTo(123);
         assertThat(map.get("bbb")).isEqualTo(456.0);
@@ -55,7 +52,7 @@ public class TinyMapTest {
         builder.put("aaa", 456.0);
         builder.put("bbb", 789.0);
 
-        assertThat(builder.size()).isEqualTo(3);
+        assertThat(builder.size()).isEqualTo(2);
         assertThat(builder.build()).isEqualTo(ImmutableMap.of("aaa", 456.0, "bbb", 789.0));
 
         assertThat(builder.size()).isEqualTo(2);
@@ -67,7 +64,7 @@ public class TinyMapTest {
     public void canBuildWithNull() {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put(null, 123);
-        assertThat(builder.buildAndClear()).isEqualTo(Collections.singletonMap(null, 123));
+        assertThat(builder.build()).isEqualTo(Collections.singletonMap(null, 123));
     }
 
     @Test
@@ -78,7 +75,7 @@ public class TinyMapTest {
         for (int i = 0; i < 1000; i++) {
             builder.put("aaa" + i, i);
         }
-        assertThat(builder.buildAndClear().size()).isEqualTo(1001);
+        assertThat(builder.build().size()).isEqualTo(1001);
     }
 
     @Test
@@ -89,7 +86,7 @@ public class TinyMapTest {
         for (int i = 0; i < 0x10000; i++) {
             builder.put("aaa" + i, i);
         }
-        assertThat(builder.buildAndClear().size()).isEqualTo(65537);
+        assertThat(builder.build().size()).isEqualTo(65537);
     }
 
     @Test
@@ -97,7 +94,7 @@ public class TinyMapTest {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
         builder.put("aaa", 123);
         builder.put("bbb", 456.0);
-        TinyMap<String, Object> map = builder.buildAndClear();
+        TinyMap<String, Object> map = builder.build();
 
         BiConsumer consumer = mock(BiConsumer.class);
 
@@ -115,7 +112,7 @@ public class TinyMapTest {
         builder.put("aaa", null);
         builder.put("bbb", 456.0);
 
-        TinyMap<String, Object> map = builder.buildAndClear();
+        TinyMap<String, Object> map = builder.build();
 
         assertThat(map.containsKey("aaa")).isTrue();
         assertThat(map.containsKey("ccc")).isFalse();
@@ -207,12 +204,12 @@ public class TinyMapTest {
         while (builder.size() < count)
             builder.put("aaa" + builder.size(), builder.size());
 
-        TinyMap<String, Object> map = builder.buildAndClear();
-        map.debugCollisions("abcdef");
+        TinyMap<String, Object> map = builder.build();
+        map.keySet().debugCollisions("abcdef");
 
         long total = 0;
         for (int i = 0; i < count; i++) {
-            total += map.debugCollisions("aaa" + i);
+            total += map.keySet().debugCollisions("aaa" + i);
         }
         //System.out.println(count + "\t" + (total / (double) count));
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
@@ -235,7 +232,7 @@ public class TinyMapTest {
             count++;
         }
 
-        TinyMap<String, Object> map = builder.buildAndClear();
+        TinyMap<String, Object> map = builder.build();
 
         assertThat(map.keySet().size()).isEqualTo(count);
         assertThat(map.values().size()).isEqualTo(count);
@@ -267,7 +264,7 @@ public class TinyMapTest {
         assertThat(entriesIterator.hasNext()).isFalse();
 
         assertThat(map.get("bbb")).isNull();
-        assertThat(map.getIndex("bbb")).isEqualTo(-1);
+        assertThat(map.getIndex("bbb")).isLessThan(0);
         assertThat(map.isEmpty()).isEqualTo(count == 0);
         assertThat(expectedMap).isEqualTo(map);
         assertThat(map.toString()).isEqualTo(expectedMap.toString());
@@ -293,12 +290,14 @@ public class TinyMapTest {
 
     @Test
     public void immutableIsImmutable() {
-        TinyMap<Object, Object> map = TinyMap.builder().build();
+        TinyMapBuilder<Object, Object> builder = TinyMap.builder();
+        builder.put("aaa", 111);
+        TinyMap<Object, Object> map = builder.build();
 
         assertThatThrownBy(() -> map.clear()).isInstanceOf(UnsupportedOperationException.class);
-        assertThatThrownBy(() -> map.remove("abc")).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> map.remove("aaa")).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> map.putAll(Collections.singletonMap("abc", 123))).isInstanceOf(UnsupportedOperationException.class);
         assertThatThrownBy(() -> map.put("abc", 123)).isInstanceOf(UnsupportedOperationException.class);
-
+        assertThatThrownBy(() -> map.setValueAt(0, 123)).isInstanceOf(UnsupportedOperationException.class);
     }
 }

@@ -2,10 +2,9 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
-import net.intelie.tinymap.MutableTinyMap;
+import net.intelie.tinymap.TinyMapBuilder;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.TinyMap;
-import net.intelie.tinymap.TinyMapBuilder;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -21,9 +20,9 @@ public class MapAccessTime {
         Map<String, Object> map = new HashMap<>();
         Map<String, Object> linked = new LinkedHashMap<>();
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
-        MutableTinyMap<String, Object> mutable = new MutableTinyMap<>();
+        TinyMapBuilder<String, Object> mutable = new TinyMapBuilder<>();
 
-        String[] keys = new String[1000];
+        String[] keys = new String[100];
 
         //Random random = new Random();
 
@@ -36,11 +35,11 @@ public class MapAccessTime {
             mutable.put(keys[i], "value" + i);
         }
 
-        test("Tiny", keys, tiny.build());
-        test("MutableTiny", keys, mutable);
-        test("LinkedHashMap", keys, linked);
-        test("HashMap", keys, map);
-        test("Guava", keys, guava.build());
+//        test("Tiny", keys, tiny.build());
+//        test("LinkedHashMap", keys, linked);
+//        test("MutableTiny", keys, mutable);
+//        test("HashMap", keys, map);
+//        test("Guava", keys, guava.build());
     }
 
     private void test(String name, String[] keys, Map<String, Object> map) {
@@ -51,7 +50,7 @@ public class MapAccessTime {
 
         long startTime = System.nanoTime();
         long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 1000000; i++)
+        for (int i = 0; i < 10000000; i++)
             for (String key : keys)
                 map.get(key);
 

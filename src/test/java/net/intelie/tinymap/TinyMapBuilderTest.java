@@ -1,169 +1,220 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.support.SerializationHelper;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 
 public class TinyMapBuilderTest {
-
     @Test
-    public void testBuilderHashCode() {
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
+    public void testAddAndGet() {
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
 
-        TinyMapBuilder.Adapter<String, Object> adapter = builder1.adapter();
+        builder.put("abc", 123);
+        builder.put("abc", 456);
 
-        assertThat(adapter.contentHashCode(builder1)).isEqualTo(adapter.contentHashCode(builder2));
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+        assertThat(builder.size()).isEqualTo(1);
+        assertThat(builder.containsKey("abc")).isTrue();
+        assertThat(builder.get("abc")).isEqualTo(456);
 
-        builder1.put("aaa", 111);
-        builder2.put("aaa", 111);
-
-        assertThat(adapter.contentHashCode(builder1)).isEqualTo(adapter.contentHashCode(builder2));
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
-
-        builder1.put("bbb", 222);
-
-        assertThat(adapter.contentHashCode(builder1)).isNotEqualTo(adapter.contentHashCode(builder2));
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
-
-        builder2.put("bbb", 333);
-
-        assertThat(adapter.contentHashCode(builder1)).isNotEqualTo(adapter.contentHashCode(builder2));
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
+        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
+        assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
     }
 
     @Test
-    public void testContentEqualWithDuplicateKeys() {
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        TinyMapBuilder.Adapter<String, Object> adapter = builder1.adapter();
+    public void testAddAndRemove() {
+        TinyMapBuilder<String, Object> builder = new TinyMapBuilder<>();
 
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
-        String aaa1 = "aaa";
-        String aaa2 = "aaa";
-        String bbb = "bbb";
+        for (int i = 0; i < 100; i++)
+            assertThat(builder.put("aaa" + i, i)).isNull();
+        for (int i = 0; i < 100; i++)
+            assertThat(builder.containsKey("aaa" + i)).isTrue();
 
-        Integer v111 = 111;
-        Integer v222 = 222;
-        Integer v333 = 333;
+        assertThat(builder.size()).isEqualTo(100);
 
-        builder1.put(aaa1, v111);
-        builder2.put(aaa1, v111);
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+        for (int i = 0; i < 100; i += 2)
+            assertThat(builder.remove("aaa" + i)).isEqualTo(i);
 
-        builder1.put(bbb, v222);
-        builder2.put(bbb, v222);
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.containsKey("aaa" + i)).isEqualTo(i % 2 != 0);
+        }
 
-        builder1.put(aaa2, v333);
-        builder2.put(aaa2, v333);
-
-        //even if this builder alwyas build the same map, the duplicate keys make it impossible
-        //to predict it without actually creating the map
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
+        assertThat(builder.size()).isEqualTo(50);
+        assertThat(builder.build().size()).isEqualTo(50);
     }
 
     @Test
-    public void testContentEqualComparingOnlyKeys() {
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        TinyMapBuilder.KeysAdapter<String, Object> adapter = new TinyMapBuilder.KeysAdapter<>();
+    public void testIteratorChanges() throws IOException, ClassNotFoundException {
+        TinyMapBuilder<String, Object> builder = new TinyMapBuilder<>();
+        LinkedHashMap<String, Object> expected = new LinkedHashMap<>();
 
-        builder1.put("aaa", 111);
-        builder2.put("aaa", 222);
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.put("aaa" + i, i)).isNull();
+            assertThat(expected.put("aaa" + i, i)).isNull();
+        }
 
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNotNull();
+        Iterator<Map.Entry<String, Object>> it = builder.entrySet().iterator();
+        for (int i = 0; i < 10; i++)
+            it.next();
+        for (int i = 10; i < 20; i++) {
+            it.next();
+            it.remove();
+            expected.remove("aaa" + i);
+        }
+        for (int i = 20; i < 30; i++) {
+            it.next().setValue("x" + i);
+            expected.put("aaa" + i, "x" + i);
+        }
 
-        builder1.put("bbb", 333);
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
-        builder2.put("ccc", 444);
-        assertThat(adapter.contentEquals(builder1, builder2.build())).isNull();
-    }
-
-
-    @Test
-    public void testReuseEmpty() {
-        TinyMapBuilder.KeysAdapter<String, Object> adapter = new TinyMapBuilder.KeysAdapter<>();
-
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        TinyMap<String, Object> map1 = builder1.build();
-
-        TinyMap<String, Object> map2 = adapter.reuse(builder2, map1, null);
-
-        assertThat(map1).isSameAs(map2);
-        assertThat(map1.sharesKeysWith(map2)).isTrue();
+        assertMap(expected, builder, 10, 20);
     }
 
     @Test
-    public void testBuildSmallWithCache() {
-        ObjectCache cache = new ObjectCache();
-
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        builder1.put("aaa", 111);
-        builder1.put("bbb", 222);
-        TinyMap<String, Object> map1 = cache.get(builder1);
-
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        builder2.put("aaa", 333);
-        builder2.put("bbb", 444);
-        TinyMap<String, Object> map2 = cache.get(builder2);
-
-        assertThat(map1.sharesKeysWith(map2)).isTrue();
+    public void testBuildEmpty() throws IOException, ClassNotFoundException {
+        assertMapWithCount(0, false);
+        assertMapWithCount(0, true);
     }
 
     @Test
-    public void testBuildMediumWithCache() {
-        ObjectCache cache = new ObjectCache();
-
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        for (int i = 0; i < 1000; i++)
-            builder1.put(cache.get("aaa" + i), 1000 * i);
-        TinyMap<String, Object> map1 = cache.get(builder1);
-
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        for (int i = 0; i < 1000; i++)
-            builder2.put(cache.get("aaa" + i), 2000 * i);
-        TinyMap<String, Object> map2 = cache.get(builder2);
-
-        assertThat(map1.sharesKeysWith(map2)).isTrue();
+    public void testBuildMedium() throws IOException, ClassNotFoundException {
+        assertMapWithCount(1000, false);
+        assertMapWithCount(1000, true);
+        assertMapWithCount(1000, true, 200, 500);
     }
 
     @Test
-    public void testBuildExactlySameWithCache() {
-        ObjectCache cache = new ObjectCache();
-
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        for (int i = 0; i < 1000; i++)
-            builder1.put(cache.get("aaa" + i), cache.get(1000 * i));
-        TinyMap<String, Object> map1 = cache.get(builder1);
-
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        for (int i = 0; i < 1000; i++)
-            builder2.put(cache.get("aaa" + i), cache.get(1000 * i));
-        TinyMap<String, Object> map2 = cache.get(builder2);
-
-        assertThat(map1).isSameAs(map2);
+    public void testBuildAlmostThere() throws IOException, ClassNotFoundException {
+        assertMapWithCount(255, false);
+        assertMapWithCount(255, true);
+        assertMapWithCount(255, true, 100, 200);
     }
 
     @Test
-    public void testBuildLargeWithCache() {
-        ObjectCache cache = new ObjectCache(1 << 20);
-
-        TinyMapBuilder<String, Object> builder1 = TinyMap.builder();
-        for (int i = 0; i < 100000; i++)
-            builder1.put(cache.get("aaa" + i), 100000 * i);
-        TinyMap<String, Object> map1 = cache.get(builder1);
-
-        TinyMapBuilder<String, Object> builder2 = TinyMap.builder();
-        for (int i = 0; i < 100000; i++)
-            builder2.put(cache.get("aaa" + i), 100000 * i);
-        TinyMap<String, Object> map2 = cache.get(builder2);
-
-        assertThat(map1.sharesKeysWith(map2)).isTrue();
+    public void testBuildLarge() throws IOException, ClassNotFoundException {
+        assertMapWithCount(0x10000, true);
     }
+
+    private void assertMapWithCount(int count, boolean withNull) throws IOException, ClassNotFoundException {
+        assertMapWithCount(count, withNull, 0, 0);
+    }
+
+    private void assertMapWithCount(int count, boolean withNull, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
+        TinyMapBuilder<String, Object> builder = new TinyMapBuilder<>();
+        LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
+
+        mapIteration(count, withNull, removeFrom, removeTo, builder, expectedMap);
+        if (count < 1000) {
+            builder.clear();
+            expectedMap.clear();
+            mapIteration(count, withNull, removeFrom, removeTo, builder, expectedMap);
+
+            builder.entrySet().clear();
+            expectedMap.entrySet().clear();
+            mapIteration(count, withNull, removeFrom, removeTo, builder, expectedMap);
+
+            builder.values().clear();
+            expectedMap.values().clear();
+            mapIteration(count, withNull, removeFrom, removeTo, builder, expectedMap);
+
+            builder.keySet().clear();
+            expectedMap.keySet().clear();
+            mapIteration(count, withNull, removeFrom, removeTo, builder, expectedMap);
+        }
+    }
+
+    private void mapIteration(int count, boolean withNull, int removeFrom, int removeTo, TinyMapBuilder<String, Object> builder, LinkedHashMap<String, Object> expectedMap) throws IOException, ClassNotFoundException {
+        for (int i = 0; i < count; i++)
+            expectedMap.put("aaa" + i, i);
+        builder.putAll(expectedMap);
+
+        if (withNull) {
+            builder.put(null, null);
+            expectedMap.put(null, null);
+        }
+
+        for (int i = removeFrom; i < removeTo; i++) {
+            builder.remove("aaa" + i);
+            expectedMap.remove("aaa" + i);
+        }
+
+        assertMap(expectedMap, builder, removeFrom, removeTo);
+        assertMap(expectedMap, builder.build(), 0, 0);
+    }
+
+    private void assertMap(LinkedHashMap<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
+        assertThat(map.keySet().size()).isEqualTo(expectedMap.size());
+        assertThat(map.values().size()).isEqualTo(expectedMap.size());
+        assertThat(map.entrySet().size()).isEqualTo(expectedMap.size());
+
+        Iterator<String> keysIterator = map.keySet().iterator();
+        Iterator<Object> valuesIterator = map.values().iterator();
+        Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
+
+        int index = 0;
+        for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
+            if (index == removeFrom) index = removeTo;
+            assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
+            assertThat(map.getOrDefault(entry.getKey(), null)).isEqualTo(entry.getValue());
+            assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
+            assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
+            assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
+
+            assertThat(keysIterator.hasNext()).isTrue();
+            assertThat(keysIterator.next()).isEqualTo(entry.getKey());
+
+            assertThat(valuesIterator.hasNext()).isTrue();
+            assertThat(valuesIterator.next()).isEqualTo(entry.getValue());
+
+            assertThat(entriesIterator.hasNext()).isTrue();
+            Map.Entry<String, Object> nextEntry = entriesIterator.next();
+            assertThat(nextEntry).isEqualTo(entry);
+            assertThat(nextEntry.hashCode()).isEqualTo(entry.hashCode());
+            assertThat(nextEntry.toString()).isEqualTo(entry.toString());
+            index++;
+        }
+
+        assertThat(keysIterator.hasNext()).isFalse();
+        assertThat(valuesIterator.hasNext()).isFalse();
+        assertThat(entriesIterator.hasNext()).isFalse();
+
+        Iterator<Map.Entry<String, Object>> expectedIterator = expectedMap.entrySet().iterator();
+
+        map.forEach((k, v) -> {
+            assertThat(expectedIterator.hasNext());
+            Map.Entry<String, Object> expectedEntry = expectedIterator.next();
+            assertThat(k).isEqualTo(expectedEntry.getKey());
+            assertThat(v).isEqualTo(expectedEntry.getValue());
+        });
+
+        assertThat(map.get("bbb")).isNull();
+        assertThat(map.getOrDefault("bbb", "xxx")).isEqualTo("xxx");
+        assertThat(map.getIndex("bbb")).isLessThan(0);
+        assertThat(map.isEmpty()).isEqualTo(expectedMap.isEmpty());
+        assertThat(expectedMap).isEqualTo(map);
+        assertThat(map.toString()).isEqualTo(expectedMap.toString());
+
+        assertThat(map).isEqualTo(expectedMap);
+        assertThat(map.hashCode()).isEqualTo(expectedMap.hashCode());
+
+        HashMap<String, Object> unordered = new HashMap<>(expectedMap);
+        assertThat(map).isEqualTo(unordered);
+        assertThat(map.hashCode()).isEqualTo(unordered.hashCode());
+
+        unordered.put("aaa0", "different");
+        assertThat(map).isNotEqualTo(unordered);
+        assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
+
+        byte[] serialized = SerializationHelper.testSerialize(map);
+        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
+        if (expectedMap.size() > 10 && removeTo - removeFrom == 0)
+            assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
+
+        Map<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
+        assertThat(deserialized).isEqualTo(map);
+    }
+
 
 }
