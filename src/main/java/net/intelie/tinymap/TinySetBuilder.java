@@ -192,10 +192,5 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
         public TinySet<T> build(TinySetBuilder<T> builder, ObjectCache cache) {
             return builder.build();
         }
-
-        @Override
-        public TinySet<T> reuse(TinySetBuilder<T> builder, TinySet<T> old, ObjectCache cache) {
-            return old;
-        }
     }
 }

@@ -26,7 +26,7 @@ public class TinyMap<K, V> extends TinyMapBase<K, V> implements Serializable {
         return keys == other.keys;
     }
 
-    public <V> long debugCollisions(V key) {
+    public long debugCollisions(V key) {
         return keys.debugCollisions(key);
     }
 

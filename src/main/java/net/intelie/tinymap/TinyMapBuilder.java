@@ -151,10 +151,5 @@ public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements Cacheable
         public TinyMap<K, V> build(TinyMapBuilder<K, V> builder, ObjectCache cache) {
             return builder.buildWithKeys(cache.get(builder.keys));
         }
-
-        @Override
-        public TinyMap<K, V> reuse(TinyMapBuilder<K, V> builder, TinyMap<K, V> old, ObjectCache cache) {
-            return old;
-        }
     }
 }

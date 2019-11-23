@@ -15,7 +15,6 @@ public class ObjectCache {
         this(1 << 14);
     }
 
-
     public ObjectCache(int bucketCount) {
         this(bucketCount, 4);
     }
@@ -28,10 +27,7 @@ public class ObjectCache {
     private <B, T> T eq(Bucket bucket, CacheAdapter<B, T> adapter, B builder, int hash) {
         if (bucket == null || bucket.hash != hash)
             return null;
-        T cached = adapter.contentEquals(builder, bucket.get());
-        if (cached == null)
-            return null;
-        return adapter.reuse(builder, cached, this);
+        return adapter.contentEquals(builder, bucket.get());
     }
 
     public Double get(double value) {
