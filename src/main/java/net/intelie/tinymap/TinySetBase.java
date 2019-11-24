@@ -50,7 +50,7 @@ public abstract class TinySetBase<T> extends AbstractCollection<T> implements Li
 
     @Override
     public boolean add(T obj) {
-        return addOrGetIndex(obj) >= 0;
+        return addOrGetIndex(obj) < 0;
     }
 
     @Override

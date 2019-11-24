@@ -1,5 +1,7 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.Preconditions;
+
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -63,12 +65,14 @@ public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements Cacheable
     @SuppressWarnings("unchecked")
     @Override
     public V getValueAt(int index) {
+        Preconditions.checkElementIndex(index, rawSize());
         return (V) values[index];
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public V setValueAt(int index, V value) {
+        Preconditions.checkElementIndex(index, rawSize());
         Object old = values[index];
         values[index] = value;
         return (V) old;

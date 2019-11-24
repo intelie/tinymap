@@ -27,6 +27,11 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
             return new Large<>(keys);
     }
 
+
+    public static <T> TinySetBuilder<T> builder() {
+        return new TinySetBuilder<>();
+    }
+
     public abstract int debugCollisions(Object key);
 
     public static class Empty<T> extends TinySet<T> {

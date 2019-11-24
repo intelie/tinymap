@@ -2,6 +2,7 @@ package net.intelie.tinymap;
 
 import net.intelie.tinymap.util.Preconditions;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
@@ -44,6 +45,7 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
 
     @Override
     public Entry<K, V> getEntryAt(int index) {
+        Preconditions.checkElementIndex(index, rawSize());
         return new ListEntry(index);
     }
 
@@ -105,7 +107,7 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
     }
 
     @Override
-    public Set<K> keySet() {
+    public ListSet<K> keySet() {
         return new KeysView();
     }
 
@@ -180,7 +182,7 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
         }
     }
 
-    private class ValuesView extends AbstractCollection<V> {
+    private class ValuesView extends AbstractCollection<V> implements Serializable {
         @Override
         public Iterator<V> iterator() {
             return new ListIterator<V>() {
@@ -207,34 +209,39 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
         }
     }
 
-    private class KeysView extends AbstractSet<K> {
+    private class KeysView extends TinySetBase<K> implements Serializable {
         @Override
-        public boolean contains(Object o) {
-            return containsKey(o);
+        public int getIndex(Object key) {
+            return TinyMapBase.this.getIndex(key);
         }
 
         @Override
-        public Iterator<K> iterator() {
-            return new ListIterator<K>() {
-                @Override
-                public K makeObject(int index) {
-                    return getKeyAt(index);
-                }
-            };
-        }
-
-        @Override
-        public int size() {
-            return TinyMapBase.this.size();
+        public K getAt(int index) {
+            return getKeyAt(index);
         }
 
         @Override
         public void clear() {
             TinyMapBase.this.clear();
         }
+
+        @Override
+        public boolean isRemoved(int index) {
+            return TinyMapBase.this.isRemoved(index);
+        }
+
+        @Override
+        public int rawSize() {
+            return TinyMapBase.this.rawSize();
+        }
+
+        @Override
+        public int size() {
+            return TinyMapBase.this.size();
+        }
     }
 
-    private class EntriesView extends AbstractSet<Entry<K, V>> {
+    private class EntriesView extends AbstractSet<Entry<K, V>> implements Serializable {
         @Override
         public boolean contains(Object o) {
             if (o instanceof Entry) {
@@ -265,7 +272,7 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
         }
     }
 
-    private class ListEntry implements Entry<K, V> {
+    private class ListEntry implements Entry<K, V>, Serializable {
         private final int index;
 
         public ListEntry(int index) {

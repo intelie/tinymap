@@ -2,7 +2,7 @@ package net.intelie.tinymap;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.reflect.ReflectionCache;
-import net.intelie.tinymap.support.SerializationHelper;
+import net.intelie.tinymap.support.MapAsserts;
 import org.junit.Test;
 import org.mockito.InOrder;
 
@@ -133,9 +133,12 @@ public class TinyMapTest {
     }
 
     @Test
-    public void testBuildEmpty() throws Exception {
-        testCount(0, false);
+    public void testBuildSmallEnough() throws Exception {
         testCount(0, true);
+
+        for (int i = 0; i <= 16; i++) {
+            testCount(i, false);
+        }
     }
 
     @Test
@@ -239,58 +242,7 @@ public class TinyMapTest {
 
         TinyMap<String, Object> map = builder.build();
 
-        assertThat(map.keySet().size()).isEqualTo(count);
-        assertThat(map.values().size()).isEqualTo(count);
-        assertThat(map.entrySet().size()).isEqualTo(count);
-
-        Iterator<String> keysIterator = map.keySet().iterator();
-        Iterator<Object> valuesIterator = map.values().iterator();
-        Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
-
-        int index = 0;
-        for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
-            assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
-            assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
-            assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
-            assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
-
-            assertThat(keysIterator.hasNext()).isTrue();
-            assertThat(keysIterator.next()).isEqualTo(entry.getKey());
-
-            assertThat(valuesIterator.hasNext()).isTrue();
-            assertThat(valuesIterator.next()).isEqualTo(entry.getValue());
-
-            assertThat(entriesIterator.hasNext()).isTrue();
-            assertThat(entriesIterator.next()).isEqualTo(entry);
-            index++;
-        }
-        assertThat(keysIterator.hasNext()).isFalse();
-        assertThat(valuesIterator.hasNext()).isFalse();
-        assertThat(entriesIterator.hasNext()).isFalse();
-
-        assertThat(map.get("bbb")).isNull();
-        assertThat(map.getIndex("bbb")).isLessThan(0);
-        assertThat(map.isEmpty()).isEqualTo(count == 0);
-        assertThat(expectedMap).isEqualTo(map);
-        assertThat(map.toString()).isEqualTo(expectedMap.toString());
-
-        assertThat(map).isEqualTo(expectedMap);
-        assertThat(map.hashCode()).isEqualTo(expectedMap.hashCode());
-
-        HashMap<String, Object> unordered = new HashMap<>(expectedMap);
-        assertThat(map).isEqualTo(unordered);
-        assertThat(map.hashCode()).isEqualTo(unordered.hashCode());
-
-        unordered.put("aaa0", "different");
-        assertThat(map).isNotEqualTo(unordered);
-        assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
-
-        byte[] serialized = SerializationHelper.testSerialize(map);
-        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
-        assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
-
-        TinyMap<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
-        assertThat(deserialized).isEqualTo(map);
+        MapAsserts.assertMap(expectedMap, map, 0, 0);
     }
 
     @Test

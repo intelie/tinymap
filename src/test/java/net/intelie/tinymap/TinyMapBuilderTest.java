@@ -1,9 +1,8 @@
 package net.intelie.tinymap;
 
-import net.intelie.tinymap.support.SerializationHelper;
+import net.intelie.tinymap.support.MapAsserts;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,8 +12,8 @@ public class TinyMapBuilderTest {
     public void testAddAndGet() {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
 
-        builder.put("abc", 123);
-        builder.put("abc", 456);
+        assertThat(builder.put("abc", 123)).isNull();
+        assertThat(builder.put("abc", 456)).isEqualTo(123);
 
         assertThat(builder.size()).isEqualTo(1);
         assertThat(builder.containsKey("abc")).isTrue();
@@ -47,7 +46,7 @@ public class TinyMapBuilderTest {
     }
 
     @Test
-    public void testIteratorChanges() throws IOException, ClassNotFoundException {
+    public void testIteratorChanges() throws Exception {
         TinyMapBuilder<String, Object> builder = new TinyMapBuilder<>();
         LinkedHashMap<String, Object> expected = new LinkedHashMap<>();
 
@@ -69,39 +68,43 @@ public class TinyMapBuilderTest {
             expected.put("aaa" + i, "x" + i);
         }
 
-        assertMap(expected, builder, 10, 20);
+        MapAsserts.assertMap(expected, builder, 10, 20);
     }
 
     @Test
-    public void testBuildEmpty() throws IOException, ClassNotFoundException {
+    public void testBuildEmpty() throws Exception {
         assertMapWithCount(0, false);
         assertMapWithCount(0, true);
     }
 
     @Test
-    public void testBuildMedium() throws IOException, ClassNotFoundException {
+    public void testBuildMedium() throws Exception {
         assertMapWithCount(1000, false);
         assertMapWithCount(1000, true);
         assertMapWithCount(1000, true, 200, 500);
     }
 
     @Test
-    public void testBuildAlmostThere() throws IOException, ClassNotFoundException {
+    public void testBuildAlmostThere() throws Exception {
         assertMapWithCount(255, false);
-        assertMapWithCount(255, true);
+        try {
+            assertMapWithCount(255, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         assertMapWithCount(255, true, 100, 200);
     }
 
     @Test
-    public void testBuildLarge() throws IOException, ClassNotFoundException {
+    public void testBuildLarge() throws Exception {
         assertMapWithCount(0x10000, true);
     }
 
-    private void assertMapWithCount(int count, boolean withNull) throws IOException, ClassNotFoundException {
+    private void assertMapWithCount(int count, boolean withNull) throws Exception {
         assertMapWithCount(count, withNull, 0, 0);
     }
 
-    private void assertMapWithCount(int count, boolean withNull, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
+    private void assertMapWithCount(int count, boolean withNull, int removeFrom, int removeTo) throws Exception {
         TinyMapBuilder<String, Object> builder = new TinyMapBuilder<>();
         LinkedHashMap<String, Object> expectedMap = new LinkedHashMap<>();
 
@@ -125,7 +128,7 @@ public class TinyMapBuilderTest {
         }
     }
 
-    private void mapIteration(int count, boolean withNull, int removeFrom, int removeTo, TinyMapBuilder<String, Object> builder, LinkedHashMap<String, Object> expectedMap) throws IOException, ClassNotFoundException {
+    private void mapIteration(int count, boolean withNull, int removeFrom, int removeTo, TinyMapBuilder<String, Object> builder, LinkedHashMap<String, Object> expectedMap) throws Exception {
         for (int i = 0; i < count; i++)
             expectedMap.put("aaa" + i, i);
         builder.putAll(expectedMap);
@@ -140,80 +143,10 @@ public class TinyMapBuilderTest {
             expectedMap.remove("aaa" + i);
         }
 
-        assertMap(expectedMap, builder, removeFrom, removeTo);
-        assertMap(expectedMap, builder.build(), 0, 0);
-    }
-
-    private void assertMap(LinkedHashMap<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) throws IOException, ClassNotFoundException {
-        assertThat(map.keySet().size()).isEqualTo(expectedMap.size());
-        assertThat(map.values().size()).isEqualTo(expectedMap.size());
-        assertThat(map.entrySet().size()).isEqualTo(expectedMap.size());
-
-        Iterator<String> keysIterator = map.keySet().iterator();
-        Iterator<Object> valuesIterator = map.values().iterator();
-        Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
-
-        int index = 0;
-        for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
-            if (index == removeFrom) index = removeTo;
-            assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
-            assertThat(map.getOrDefault(entry.getKey(), null)).isEqualTo(entry.getValue());
-            assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
-            assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
-            assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
-
-            assertThat(keysIterator.hasNext()).isTrue();
-            assertThat(keysIterator.next()).isEqualTo(entry.getKey());
-
-            assertThat(valuesIterator.hasNext()).isTrue();
-            assertThat(valuesIterator.next()).isEqualTo(entry.getValue());
-
-            assertThat(entriesIterator.hasNext()).isTrue();
-            Map.Entry<String, Object> nextEntry = entriesIterator.next();
-            assertThat(nextEntry).isEqualTo(entry);
-            assertThat(nextEntry.hashCode()).isEqualTo(entry.hashCode());
-            assertThat(nextEntry.toString()).isEqualTo(entry.toString());
-            index++;
-        }
-
-        assertThat(keysIterator.hasNext()).isFalse();
-        assertThat(valuesIterator.hasNext()).isFalse();
-        assertThat(entriesIterator.hasNext()).isFalse();
-
-        Iterator<Map.Entry<String, Object>> expectedIterator = expectedMap.entrySet().iterator();
-
-        map.forEach((k, v) -> {
-            assertThat(expectedIterator.hasNext());
-            Map.Entry<String, Object> expectedEntry = expectedIterator.next();
-            assertThat(k).isEqualTo(expectedEntry.getKey());
-            assertThat(v).isEqualTo(expectedEntry.getValue());
-        });
-
-        assertThat(map.get("bbb")).isNull();
-        assertThat(map.getOrDefault("bbb", "xxx")).isEqualTo("xxx");
-        assertThat(map.getIndex("bbb")).isLessThan(0);
-        assertThat(map.isEmpty()).isEqualTo(expectedMap.isEmpty());
-        assertThat(expectedMap).isEqualTo(map);
-        assertThat(map.toString()).isEqualTo(expectedMap.toString());
-
-        assertThat(map).isEqualTo(expectedMap);
-        assertThat(map.hashCode()).isEqualTo(expectedMap.hashCode());
-
-        HashMap<String, Object> unordered = new HashMap<>(expectedMap);
-        assertThat(map).isEqualTo(unordered);
-        assertThat(map.hashCode()).isEqualTo(unordered.hashCode());
-
-        unordered.put("aaa0", "different");
-        assertThat(map).isNotEqualTo(unordered);
-        assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
-
-        byte[] serialized = SerializationHelper.testSerialize(map);
-        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
-        if (expectedMap.size() > 10 && removeTo - removeFrom == 0)
-            assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
-
-        Map<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
-        assertThat(deserialized).isEqualTo(map);
+        MapAsserts.assertMap(expectedMap, builder, removeFrom, removeTo);
+        MapAsserts.assertMap(expectedMap, builder.build(), 0, 0);
+        builder.compact();
+        MapAsserts.assertMap(expectedMap, builder, 0, 0);
     }
 
 

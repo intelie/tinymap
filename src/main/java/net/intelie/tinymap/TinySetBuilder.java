@@ -1,5 +1,7 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.Preconditions;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
@@ -82,6 +84,7 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
 
     @Override
     public T getAt(int index) {
+        Preconditions.checkElementIndex(index, rawSize);
         return (T) keys[index];
     }
 
@@ -124,6 +127,7 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
     @SuppressWarnings("unchecked")
     @Override
     public void removeAt(int index) {
+        Preconditions.checkElementIndex(index, rawSize);
         keys[index] = TOMBSTONE;
         size--;
     }

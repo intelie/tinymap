@@ -20,4 +20,7 @@ public interface ListMap<K, V> extends Map<K, V> {
     int rawSize();
 
     Object getUnsafe(Object key, Object defaultValue);
+
+    @Override
+    ListSet<K> keySet();
 }
