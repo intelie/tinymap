@@ -175,13 +175,13 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
         @SuppressWarnings("unchecked")
         @Override
         public TinySet<T> contentEquals(TinySetBuilder<T> builder, Object cached) {
-            if (!(cached instanceof TinySet<?>) || builder.rawSize != ((TinySet) cached).size())
+            if (!(cached instanceof TinySet<?>) || builder.size() != ((TinySet) cached).size())
                 return null;
             TinySet<?> set = (TinySet<?>) cached;
             int j = 0;
             for (int i = 0; i < builder.rawSize(); i++) {
                 if (builder.isRemoved(i)) continue;
-                if (builder.keys[i] != set.getAt(j))
+                if (builder.getAt(i) != set.getAt(j))
                     return null;
                 j++;
             }

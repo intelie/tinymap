@@ -205,14 +205,19 @@ public class TinyMapTest {
             builder.put("aaa" + builder.size(), builder.size());
 
         TinyMap<String, Object> map = builder.build();
-        map.keySet().debugCollisions("abcdef");
+        map.debugCollisions("abcdef");
 
         long total = 0;
         for (int i = 0; i < count; i++) {
-            total += map.keySet().debugCollisions("aaa" + i);
+            total += map.debugCollisions("aaa" + i);
         }
-        //System.out.println(count + "\t" + (total / (double) count));
+        long totalNonExisting = 0;
+        for (int i = 0; i < count; i++) {
+            totalNonExisting += map.debugCollisions("bbb" + i);
+        }
+        System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
+        assertThat(count == 0 ? 0 : totalNonExisting / (double) count).isLessThan(5);
     }
 
     private void testCount(int count, boolean withNull) throws Exception {

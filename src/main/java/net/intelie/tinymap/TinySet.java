@@ -76,7 +76,6 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
             for (int i = tableGet(table, hash); tableValueUsed(i); i = tableGet(table, hash = (hash + ++collisions) & mask))
                 if (Objects.equals(keys[i], key))
                     return collisions;
-
             return collisions;
         }
 

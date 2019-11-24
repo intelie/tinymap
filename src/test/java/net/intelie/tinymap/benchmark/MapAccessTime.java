@@ -23,17 +23,20 @@ public class MapAccessTime {
         TinyMapBuilder<String, Object> mutable = new TinyMapBuilder<>();
 
         String[] keys = new String[100];
+        String[] nkeys = new String[100];
 
         //Random random = new Random();
 
         for (int i = 0; i < keys.length; i++) {
             keys[i] = "key" + i;
+            nkeys[i] = "non" + i;
             map.put(keys[i], "value" + i);
             linked.put(keys[i], "value" + i);
             guava.put(keys[i], "value" + i);
             tiny.put(keys[i], "value" + i);
             mutable.put(keys[i], "value" + i);
         }
+//        keys = nkeys;
 
 //        test("Tiny", keys, tiny.build());
 //        test("LinkedHashMap", keys, linked);
