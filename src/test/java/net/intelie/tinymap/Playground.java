@@ -35,11 +35,11 @@ public class Playground {
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;
                 objs.addAll(reader.nextList());
-//
+
 //                if (reader2.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
 //                Collection<?> obj = gson.fromJson(reader2, List.class);
 //                objs2.addAll(obj);
-
+//
             }
         }
 

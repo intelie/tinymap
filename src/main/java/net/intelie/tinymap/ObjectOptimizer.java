@@ -5,12 +5,12 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 
-public class TinyOptimizer {
+public class ObjectOptimizer {
     private final ObjectCache cache;
     private final Deque<TinyMapBuilder<?, ?>> maps = new ArrayDeque<>();
     private final Deque<TinyListBuilder<?>> lists = new ArrayDeque<>();
 
-    public TinyOptimizer(ObjectCache cache) {
+    public ObjectOptimizer(ObjectCache cache) {
         this.cache = cache;
     }
 

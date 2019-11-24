@@ -1,0 +1,68 @@
+package net.intelie.tinymap;
+
+import net.intelie.tinymap.util.Preconditions;
+
+import java.io.Serializable;
+
+
+//AUTO-GENERATED SOURCE. See GenerateClasses
+class TinyMapGenerated {
+    public static <K, V> TinyMap<K, V> createUnsafe(TinySet<K> keys, Object[] values) {
+        switch (values.length) {
+<#list 1..16 as n>
+            case ${n}:
+                return new Size${n}<>(keys<#list 0..n-1 as i>, values[${i}]</#list>);
+</#list>
+            default:
+                return new SizeAny<>(keys, values);
+        }
+    }
+
+<#list 1..16 as n>
+    public static class Size${n}<K, V> extends TinyMap<K, V> implements Serializable {
+        <#list 0..n-1 as i>
+        private final Object v${i};
+        </#list>
+
+        public Size${n}(TinySet<K> keys<#list 0..n-1 as i>, Object v${i}</#list>) {
+            super(keys);
+            Preconditions.checkArgument(keys.size() == ${n}, "keys and values must have same size");
+            <#list 0..n-1 as i>
+            this.v${i} = v${i};
+            </#list>
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public V getValueAt(int index) {
+            switch (index) {
+                <#list 0..n-1 as i>
+                case ${i}:
+                    return (V) v${i};
+                </#list>
+                default:
+                    throw new ArrayIndexOutOfBoundsException(index);
+            }
+        }
+    }
+
+</#list>
+
+    public static class SizeAny<K, V> extends TinyMap<K, V> {
+        public final Object[] values;
+
+        public SizeAny(TinySet<K> keys, Object[] values) {
+            super(keys);
+            Preconditions.checkArgument(keys.size() == values.length, "keys and values must have same size");
+            this.values = values;
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public V getValueAt(int index) {
+            return (V) values[index];
+        }
+    }
+}
+
+

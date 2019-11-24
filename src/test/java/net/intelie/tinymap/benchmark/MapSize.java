@@ -22,7 +22,7 @@ public class MapSize {
         Map<String, Object> linked = new LinkedHashMap<>();
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
 
-        String[] keys = new String[10000];
+        String[] keys = new String[100];
 
         print(0, linked, map, guava.build(), tiny, tiny.build());
         for (int i = 0; i < keys.length; i++) {

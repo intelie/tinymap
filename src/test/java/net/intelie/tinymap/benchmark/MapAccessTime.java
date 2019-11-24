@@ -22,8 +22,8 @@ public class MapAccessTime {
         TinyMapBuilder<String, Object> tiny = TinyMap.builder();
         TinyMapBuilder<String, Object> mutable = new TinyMapBuilder<>();
 
-        String[] keys = new String[100];
-        String[] nkeys = new String[100];
+        String[] keys = new String[15];
+        String[] nkeys = new String[15];
 
         //Random random = new Random();
 
@@ -38,7 +38,7 @@ public class MapAccessTime {
         }
 //        keys = nkeys;
 
-//        test("Tiny", keys, tiny.build());
+        test("Tiny", keys, tiny.build());
 //        test("LinkedHashMap", keys, linked);
 //        test("MutableTiny", keys, mutable);
 //        test("HashMap", keys, map);
@@ -53,7 +53,7 @@ public class MapAccessTime {
 
         long startTime = System.nanoTime();
         long startMem = ThreadResources.allocatedBytes();
-        for (int i = 0; i < 10000000; i++)
+        for (int i = 0; i < 50000000; i++)
             for (String key : keys)
                 map.get(key);
 

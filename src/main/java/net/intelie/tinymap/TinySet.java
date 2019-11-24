@@ -52,8 +52,8 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
     }
 
     private static abstract class ArrayTableSet<T, A> extends TinySet<T> {
-        private final Object[] keys;
-        private final A table;
+        protected final Object[] keys;
+        protected final A table;
 
         private ArrayTableSet(Object[] keys) {
             this.keys = keys;
@@ -65,30 +65,6 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
                 Preconditions.checkArgument(hash >= 0, "duplicate key: %s", key);
                 tableSet(table, hash, j);
             }
-        }
-
-        @Override
-        public int debugCollisions(Object key) {
-            A table = this.table;
-            int mask = tableLength(table) - 1;
-            int hash = hash(key) & mask;
-            int collisions = 0;
-            for (int i = tableGet(table, hash); tableValueUsed(i); i = tableGet(table, hash = (hash + ++collisions) & mask))
-                if (Objects.equals(keys[i], key))
-                    return collisions;
-            return collisions;
-        }
-
-        @Override
-        public int getIndex(Object key) {
-            A table = this.table;
-            int mask = tableLength(table) - 1;
-            int hash = hash(key) & mask;
-            int collisions = 0;
-            for (int i = tableGet(table, hash); tableValueUsed(i); i = tableGet(table, hash = (hash + ++collisions) & mask))
-                if (Objects.equals(keys[i], key))
-                    return i;
-            return ~hash;
         }
 
         @SuppressWarnings("unchecked")
@@ -104,13 +80,7 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
 
         protected abstract A newTable(int size);
 
-        protected abstract int tableLength(A table);
-
-        protected abstract int tableGet(A table, int index);
-
         protected abstract void tableSet(A table, int index, int value);
-
-        protected abstract boolean tableValueUsed(int value);
     }
 
     public static class Small<T> extends ArrayTableSet<T, byte[]> {
@@ -126,23 +96,32 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
         }
 
         @Override
-        protected int tableLength(byte[] table) {
-            return table.length;
-        }
-
-        @Override
-        protected int tableGet(byte[] table, int index) {
-            return table[index] & 0xFF;
-        }
-
-        @Override
         protected void tableSet(byte[] table, int index, int value) {
             table[index] = (byte) value;
         }
 
         @Override
-        protected boolean tableValueUsed(int value) {
-            return value < 0xFF;
+        public int debugCollisions(Object key) {
+            byte[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
+                if (Objects.equals(keys[i], key))
+                    return collisions;
+            return collisions;
+        }
+
+        @Override
+        public int getIndex(Object key) {
+            byte[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
+                if (Objects.equals(keys[i], key))
+                    return i;
+            return ~hash;
         }
     }
 
@@ -159,23 +138,32 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
         }
 
         @Override
-        protected int tableLength(short[] table) {
-            return table.length;
-        }
-
-        @Override
-        protected int tableGet(short[] table, int index) {
-            return table[index] & 0xFFFF;
-        }
-
-        @Override
         protected void tableSet(short[] table, int index, int value) {
             table[index] = (short) value;
         }
 
         @Override
-        protected boolean tableValueUsed(int value) {
-            return value < 0xFFFF;
+        public int debugCollisions(Object key) {
+            short[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                if (Objects.equals(keys[i], key))
+                    return collisions;
+            return collisions;
+        }
+
+        @Override
+        public int getIndex(Object key) {
+            short[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
+                if (Objects.equals(keys[i], key))
+                    return i;
+            return ~hash;
         }
     }
 
@@ -192,23 +180,32 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
         }
 
         @Override
-        protected int tableLength(int[] table) {
-            return table.length;
-        }
-
-        @Override
-        protected int tableGet(int[] table, int index) {
-            return table[index];
-        }
-
-        @Override
         protected void tableSet(int[] table, int index, int value) {
             table[index] = value;
         }
 
         @Override
-        protected boolean tableValueUsed(int value) {
-            return value >= 0;
+        public int debugCollisions(Object key) {
+            int[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
+                if (Objects.equals(keys[i], key))
+                    return collisions;
+            return collisions;
+        }
+
+        @Override
+        public int getIndex(Object key) {
+            int[] table = this.table;
+            int mask = table.length - 1;
+            int hash = hash(key) & mask;
+            int collisions = 0;
+            for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
+                if (Objects.equals(keys[i], key))
+                    return i;
+            return ~hash;
         }
     }
 

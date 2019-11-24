@@ -13,11 +13,14 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 
-public class TinyMapTest {
+public class TinySetTest {
     @Test
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
-        assertThat(reflection.get(TinyMap.class).size()).isEqualTo(16);
+        assertThat(reflection.get(TinySet.Empty.class).size()).isEqualTo(12);
+        assertThat(reflection.get(TinySet.Small.class).size()).isEqualTo(20);
+        assertThat(reflection.get(TinySet.Medium.class).size()).isEqualTo(20);
+        assertThat(reflection.get(TinySet.Large.class).size()).isEqualTo(20);
     }
 
     @Test
