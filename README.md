@@ -61,7 +61,7 @@ for (int i = 0; i < 1000; i++) {
     list.add(map);
 }
 
-TinyOptimizer optimizer = new TinyOptimizer(new ObjectCache());
+ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
 TinyList<Object> tinyList = optimizer.optimizeList(list);
 ```
 
