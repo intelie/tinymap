@@ -92,11 +92,6 @@ public class TinySetBuilderTest {
         assertSetWithCount(255, true, 100, 200);
     }
 
-    @Test
-    public void testBuildLarge() throws Exception {
-        assertSetWithCount(0x10000, true);
-    }
-
     private void assertSetWithCount(int count, boolean withNull) throws Exception {
         assertSetWithCount(count, withNull, 0, 0);
     }

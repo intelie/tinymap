@@ -5,7 +5,7 @@ import net.intelie.tinymap.util.Preconditions;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
+public class TinyMapBuilder<K, V> extends ListMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
     private static final Object TOMBSTONE = new Serializable() {
     };
     private static final Adapter<?, ?> adapter = new Adapter<>();
@@ -22,6 +22,7 @@ public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements Cacheable
         keys = new TinySetBuilder<K>(expectedSize) {
             @Override
             public void compact() {
+                if (size() == rawSize()) return;
                 int index = 0;
                 int rawSize = rawSize();
                 for (int i = 0; i < rawSize; i++) {
@@ -34,6 +35,7 @@ public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements Cacheable
         };
     }
 
+    @Override
     public void compact() {
         keys.compact();
     }
@@ -59,7 +61,7 @@ public class TinyMapBuilder<K, V> extends TinyMapBase<K, V> implements Cacheable
     @SuppressWarnings("unchecked")
     @Override
     public K getKeyAt(int index) {
-        return keys.getAt(index);
+        return keys.getEntryAt(index);
     }
 
     @SuppressWarnings("unchecked")

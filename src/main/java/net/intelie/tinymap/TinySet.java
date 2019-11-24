@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public abstract class TinySet<T> extends TinySetBase<T> implements Serializable {
+public abstract class TinySet<T> extends ListSetBase<T> implements Serializable {
     public static int tableSize(int length) {
         return Integer.highestOneBit((int) Math.ceil(length * 4.0 / 3) - 1) * 2;
     }
@@ -51,7 +51,7 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
         }
 
         @Override
-        public T getAt(int index) {
+        public T getEntryAt(int index) {
             throw new ArrayIndexOutOfBoundsException(index);
         }
     }
@@ -74,7 +74,7 @@ public abstract class TinySet<T> extends TinySetBase<T> implements Serializable 
 
         @SuppressWarnings("unchecked")
         @Override
-        public T getAt(int index) {
+        public T getEntryAt(int index) {
             return (T) keys[index];
         }
 

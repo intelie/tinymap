@@ -20,7 +20,7 @@ public class GenerateClasses {
     }
 
     private static void runFor(Configuration configuration, String templateName, String fileName) throws IOException, TemplateException {
-        File file = Paths.get(System.getProperty("user.dir"), "src/main/java/net/intelie/tinymap/" + fileName).toFile();
+        File file = Paths.get(System.getProperty("user.dir"), "src/main/java/net/intelie/tinymap/util/" + fileName).toFile();
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
             Template template = configuration.getTemplate(templateName);
             template.process(Collections.emptyMap(), writer);

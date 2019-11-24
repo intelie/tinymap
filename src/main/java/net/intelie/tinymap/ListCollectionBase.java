@@ -2,10 +2,20 @@ package net.intelie.tinymap;
 
 import net.intelie.tinymap.util.Preconditions;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.Iterator;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-public abstract class TinySetBase<T> extends AbstractCollection<T> implements ListSet<T> {
+public abstract class ListCollectionBase<T> extends AbstractCollection<T> implements ListCollection<T> {
+    @Override
+    public int getIndex(Object key) {
+        for (int i = 0; i < rawSize(); i++)
+            if (!isRemoved(i) && Objects.equals(getEntryAt(i), key))
+                return i;
+        return -1;
+    }
+
     @Override
     public void removeAt(int index) {
         throw new UnsupportedOperationException("modification not supported: " + this);
@@ -33,14 +43,14 @@ public abstract class TinySetBase<T> extends AbstractCollection<T> implements Li
 
     @Override
     public Iterator<T> iterator() {
-        return new SetIterator();
+        return new CollectionIterator();
     }
 
     @Override
     public void forEach(Consumer<? super T> action) {
         for (int i = 0; i < rawSize(); i++) {
             if (!isRemoved(i))
-                action.accept(getAt(i));
+                action.accept(getEntryAt(i));
         }
     }
 
@@ -66,33 +76,13 @@ public abstract class TinySetBase<T> extends AbstractCollection<T> implements Li
         throw new UnsupportedOperationException("modification not supported: " + this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Set) || size() != ((Set) o).size()) return false;
-
-        for (Object obj : ((Set) o))
-            if (getIndex(obj) < 0)
-                return false;
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        for (int i = 0; i < rawSize(); i++)
-            if (!isRemoved(i))
-                hash += Objects.hashCode(getAt(i));
-        return hash;
-    }
-
-    private class SetIterator implements Iterator<T> {
+    private class CollectionIterator implements Iterator<T> {
         private int current = -1;
         private int next = 0;
 
         @Override
         public boolean hasNext() {
-            return next < TinySetBase.this.rawSize();
+            return next < ListCollectionBase.this.rawSize();
         }
 
         @Override
@@ -104,7 +94,7 @@ public abstract class TinySetBase<T> extends AbstractCollection<T> implements Li
         @Override
         public T next() {
             current = next;
-            T key = getAt(current);
+            T key = getEntryAt(current);
             do next++; while (isRemoved(next));
             return key;
         }

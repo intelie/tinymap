@@ -1,6 +1,8 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.util;
 
 import com.google.common.collect.ImmutableMap;
+import net.intelie.tinymap.ObjectCache;
+import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Test;
 
 import java.util.Arrays;

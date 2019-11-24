@@ -1,4 +1,6 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.util;
+
+import net.intelie.tinymap.*;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

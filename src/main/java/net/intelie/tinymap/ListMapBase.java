@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
+public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     private static final Object SENTINEL = new Object();
 
     @SuppressWarnings("unchecked")
@@ -37,8 +37,8 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        for (int i = 0; i < size(); i++)
-            if (Objects.equals(getValueAt(i), value))
+        for (int i = 0; i < rawSize(); i++)
+            if (!isRemoved(i) && Objects.equals(getValueAt(i), value))
                 return true;
         return false;
     }
@@ -117,7 +117,7 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
     }
 
     @Override
-    public Set<Entry<K, V>> entrySet() {
+    public ListSet<Entry<K, V>> entrySet() {
         return new EntriesView();
     }
 
@@ -156,119 +156,115 @@ public abstract class TinyMapBase<K, V> implements ListMap<K, V> {
         return sb.append('}').toString();
     }
 
-    private abstract class ListIterator<T> implements Iterator<T> {
-        private int current = -1;
-        private int next = 0;
-
+    private class ValuesView extends ListCollectionBase<V> implements Serializable {
         @Override
-        public boolean hasNext() {
-            return next < TinyMapBase.this.rawSize();
-        }
-
-        public abstract T makeObject(int index);
-
-        @Override
-        public void remove() {
-            Preconditions.checkState(current >= 0, "no iteration occurred");
-            removeAt(current);
-        }
-
-        @Override
-        public T next() {
-            current = next;
-            T key = makeObject(current);
-            do next++; while (isRemoved(next));
-            return key;
-        }
-    }
-
-    private class ValuesView extends AbstractCollection<V> implements Serializable {
-        @Override
-        public Iterator<V> iterator() {
-            return new ListIterator<V>() {
-                @Override
-                public V makeObject(int index) {
-                    return getValueAt(index);
-                }
-            };
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return containsValue(o);
-        }
-
-        @Override
-        public int size() {
-            return TinyMapBase.this.size();
+        public V getEntryAt(int index) {
+            return getValueAt(index);
         }
 
         @Override
         public void clear() {
-            TinyMapBase.this.clear();
+            ListMapBase.this.clear();
+        }
+
+        @Override
+        public void removeAt(int index) {
+            ListMapBase.this.removeAt(index);
+        }
+
+        @Override
+        public boolean isRemoved(int index) {
+            return ListMapBase.this.isRemoved(index);
+        }
+
+        @Override
+        public int rawSize() {
+            return ListMapBase.this.rawSize();
+        }
+
+        @Override
+        public int size() {
+            return ListMapBase.this.size();
         }
     }
 
-    private class KeysView extends TinySetBase<K> implements Serializable {
+    private class KeysView extends ListSetBase<K> implements Serializable {
         @Override
         public int getIndex(Object key) {
-            return TinyMapBase.this.getIndex(key);
+            return ListMapBase.this.getIndex(key);
         }
 
         @Override
-        public K getAt(int index) {
+        public K getEntryAt(int index) {
             return getKeyAt(index);
         }
 
         @Override
         public void clear() {
-            TinyMapBase.this.clear();
+            ListMapBase.this.clear();
+        }
+
+        @Override
+        public void removeAt(int index) {
+            ListMapBase.this.removeAt(index);
         }
 
         @Override
         public boolean isRemoved(int index) {
-            return TinyMapBase.this.isRemoved(index);
+            return ListMapBase.this.isRemoved(index);
         }
 
         @Override
         public int rawSize() {
-            return TinyMapBase.this.rawSize();
+            return ListMapBase.this.rawSize();
         }
 
         @Override
         public int size() {
-            return TinyMapBase.this.size();
+            return ListMapBase.this.size();
         }
     }
 
-    private class EntriesView extends AbstractSet<Entry<K, V>> implements Serializable {
+    private class EntriesView extends ListSetBase<Entry<K, V>> implements Serializable {
         @Override
-        public boolean contains(Object o) {
-            if (o instanceof Entry) {
-                Entry entry = (Entry) o;
-                return Objects.equals(getUnsafe(entry.getKey(), SENTINEL), entry.getValue());
-            }
-            return false;
+        public int getIndex(Object key) {
+            if (!(key instanceof Entry<?, ?>))
+                return -1;
+            Entry<?, ?> entry = (Entry<?, ?>) key;
+            int index = ListMapBase.this.getIndex(entry.getKey());
+            if (index < 0 || Objects.equals(getValueAt(index), entry.getValue()))
+                return index;
+            return -1;
         }
 
         @Override
-        public Iterator<Entry<K, V>> iterator() {
-            return new ListIterator<Entry<K, V>>() {
-                @Override
-                public Entry<K, V> makeObject(int index) {
-                    return getEntryAt(index);
-                }
-            };
-        }
-
-        @Override
-        public int size() {
-            return TinyMapBase.this.size();
+        public Entry<K, V> getEntryAt(int index) {
+            return ListMapBase.this.getEntryAt(index);
         }
 
         @Override
         public void clear() {
-            TinyMapBase.this.clear();
+            ListMapBase.this.clear();
+        }
+
+        @Override
+        public void removeAt(int index) {
+            ListMapBase.this.removeAt(index);
+        }
+
+        @Override
+        public boolean isRemoved(int index) {
+            return ListMapBase.this.isRemoved(index);
+        }
+
+        @Override
+        public int rawSize() {
+            return ListMapBase.this.rawSize();
+        }
+
+        @Override
+        public int size() {
+            return ListMapBase.this.size();
         }
     }
 

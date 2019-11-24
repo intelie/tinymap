@@ -64,7 +64,7 @@ public class SetAsserts {
     }
 
     private static void assertInvalidIndex(ListSet<String> set, int index) {
-        assertThatThrownBy(() -> set.getAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> set.getEntryAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
         assertThatThrownBy(() -> set.removeAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
     }
 
@@ -75,7 +75,7 @@ public class SetAsserts {
         for (String entry : expectedSet) {
             if (index == removeFrom) index = removeTo;
             assertThat(set.getIndex(entry)).isEqualTo(index);
-            assertThat(set.getAt(index)).isEqualTo(entry);
+            assertThat(set.getEntryAt(index)).isEqualTo(entry);
 
             assertThat(keysIterator.hasNext()).isTrue();
             assertThat(keysIterator.next()).isEqualTo(entry);

@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilder<TinySetBuilder<T>, TinySet<T>>, Serializable {
+public class TinySetBuilder<T> extends ListSetBase<T> implements CacheableBuilder<TinySetBuilder<T>, TinySet<T>>, Serializable {
     private static final Object TOMBSTONE = new Serializable() {
     };
     private static final Adapter<?> adapter = new Adapter<>();
@@ -39,18 +39,7 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
         return table;
     }
 
-    private int findIndex(int[] table, Object key) {
-        int collisions = 0;
-        int mask = table.length - 1;
-        int hash = hash(key) & mask;
-
-        for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask]) {
-            if (Objects.equals(keys[i], key))
-                return i;
-        }
-        return ~hash;
-    }
-
+    @Override
     public void compact() {
         if (rawSize == size) return;
         softClearTable();
@@ -59,7 +48,7 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
             if (keys[i] == TOMBSTONE) continue;
             keys[index] = keys[i];
 
-            int hash = ~findIndex(table, keys[index]);
+            int hash = ~getIndex(keys[index]);
             assert hash >= 0;
             table[hash] = index;
             inverse[index] = hash;
@@ -83,14 +72,14 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
     }
 
     @Override
-    public T getAt(int index) {
+    public T getEntryAt(int index) {
         Preconditions.checkElementIndex(index, rawSize);
         return (T) keys[index];
     }
 
     @Override
     public int addOrGetIndex(T key) {
-        int index = findIndex(table, key);
+        int index = getIndex(key);
         if (index >= 0)
             return index;
 
@@ -114,14 +103,22 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
         }
         if (4 * (rawSize + 1) > 3 * table.length) {
             forceRehash(table.length * 2);
-            index = findIndex(table, key);
+            index = getIndex(key);
         }
         return index;
     }
 
     @Override
     public int getIndex(Object key) {
-        return findIndex(table, key);
+        int collisions = 0;
+        int mask = table.length - 1;
+        int hash = hash(key) & mask;
+
+        for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask]) {
+            if (Objects.equals(keys[i], key))
+                return i;
+        }
+        return ~hash;
     }
 
     @SuppressWarnings("unchecked")
@@ -185,7 +182,7 @@ public class TinySetBuilder<T> extends TinySetBase<T> implements CacheableBuilde
             int j = 0;
             for (int i = 0; i < builder.rawSize(); i++) {
                 if (builder.isRemoved(i)) continue;
-                if (builder.getAt(i) != set.getAt(j))
+                if (builder.getEntryAt(i) != set.getEntryAt(j))
                     return null;
                 j++;
             }

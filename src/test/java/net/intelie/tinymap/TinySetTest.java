@@ -146,7 +146,7 @@ public class TinySetTest {
         for (int i = 0; i < count; i++) {
             totalNonExisting += map.debugCollisions("bbb" + i);
         }
-        System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
+        //System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
         assertThat(count == 0 ? 0 : totalNonExisting / (double) count).isLessThan(5);
     }

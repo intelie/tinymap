@@ -148,11 +148,6 @@ public class TinyMapTest {
     }
 
     @Test
-    public void testBuildLarge() throws Exception {
-        testCount(0x10000, true);
-    }
-
-    @Test
     public void testBuildAlmostThere() throws Exception {
         testCount(255, false);
         testCount(255, true);
@@ -198,8 +193,6 @@ public class TinyMapTest {
         TinyMapBuilder<String, Object> builder = TinyMap.builder();
 
         for (int count = 0; count < 1000; count += 20)
-            testCollisions(builder, count);
-        for (int count = 1000; count < 100000; count += 5000)
             testCollisions(builder, count);
     }
 

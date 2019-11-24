@@ -55,20 +55,41 @@ public class TinyMapBuilderTest {
             assertThat(expected.put("aaa" + i, i)).isNull();
         }
 
-        Iterator<Map.Entry<String, Object>> it = builder.entrySet().iterator();
-        for (int i = 0; i < 10; i++)
-            it.next();
+        Iterator<Map.Entry<String, Object>> it1 = builder.entrySet().iterator();
+        Iterator<Object> it2 = builder.values().iterator();
+        Iterator<String> it3 = builder.keySet().iterator();
+        for (int i = 0; i < 10; i++) {
+            it1.next();
+            it2.next();
+            it3.next();
+        }
         for (int i = 10; i < 20; i++) {
-            it.next();
-            it.remove();
+            it1.next();
+            it2.next();
+            it3.next();
+            it1.remove();
             expected.remove("aaa" + i);
         }
         for (int i = 20; i < 30; i++) {
-            it.next().setValue("x" + i);
+            it1.next();
+            it2.next();
+            it3.next();
+            it2.remove();
+            expected.remove("aaa" + i);
+        }
+        for (int i = 30; i < 40; i++) {
+            it1.next();
+            it2.next();
+            it3.next();
+            it3.remove();
+            expected.remove("aaa" + i);
+        }
+        for (int i = 40; i < 50; i++) {
+            it1.next().setValue("x" + i);
             expected.put("aaa" + i, "x" + i);
         }
 
-        MapAsserts.assertMap(expected, builder, 10, 20);
+        MapAsserts.assertMap(expected, builder, 10, 40);
     }
 
     @Test
@@ -93,11 +114,6 @@ public class TinyMapBuilderTest {
             e.printStackTrace();
         }
         assertMapWithCount(255, true, 100, 200);
-    }
-
-    @Test
-    public void testBuildLarge() throws Exception {
-        assertMapWithCount(0x10000, true);
     }
 
     private void assertMapWithCount(int count, boolean withNull) throws Exception {

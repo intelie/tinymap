@@ -1,10 +1,10 @@
 package net.intelie.tinymap;
 
-import net.intelie.tinymap.util.Preconditions;
+import net.intelie.tinymap.util.TinyMapGenerated;
 
 import java.io.Serializable;
 
-public abstract class TinyMap<K, V> extends TinyMapBase<K, V> implements Serializable {
+public abstract class TinyMap<K, V> extends ListMapBase<K, V> implements Serializable {
     private final TinySet<K> keys;
 
     protected TinyMap(TinySet<K> keys) {
@@ -31,7 +31,7 @@ public abstract class TinyMap<K, V> extends TinyMapBase<K, V> implements Seriali
     @SuppressWarnings("unchecked")
     @Override
     public K getKeyAt(int index) {
-        return keys.getAt(index);
+        return keys.getEntryAt(index);
     }
 
     @Override

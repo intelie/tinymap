@@ -8,9 +8,9 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public class TinyList<T> extends AbstractList<T> implements Serializable {
-    private final T[] values;
+    private final Object[] values;
 
-    public TinyList(T[] values) {
+    public TinyList(Object[] values) {
         this.values = values;
     }
 
@@ -18,26 +18,20 @@ public class TinyList<T> extends AbstractList<T> implements Serializable {
         return new TinyListBuilder<>();
     }
 
-    @Override
-    public int hashCode() {
-        int hash = 1;
-        for (T value : values)
-            hash = 31 * hash + Objects.hashCode(value);
-        return hash;
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     public T get(int index) {
         Preconditions.checkElementIndex(index, values.length);
-        return values[index];
+        return (T) values[index];
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void forEach(Consumer<? super T> action) {
-        T[] values = this.values;
+        Object[] values = this.values;
         int length = values.length;
         for (int i = 0; i < length; i++) {
-            action.accept(values[i]);
+            action.accept((T) values[i]);
         }
     }
 

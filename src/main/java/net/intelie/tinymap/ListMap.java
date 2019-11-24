@@ -23,4 +23,7 @@ public interface ListMap<K, V> extends Map<K, V> {
 
     @Override
     ListSet<K> keySet();
+
+    @Override
+    ListSet<Entry<K, V>> entrySet();
 }

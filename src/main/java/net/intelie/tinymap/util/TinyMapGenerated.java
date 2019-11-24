@@ -1,12 +1,13 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.util;
 
-import net.intelie.tinymap.util.Preconditions;
+import net.intelie.tinymap.TinyMap;
+import net.intelie.tinymap.TinySet;
 
 import java.io.Serializable;
 
 
 //AUTO-GENERATED SOURCE. See GenerateClasses
-class TinyMapGenerated {
+public abstract class TinyMapGenerated {
     public static <K, V> TinyMap<K, V> createUnsafe(TinySet<K> keys, Object[] values) {
         switch (values.length) {
             case 1:
