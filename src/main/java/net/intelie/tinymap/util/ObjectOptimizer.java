@@ -2,15 +2,13 @@ package net.intelie.tinymap.util;
 
 import net.intelie.tinymap.*;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ObjectOptimizer {
     private final ObjectCache cache;
     private final Deque<TinyMapBuilder<?, ?>> maps = new ArrayDeque<>();
     private final Deque<TinyListBuilder<?>> lists = new ArrayDeque<>();
+    private final Deque<TinySetBuilder<?>> sets = new ArrayDeque<>();
 
     public ObjectOptimizer(ObjectCache cache) {
         this.cache = cache;
@@ -21,6 +19,8 @@ public class ObjectOptimizer {
             return cache.get((CharSequence) object);
         if (object instanceof Double)
             return cache.get(((Double) object));
+        if (object instanceof Set<?>)
+            return optimizeSet((Iterable<?>) object);
         if (object instanceof List<?>)
             return optimizeList((Iterable<?>) object);
         if (object instanceof Map<?, ?>)
@@ -64,6 +64,26 @@ public class ObjectOptimizer {
         TinyListBuilder<?> list = lists.poll();
         if (list == null) list = TinyList.builder();
         return (TinyListBuilder<T>) list;
+
+    }
+
+    public <T> TinySet<T> optimizeSet(Iterable<T> object) {
+        TinySetBuilder<T> set = makeSetBuilder();
+        try {
+            object.forEach(x -> {
+                set.add((T) optimize(x));
+            });
+            return cache.get(set);
+        } finally {
+            set.clear();
+            sets.add(set);
+        }
+    }
+
+    private <T> TinySetBuilder<T> makeSetBuilder() {
+        TinySetBuilder<?> set = sets.poll();
+        if (set == null) set = TinySet.builder();
+        return (TinySetBuilder<T>) set;
     }
 
 }

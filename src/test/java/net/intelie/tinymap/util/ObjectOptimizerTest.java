@@ -1,8 +1,8 @@
 package net.intelie.tinymap.util;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import net.intelie.tinymap.ObjectCache;
-import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -23,6 +23,7 @@ public class ObjectOptimizerTest {
         obj.put("aaa", Arrays.asList(123, "456"));
         obj.put("bbb", Collections.singletonMap("ccc", 111));
         obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
+        obj.put("ggg", ImmutableSet.of("eee", 222, "fff", 333.0));
 
         ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
         Object optimized = optimizer.optimize(obj);
@@ -37,9 +38,10 @@ public class ObjectOptimizerTest {
         doThrow(ex).when(map).forEach(any());
 
         LinkedHashMap<String, Object> obj = new LinkedHashMap<>();
-        obj.put("aaa", Arrays.asList(123, "456", map));
+        obj.put("aaa", Arrays.asList(123, "456", Collections.singleton(map)));
         obj.put("bbb", Collections.singletonMap("ccc", "ddd"));
         obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
+
 
         ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
         assertThatThrownBy(() -> optimizer.optimize(obj)).isSameAs(ex);

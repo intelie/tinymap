@@ -6,7 +6,9 @@ import net.intelie.tinymap.support.MapAsserts;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
 
 import static org.assertj.core.api.Assertions.*;
@@ -211,7 +213,7 @@ public class TinyMapTest {
         for (int i = 0; i < count; i++) {
             totalNonExisting += map.debugCollisions("bbb" + i);
         }
-        System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
+        //System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
         assertThat(count == 0 ? 0 : totalNonExisting / (double) count).isLessThan(5);
     }
