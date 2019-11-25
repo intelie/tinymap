@@ -1,8 +1,8 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.base;
 
 import java.util.Map;
 
-public interface ListMap<K, V> extends Map<K, V> {
+public interface IndexedMap<K, V> extends Map<K, V> {
     int getIndex(Object key);
 
     K getKeyAt(int index);
@@ -22,8 +22,8 @@ public interface ListMap<K, V> extends Map<K, V> {
     Object getUnsafe(Object key, Object defaultValue);
 
     @Override
-    ListSet<K> keySet();
+    IndexedSet<K> keySet();
 
     @Override
-    ListSet<Entry<K, V>> entrySet();
+    IndexedSet<Entry<K, V>> entrySet();
 }

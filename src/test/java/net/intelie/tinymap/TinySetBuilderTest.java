@@ -1,10 +1,11 @@
 package net.intelie.tinymap;
 
-import net.intelie.tinymap.support.MapAsserts;
 import net.intelie.tinymap.support.SetAsserts;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,6 +70,26 @@ public class TinySetBuilderTest {
     }
 
     @Test
+    public void testIteratorChangesInBeginning() throws Exception {
+        TinySetBuilder<String> builder = new TinySetBuilder<>();
+        LinkedHashSet<String> expected = new LinkedHashSet<>();
+
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.add("aaa" + i)).isTrue();
+            assertThat(expected.add("aaa" + i)).isTrue();
+        }
+
+        Iterator<String> it = builder.iterator();
+        for (int i = 0; i < 20; i++) {
+            it.next();
+            it.remove();
+            expected.remove("aaa" + i);
+        }
+
+        SetAsserts.assertSet(expected, builder, 0, 20);
+    }
+
+    @Test
     public void testBuildEmpty() throws Exception {
         assertSetWithCount(0, false);
         assertSetWithCount(0, true);
@@ -84,11 +105,7 @@ public class TinySetBuilderTest {
     @Test
     public void testBuildAlmostThere() throws Exception {
         assertSetWithCount(255, false);
-        try {
-            assertSetWithCount(255, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        assertSetWithCount(255, true);
         assertSetWithCount(255, true, 100, 200);
     }
 

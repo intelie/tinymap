@@ -1,12 +1,13 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedSetBase;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public abstract class TinySet<T> extends ListSetBase<T> implements Serializable {
+public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializable {
     public static int tableSize(int length) {
         return Integer.highestOneBit((int) Math.ceil(length * 4.0 / 3) - 1) * 2;
     }

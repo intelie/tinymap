@@ -1,10 +1,11 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedMapBase;
 import net.intelie.tinymap.util.TinyMapGenerated;
 
 import java.io.Serializable;
 
-public abstract class TinyMap<K, V> extends ListMapBase<K, V> implements Serializable {
+public abstract class TinyMap<K, V> extends IndexedMapBase<K, V> implements Serializable {
     private final TinySet<K> keys;
 
     protected TinyMap(TinySet<K> keys) {

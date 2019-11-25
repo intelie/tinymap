@@ -1,11 +1,12 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedMapBase;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class TinyMapBuilder<K, V> extends ListMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
+public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
     private static final Object TOMBSTONE = new Serializable() {
     };
     private static final Adapter<?, ?> adapter = new Adapter<>();
@@ -35,7 +36,6 @@ public class TinyMapBuilder<K, V> extends ListMapBase<K, V> implements Cacheable
         };
     }
 
-    @Override
     public void compact() {
         keys.compact();
     }

@@ -1,12 +1,13 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedSetBase;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class TinySetBuilder<T> extends ListSetBase<T> implements CacheableBuilder<TinySetBuilder<T>, TinySet<T>>, Serializable {
+public class TinySetBuilder<T> extends IndexedSetBase<T> implements CacheableBuilder<TinySetBuilder<T>, TinySet<T>>, Serializable {
     private static final Object TOMBSTONE = new Serializable() {
     };
     private static final Adapter<?> adapter = new Adapter<>();
@@ -39,7 +40,6 @@ public class TinySetBuilder<T> extends ListSetBase<T> implements CacheableBuilde
         return table;
     }
 
-    @Override
     public void compact() {
         if (rawSize == size) return;
         softClearTable();

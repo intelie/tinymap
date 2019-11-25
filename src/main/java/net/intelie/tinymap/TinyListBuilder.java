@@ -1,22 +1,19 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedListBase;
 import net.intelie.tinymap.util.Preconditions;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
-public class TinyListBuilder<T> extends ListCollectionBase<T> implements CacheableBuilder<TinyListBuilder<T>, TinyList<T>> {
-    private static final Object TOMBSTONE = new Serializable() {
-    };
+public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableBuilder<TinyListBuilder<T>, TinyList<T>> {
     private final Adapter<T> adapter = new Adapter<>();
     @SuppressWarnings("unchecked")
     private Object[] values = new Object[4];
-    private int rawSize = 0;
     private int size = 0;
 
     @Override
     public int addOrGetIndex(T obj) {
-        int index = rawSize++;
+        int index = size++;
         if (index == values.length)
             values = Arrays.copyOf(values, values.length * 2);
         values[index] = obj;
@@ -25,27 +22,9 @@ public class TinyListBuilder<T> extends ListCollectionBase<T> implements Cacheab
     }
 
     @Override
-    public void removeAt(int index) {
-        Preconditions.checkElementIndex(index, rawSize);
-        size--;
-        values[index] = TOMBSTONE;
-    }
-
-    @Override
-    public boolean isRemoved(int index) {
-        Preconditions.checkElementIndex(index, rawSize);
-        return values[index] == TOMBSTONE;
-    }
-
-    @Override
     public T getEntryAt(int index) {
-        Preconditions.checkElementIndex(index, rawSize);
+        Preconditions.checkElementIndex(index, size);
         return (T) values[index];
-    }
-
-    @Override
-    public int rawSize() {
-        return rawSize;
     }
 
     public int size() {
@@ -53,21 +32,15 @@ public class TinyListBuilder<T> extends ListCollectionBase<T> implements Cacheab
     }
 
     @Override
-    public void compact() {
-        if (size == rawSize) return;
-        int index = 0;
-        for (int i = 0; i < rawSize; i++) {
-            if (isRemoved(i)) continue;
-            values[index++] = values[i];
-        }
-        Arrays.fill(values, index, rawSize, null);
-        assert index == size;
-        rawSize = index;
+    public T removeLast() {
+        Object old = values[size - 1];
+        values[size - 1] = null;
+        size--;
+        return (T) old;
     }
 
     @Override
     public TinyList<T> build() {
-        compact();
         return new TinyList<>(Arrays.copyOf(values, size));
     }
 
@@ -77,8 +50,8 @@ public class TinyListBuilder<T> extends ListCollectionBase<T> implements Cacheab
     }
 
     public void clear() {
-        Arrays.fill(values, 0, rawSize, null);
-        size = rawSize = 0;
+        Arrays.fill(values, 0, size, null);
+        size = 0;
     }
 
     public TinyList<T> buildAndClear() {
@@ -91,7 +64,7 @@ public class TinyListBuilder<T> extends ListCollectionBase<T> implements Cacheab
         @Override
         public int contentHashCode(TinyListBuilder<T> builder) {
             int hash = 1;
-            for (int i = 0; i < builder.rawSize; i++)
+            for (int i = 0; i < builder.size; i++)
                 if (!builder.isRemoved(i))
                     hash = 31 * hash + System.identityHashCode(builder.values[i]);
             return hash;
@@ -102,12 +75,9 @@ public class TinyListBuilder<T> extends ListCollectionBase<T> implements Cacheab
             if (!(cached instanceof TinyList<?>) || builder.size != ((TinyList) cached).size())
                 return null;
             TinyList<T> list = (TinyList<T>) cached;
-            int j = 0;
-            for (int i = 0; i < builder.rawSize; i++) {
-                if (builder.isRemoved(i)) continue;
-                if (builder.values[i] != list.get(j))
+            for (int i = 0; i < builder.size; i++) {
+                if (builder.values[i] != list.get(i))
                     return null;
-                j++;
             }
             return list;
         }

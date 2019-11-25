@@ -1,6 +1,6 @@
 package net.intelie.tinymap.support;
 
-import net.intelie.tinymap.ListMap;
+import net.intelie.tinymap.base.IndexedMap;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,56 +11,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MapAsserts {
-    public static void assertMap(Map<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) throws Exception {
-        assertSizes(expectedMap, map);
-        assertElements(expectedMap, map, removeFrom, removeTo);
+    public static void assertMap(Map<String, Object> expected, IndexedMap<String, Object> actual, int removeFrom, int removeTo) throws Exception {
+        assertSizes(expected, actual);
+        assertElements(expected, actual, removeFrom, removeTo);
 
-        assertInvalidIndex(map, -1);
-        assertInvalidIndex(map, map.rawSize());
-        assertForEach(expectedMap, map);
+        assertInvalidIndex(actual, -1);
+        assertInvalidIndex(actual, actual.rawSize());
+        assertForEach(expected, actual);
 
-        assertThat(map.get("bbb")).isNull();
-        assertThat(map.getOrDefault("bbb", "xxx")).isEqualTo("xxx");
-        assertThat(map.getIndex("bbb")).isLessThan(0);
+        assertThat(actual.get("bbb")).isNull();
+        assertThat(actual.getOrDefault("bbb", "xxx")).isEqualTo("xxx");
+        assertThat(actual.getIndex("bbb")).isLessThan(0);
 
-        assertCommonProperties(expectedMap, map);
+        assertCommonProperties(expected, actual);
 
-        assertSerialization(map);
+        assertSerialization(actual);
 
-        SetAsserts.assertSet(expectedMap.keySet(), map.keySet(), removeFrom, removeTo);
+        SetAsserts.assertSet(expected.keySet(), actual.keySet(), removeFrom, removeTo);
     }
 
-    private static void assertSerialization(ListMap<String, Object> map) throws IOException, ClassNotFoundException {
-        byte[] serialized = SerializationHelper.testSerialize(map);
-//        byte[] serializedExpected = SerializationHelper.testSerialize(expectedMap);
-//        if (expectedMap.size() > 10 && removeTo - removeFrom == 0)
+    private static void assertSerialization(IndexedMap<String, Object> actual) throws IOException, ClassNotFoundException {
+        byte[] serialized = SerializationHelper.testSerialize(actual);
+//        byte[] serializedExpected = SerializationHelper.testSerialize(expected);
+//        if (expected.size() > 10 && removeTo - removeFrom == 0)
 //            assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
 
         Map<String, Object> deserialized = SerializationHelper.testDeserialize(serialized);
-        assertThat(deserialized).isEqualTo(map);
+        assertThat(deserialized).isEqualTo(actual);
     }
 
-    private static void assertCommonProperties(Map<String, Object> expectedMap, ListMap<String, Object> map) {
-        assertThat(map.isEmpty()).isEqualTo(expectedMap.isEmpty());
+    private static void assertCommonProperties(Map<String, Object> expected, IndexedMap<String, Object> actual) {
+        assertThat(actual.isEmpty()).isEqualTo(expected.isEmpty());
 
-        assertThat(expectedMap).isEqualTo(map);
-        assertThat(map.toString()).isEqualTo(expectedMap.toString());
+        assertThat(expected).isEqualTo(actual);
+        assertThat(actual.toString()).isEqualTo(expected.toString());
 
-        assertThat(map).isEqualTo(expectedMap);
-        assertThat(map.hashCode()).isEqualTo(expectedMap.hashCode());
+        assertThat(actual).isEqualTo(expected);
+        assertThat(actual.hashCode()).isEqualTo(expected.hashCode());
 
-        HashMap<String, Object> unordered = new HashMap<>(expectedMap);
-        assertThat(map).isEqualTo(unordered);
-        assertThat(map.hashCode()).isEqualTo(unordered.hashCode());
+        HashMap<String, Object> unordered = new HashMap<>(expected);
+        assertThat(actual).isEqualTo(unordered);
+        assertThat(actual.hashCode()).isEqualTo(unordered.hashCode());
 
         unordered.put("aaa0", "different");
-        assertThat(map).isNotEqualTo(unordered);
-        assertThat(map.hashCode()).isNotEqualTo(unordered.hashCode());
+        assertThat(actual).isNotEqualTo(unordered);
+        assertThat(actual.hashCode()).isNotEqualTo(unordered.hashCode());
     }
 
-    private static void assertForEach(Map<String, Object> expectedMap, ListMap<String, Object> map) {
-        Iterator<Map.Entry<String, Object>> expectedIterator = expectedMap.entrySet().iterator();
-        map.forEach((k, v) -> {
+    private static void assertForEach(Map<String, Object> expected, IndexedMap<String, Object> actual) {
+        Iterator<Map.Entry<String, Object>> expectedIterator = expected.entrySet().iterator();
+        actual.forEach((k, v) -> {
             assertThat(expectedIterator.hasNext());
             Map.Entry<String, Object> expectedEntry = expectedIterator.next();
             assertThat(k).isEqualTo(expectedEntry.getKey());
@@ -68,28 +68,28 @@ public class MapAsserts {
         });
     }
 
-    private static void assertInvalidIndex(ListMap<String, Object> map, int index) {
-        assertThatThrownBy(() -> map.getEntryAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> map.getKeyAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> map.getValueAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> map.removeAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
-        assertThatThrownBy(() -> map.setValueAt(index, 123)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+    private static void assertInvalidIndex(IndexedMap<String, Object> actual, int index) {
+        assertThatThrownBy(() -> actual.getEntryAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> actual.getKeyAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> actual.getValueAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> actual.removeAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
+        assertThatThrownBy(() -> actual.setValueAt(index, 123)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
     }
 
-    private static void assertElements(Map<String, Object> expectedMap, ListMap<String, Object> map, int removeFrom, int removeTo) {
-        Iterator<String> keysIterator = map.keySet().iterator();
-        Iterator<Object> valuesIterator = map.values().iterator();
-        Iterator<Map.Entry<String, Object>> entriesIterator = map.entrySet().iterator();
+    private static void assertElements(Map<String, Object> expected, IndexedMap<String, Object> actual, int removeFrom, int removeTo) {
+        Iterator<String> keysIterator = actual.keySet().iterator();
+        Iterator<Object> valuesIterator = actual.values().iterator();
+        Iterator<Map.Entry<String, Object>> entriesIterator = actual.entrySet().iterator();
 
         int index = 0;
-        for (Map.Entry<String, Object> entry : expectedMap.entrySet()) {
+        for (Map.Entry<String, Object> entry : expected.entrySet()) {
             if (index == removeFrom) index = removeTo;
-            assertThat(map.get(entry.getKey())).isEqualTo(entry.getValue());
-            assertThat(map.getOrDefault(entry.getKey(), null)).isEqualTo(entry.getValue());
-            assertThat(map.getIndex(entry.getKey())).isEqualTo(index);
-            assertThat(map.getKeyAt(index)).isEqualTo(entry.getKey());
-            assertThat(map.getValueAt(index)).isEqualTo(entry.getValue());
-            assertThat(map.containsKey(entry.getKey())).isTrue();
+            assertThat(actual.get(entry.getKey())).isEqualTo(entry.getValue());
+            assertThat(actual.getOrDefault(entry.getKey(), null)).isEqualTo(entry.getValue());
+            assertThat(actual.getIndex(entry.getKey())).isEqualTo(index);
+            assertThat(actual.getKeyAt(index)).isEqualTo(entry.getKey());
+            assertThat(actual.getValueAt(index)).isEqualTo(entry.getValue());
+            assertThat(actual.containsKey(entry.getKey())).isTrue();
 
             assertThat(keysIterator.hasNext()).isTrue();
             assertThat(keysIterator.next()).isEqualTo(entry.getKey());
@@ -110,10 +110,10 @@ public class MapAsserts {
         assertThat(entriesIterator.hasNext()).isFalse();
     }
 
-    private static void assertSizes(Map<String, Object> expectedMap, ListMap<String, Object> map) {
-        assertThat(map.size()).isEqualTo(expectedMap.size());
-        assertThat(map.keySet().size()).isEqualTo(expectedMap.size());
-        assertThat(map.values().size()).isEqualTo(expectedMap.size());
-        assertThat(map.entrySet().size()).isEqualTo(expectedMap.size());
+    private static void assertSizes(Map<String, Object> expected, IndexedMap<String, Object> actual) {
+        assertThat(actual.size()).isEqualTo(expected.size());
+        assertThat(actual.keySet().size()).isEqualTo(expected.size());
+        assertThat(actual.values().size()).isEqualTo(expected.size());
+        assertThat(actual.entrySet().size()).isEqualTo(expected.size());
     }
 }

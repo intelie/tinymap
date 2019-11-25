@@ -1,4 +1,4 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.base;
 
 import net.intelie.tinymap.util.Preconditions;
 
@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-public abstract class ListMapBase<K, V> implements ListMap<K, V> {
+public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     private static final Object SENTINEL = new Object();
 
     @SuppressWarnings("unchecked")
@@ -107,7 +107,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     }
 
     @Override
-    public ListSet<K> keySet() {
+    public IndexedSet<K> keySet() {
         return new KeysView();
     }
 
@@ -117,7 +117,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
     }
 
     @Override
-    public ListSet<Entry<K, V>> entrySet() {
+    public IndexedSet<Entry<K, V>> entrySet() {
         return new EntriesView();
     }
 
@@ -156,7 +156,7 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
         return sb.append('}').toString();
     }
 
-    private class ValuesView extends ListCollectionBase<V> implements Serializable {
+    private class ValuesView extends IndexedCollectionBase<V> implements Serializable {
         @Override
         public V getEntryAt(int index) {
             return getValueAt(index);
@@ -164,34 +164,34 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            IndexedMapBase.this.clear();
         }
 
         @Override
         public void removeAt(int index) {
-            ListMapBase.this.removeAt(index);
+            IndexedMapBase.this.removeAt(index);
         }
 
         @Override
         public boolean isRemoved(int index) {
-            return ListMapBase.this.isRemoved(index);
+            return IndexedMapBase.this.isRemoved(index);
         }
 
         @Override
         public int rawSize() {
-            return ListMapBase.this.rawSize();
+            return IndexedMapBase.this.rawSize();
         }
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return IndexedMapBase.this.size();
         }
     }
 
-    private class KeysView extends ListSetBase<K> implements Serializable {
+    private class KeysView extends IndexedSetBase<K> implements Serializable {
         @Override
         public int getIndex(Object key) {
-            return ListMapBase.this.getIndex(key);
+            return IndexedMapBase.this.getIndex(key);
         }
 
         @Override
@@ -201,37 +201,37 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            IndexedMapBase.this.clear();
         }
 
         @Override
         public void removeAt(int index) {
-            ListMapBase.this.removeAt(index);
+            IndexedMapBase.this.removeAt(index);
         }
 
         @Override
         public boolean isRemoved(int index) {
-            return ListMapBase.this.isRemoved(index);
+            return IndexedMapBase.this.isRemoved(index);
         }
 
         @Override
         public int rawSize() {
-            return ListMapBase.this.rawSize();
+            return IndexedMapBase.this.rawSize();
         }
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return IndexedMapBase.this.size();
         }
     }
 
-    private class EntriesView extends ListSetBase<Entry<K, V>> implements Serializable {
+    private class EntriesView extends IndexedSetBase<Entry<K, V>> implements Serializable {
         @Override
         public int getIndex(Object key) {
             if (!(key instanceof Entry<?, ?>))
                 return -1;
             Entry<?, ?> entry = (Entry<?, ?>) key;
-            int index = ListMapBase.this.getIndex(entry.getKey());
+            int index = IndexedMapBase.this.getIndex(entry.getKey());
             if (index < 0 || Objects.equals(getValueAt(index), entry.getValue()))
                 return index;
             return -1;
@@ -239,32 +239,32 @@ public abstract class ListMapBase<K, V> implements ListMap<K, V> {
 
         @Override
         public Entry<K, V> getEntryAt(int index) {
-            return ListMapBase.this.getEntryAt(index);
+            return IndexedMapBase.this.getEntryAt(index);
         }
 
         @Override
         public void clear() {
-            ListMapBase.this.clear();
+            IndexedMapBase.this.clear();
         }
 
         @Override
         public void removeAt(int index) {
-            ListMapBase.this.removeAt(index);
+            IndexedMapBase.this.removeAt(index);
         }
 
         @Override
         public boolean isRemoved(int index) {
-            return ListMapBase.this.isRemoved(index);
+            return IndexedMapBase.this.isRemoved(index);
         }
 
         @Override
         public int rawSize() {
-            return ListMapBase.this.rawSize();
+            return IndexedMapBase.this.rawSize();
         }
 
         @Override
         public int size() {
-            return ListMapBase.this.size();
+            return IndexedMapBase.this.size();
         }
     }
 

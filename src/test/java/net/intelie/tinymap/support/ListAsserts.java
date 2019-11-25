@@ -1,6 +1,6 @@
 package net.intelie.tinymap.support;
 
-import net.intelie.tinymap.base.IndexedSet;
+import net.intelie.tinymap.base.IndexedCollection;
 
 import java.io.IOException;
 import java.util.*;
@@ -8,8 +8,8 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-public class SetAsserts {
-    public static void assertSet(Set<String> expected, IndexedSet<String> actual, int removeFrom, int removeTo) throws Exception {
+public class ListAsserts {
+    public static void assertList(List<String> expected, IndexedCollection<String> actual, int removeFrom, int removeTo) throws Exception {
         assertSizes(expected, actual);
         assertElements(expected, actual, removeFrom, removeTo);
 
@@ -25,26 +25,26 @@ public class SetAsserts {
         assertSerialization(actual);
     }
 
-    private static void assertSerialization(IndexedSet<String> actual) throws IOException, ClassNotFoundException {
+    private static void assertSerialization(IndexedCollection<String> actual) throws IOException, ClassNotFoundException {
         byte[] serialized = SerializationHelper.testSerialize(actual);
-//        byte[] serializedExpected = SerializationHelper.testSerialize(expected);
-//        if (expected.size() > 10 && removeTo - removeFrom == 0)
+//        byte[] serializedExpected = SerializationHelper.testSerialize(expectedSet);
+//        if (expectedSet.size() > 10 && removeTo - removeFrom == 0)
 //            assertThat(serialized.length).isLessThan(2 * serializedExpected.length);
 
-        Set<String> deserialized = SerializationHelper.testDeserialize(serialized);
+        List<String> deserialized = SerializationHelper.testDeserialize(serialized);
         assertThat(deserialized).isEqualTo(actual);
     }
 
-    private static void assertCommonProperties(Set<String> expected, IndexedSet<String> actual) {
-        assertThat(actual.isEmpty()).isEqualTo(expected.isEmpty());
+    private static void assertCommonProperties(List<String> expectedSet, IndexedCollection<String> actual) {
+        assertThat(actual.isEmpty()).isEqualTo(expectedSet.isEmpty());
 
-        assertThat(expected).isEqualTo(actual);
-        assertThat(actual.toString()).isEqualTo(expected.toString());
+        assertThat(expectedSet).isEqualTo(actual);
+        assertThat(actual.toString()).isEqualTo(expectedSet.toString());
 
-        assertThat(actual).isEqualTo(expected);
-        assertThat(actual.hashCode()).isEqualTo(expected.hashCode());
+        assertThat(actual).isEqualTo(expectedSet);
+        assertThat(actual.hashCode()).isEqualTo(expectedSet.hashCode());
 
-        HashSet<String> unordered = new HashSet<>(expected);
+        ArrayList<String> unordered = new ArrayList<>(expectedSet);
         assertThat(actual).isEqualTo(unordered);
         assertThat(actual.hashCode()).isEqualTo(unordered.hashCode());
 
@@ -54,8 +54,8 @@ public class SetAsserts {
         assertThat(actual.hashCode()).isNotEqualTo(unordered.hashCode());
     }
 
-    private static void assertForEach(Set<String> expected, IndexedSet<String> actual) {
-        Iterator<String> expectedIterator = expected.iterator();
+    private static void assertForEach(List<String> expectedSet, IndexedCollection<String> actual) {
+        Iterator<String> expectedIterator = expectedSet.iterator();
         actual.forEach(obj -> {
             assertThat(expectedIterator.hasNext());
             String expectedEntry = expectedIterator.next();
@@ -63,16 +63,16 @@ public class SetAsserts {
         });
     }
 
-    private static void assertInvalidIndex(IndexedSet<String> actual, int index) {
+    private static void assertInvalidIndex(IndexedCollection<String> actual, int index) {
         assertThatThrownBy(() -> actual.getEntryAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
         assertThatThrownBy(() -> actual.removeAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
     }
 
-    private static void assertElements(Set<String> expected, IndexedSet<String> actual, int removeFrom, int removeTo) {
+    private static void assertElements(List<String> expectedSet, IndexedCollection<String> actual, int removeFrom, int removeTo) {
         Iterator<String> keysIterator = actual.iterator();
 
         int index = 0;
-        for (String entry : expected) {
+        for (String entry : expectedSet) {
             if (index == removeFrom) index = removeTo;
             assertThat(actual.getIndex(entry)).isEqualTo(index);
             assertThat(actual.getEntryAt(index)).isEqualTo(entry);
@@ -86,7 +86,7 @@ public class SetAsserts {
         assertThat(keysIterator.hasNext()).isFalse();
     }
 
-    private static void assertSizes(Set<String> expected, IndexedSet<String> actual) {
-        assertThat(actual.size()).isEqualTo(expected.size());
+    private static void assertSizes(List<String> expectedSet, IndexedCollection<String> actual) {
+        assertThat(actual.size()).isEqualTo(expectedSet.size());
     }
 }

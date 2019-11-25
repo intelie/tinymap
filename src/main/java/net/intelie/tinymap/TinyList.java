@@ -1,13 +1,10 @@
 package net.intelie.tinymap;
 
-import net.intelie.tinymap.util.Preconditions;
+import net.intelie.tinymap.base.IndexedListBase;
 
 import java.io.Serializable;
-import java.util.AbstractList;
-import java.util.Objects;
-import java.util.function.Consumer;
 
-public class TinyList<T> extends AbstractList<T> implements Serializable {
+public class TinyList<T> extends IndexedListBase<T> implements Serializable {
     private final Object[] values;
 
     public TinyList(Object[] values) {
@@ -18,25 +15,13 @@ public class TinyList<T> extends AbstractList<T> implements Serializable {
         return new TinyListBuilder<>();
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public T get(int index) {
-        Preconditions.checkElementIndex(index, values.length);
-        return (T) values[index];
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void forEach(Consumer<? super T> action) {
-        Object[] values = this.values;
-        int length = values.length;
-        for (int i = 0; i < length; i++) {
-            action.accept((T) values[i]);
-        }
-    }
-
     @Override
     public int size() {
         return values.length;
+    }
+
+    @Override
+    public T getEntryAt(int index) {
+        return (T) values[index];
     }
 }

@@ -1,9 +1,9 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.base;
 
 import java.util.Objects;
 import java.util.Set;
 
-public abstract class ListSetBase<T> extends ListCollectionBase<T> implements ListSet<T> {
+public abstract class IndexedSetBase<T> extends IndexedCollectionBase<T> implements IndexedSet<T> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
