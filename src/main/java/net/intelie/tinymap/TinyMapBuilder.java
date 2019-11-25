@@ -7,11 +7,15 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
-    private static final Object TOMBSTONE = new Serializable() {
+    public static final Object TOMBSTONE = new Serializable() {
+        @Override
+        public String toString() {
+            return "TOMBSTONE";
+        }
     };
     private static final Adapter<?, ?> adapter = new Adapter<>();
 
-    private TinySetBuilder<K> keys;
+    private final TinySetBuilder<K> keys;
     private Object[] values;
 
     public TinyMapBuilder() {
@@ -116,6 +120,7 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
     }
 
     private TinyMap<K, V> buildWithKeys(TinySet<K> keys) {
+        compact();
         return TinyMap.createUnsafe(keys, Arrays.copyOf(values, keys.size()));
     }
 

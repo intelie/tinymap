@@ -1,9 +1,13 @@
 package net.intelie.tinymap;
 
 import net.intelie.tinymap.support.MapAsserts;
+import net.intelie.tinymap.support.SerializationHelper;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,6 +118,12 @@ public class TinyMapBuilderTest {
             e.printStackTrace();
         }
         assertMapWithCount(255, true, 100, 200);
+    }
+
+    @Test
+    public void testTombstone() throws Exception {
+        assertThat(TinyMapBuilder.TOMBSTONE.toString()).isEqualTo("TOMBSTONE");
+        SerializationHelper.roundTrip(TinyMapBuilder.TOMBSTONE);
     }
 
     private void assertMapWithCount(int count, boolean withNull) throws Exception {

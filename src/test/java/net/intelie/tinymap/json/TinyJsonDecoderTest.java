@@ -58,6 +58,16 @@ public class TinyJsonDecoderTest {
     }
 
     @Test
+    public void testDumpBuffer() throws IOException {
+        TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{a:1}"));
+
+        assertThat(decoder.nextMap()).isNotNull();
+        assertThat(decoder.dumpBuffer().toString()).isEqualTo("{a:1}");
+
+
+    }
+
+    @Test
     public void testInvalid() throws IOException {
         assertInvalidJson(false, "Use JsonReader.setLenient(true)", "1-", JsonReader::peek, TinyJsonReader::peek);
         assertInvalidJson(false, "Use JsonReader.setLenient(true)", "1+", JsonReader::peek, TinyJsonReader::peek);

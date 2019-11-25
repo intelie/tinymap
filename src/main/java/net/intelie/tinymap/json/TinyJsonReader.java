@@ -16,7 +16,6 @@
 
 package net.intelie.tinymap.json;
 
-import net.intelie.tinymap.ObjectCache;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Closeable;
@@ -120,6 +119,14 @@ public class TinyJsonReader implements Closeable {
     public TinyJsonReader(Reader in) {
         Preconditions.checkNotNull(in, "in == null");
         this.in = in;
+    }
+
+    public StringBuilder dumpBuffer() {
+        stringBuilder.setLength(0);
+        for (char c : buffer)
+            if (c != 0)
+                stringBuilder.append(c);
+        return stringBuilder;
     }
 
     public final boolean isLenient() {
