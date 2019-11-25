@@ -6,8 +6,11 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TinySetBuilderTest {
     @Test
@@ -65,6 +68,22 @@ public class TinySetBuilderTest {
             it.remove();
             expected.remove("aaa" + i);
         }
+
+        SetAsserts.assertSet(expected, builder, 10, 20);
+    }
+
+    @Test
+    public void testRemoveAll() throws Exception {
+        TinySetBuilder<String> builder = new TinySetBuilder<>();
+        LinkedHashSet<String> expected = new LinkedHashSet<>();
+
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.add("aaa" + i)).isTrue();
+            assertThat(expected.add("aaa" + i)).isTrue();
+        }
+
+        builder.removeAll(IntStream.range(10, 20).mapToObj(x -> "aaa" + x).collect(Collectors.toList()));
+        expected.removeAll(IntStream.range(10, 20).mapToObj(x -> "aaa" + x).collect(Collectors.toList()));
 
         SetAsserts.assertSet(expected, builder, 10, 20);
     }
@@ -144,5 +163,13 @@ public class TinySetBuilderTest {
         SetAsserts.assertSet(expectedMap, builder.build(), 0, 0);
     }
 
+    @Test
+    public void testDoesNotSupportSomeOperations() {
+        TinySetBuilder<Object> builder = TinySet.builder();
+        builder.add("aaa");
+
+        assertThatThrownBy(() -> builder.add(1, "abc")).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> builder.set(1, "abc")).isInstanceOf(UnsupportedOperationException.class);
+    }
 
 }

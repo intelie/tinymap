@@ -170,8 +170,9 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
 
         @Override
-        public void removeAt(int index) {
+        public boolean removeAt(int index) {
             IndexedMapBase.this.removeAt(index);
+            return false;
         }
 
         @Override
@@ -207,8 +208,9 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
 
         @Override
-        public void removeAt(int index) {
+        public boolean removeAt(int index) {
             IndexedMapBase.this.removeAt(index);
+            return false;
         }
 
         @Override
@@ -228,8 +230,6 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     }
 
     private class EntriesView extends IndexedSetBase<Entry<K, V>> implements Serializable, IndexedCollectionBase.NoAdditiveChange<Entry<K, V>> {
-
-
         @Override
         public int getIndex(Object key) {
             if (!(key instanceof Entry<?, ?>))
@@ -252,8 +252,9 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
 
         @Override
-        public void removeAt(int index) {
+        public boolean removeAt(int index) {
             IndexedMapBase.this.removeAt(index);
+            return false;
         }
 
         @Override

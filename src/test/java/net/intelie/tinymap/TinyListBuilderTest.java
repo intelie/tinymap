@@ -4,6 +4,10 @@ import net.intelie.tinymap.support.ListAsserts;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TinyListBuilderTest {
 
@@ -21,6 +25,22 @@ public class TinyListBuilderTest {
     }
 
     @Test
+    public void testRemoveAll() throws Exception {
+        TinyListBuilder<String> builder = new TinyListBuilder<>();
+        ArrayList<String> expected = new ArrayList<>();
+
+        for (int i = 0; i < 100; i++) {
+            assertThat(builder.add("aaa" + i)).isTrue();
+            assertThat(expected.add("aaa" + i)).isTrue();
+        }
+
+        builder.removeAll(IntStream.range(10, 20).mapToObj(x -> "aaa" + x).collect(Collectors.toList()));
+        expected.removeAll(IntStream.range(10, 20).mapToObj(x -> "aaa" + x).collect(Collectors.toList()));
+
+        ListAsserts.assertList(expected, builder);
+    }
+
+    @Test
     public void testBuildEmpty() throws Exception {
         assertListWithCount(0, false);
         assertListWithCount(0, true);
@@ -30,12 +50,14 @@ public class TinyListBuilderTest {
     public void testBuildMedium() throws Exception {
         assertListWithCount(1000, false);
         assertListWithCount(1000, true);
+        assertListWithCount(1000, true, 200, 300);
     }
 
     @Test
     public void testBuildAlmostThere() throws Exception {
         assertListWithCount(255, false);
         assertListWithCount(255, true);
+        assertListWithCount(1000, true, 123, 234);
     }
 
 

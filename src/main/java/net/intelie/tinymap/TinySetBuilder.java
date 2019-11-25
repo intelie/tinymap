@@ -103,7 +103,7 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
             keys = Arrays.copyOf(keys, newSize);
             inverse = Arrays.copyOf(inverse, newSize);
         }
-        if (4 * (rawSize + 1) > 3 * table.length) {
+        if (2 * (rawSize + 1) > table.length) {
             forceRehash(table.length * 2);
             index = getIndex(key);
         }
@@ -125,10 +125,11 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
 
     @SuppressWarnings("unchecked")
     @Override
-    public void removeAt(int index) {
+    public boolean removeAt(int index) {
         Preconditions.checkElementIndex(index, rawSize);
         keys[index] = TOMBSTONE;
         size--;
+        return false;
     }
 
     @Override

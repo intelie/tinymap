@@ -18,6 +18,11 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
     }
 
     @Override
+    public void clear() {
+        throw new UnsupportedOperationException("modification not supported: " + this);
+    }
+
+    @Override
     public boolean isEmpty() {
         return size() == 0;
     }
@@ -29,17 +34,12 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
 
     @Override
     public ListIterator<T> iterator() {
-        return new CollectionIterator(0, rawSize());
+        return iterator(0);
     }
 
     @Override
     public ListIterator<T> iterator(int fromIndex) {
-        return new CollectionIterator(fromIndex, rawSize());
-    }
-
-    @Override
-    public ListIterator<T> iterator(int fromIndex, int toIndex) {
-        return new CollectionIterator(fromIndex, toIndex);
+        return new CollectionIterator(fromIndex);
     }
 
     @Override
@@ -82,14 +82,8 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
     }
 
     public interface Immutable<T> extends NoAdditiveChange<T> {
-
         @Override
-        default void clear() {
-            throw new UnsupportedOperationException("modification not supported: " + this);
-        }
-
-        @Override
-        default void removeAt(int index) {
+        default boolean removeAt(int index) {
             throw new UnsupportedOperationException("modification not supported: " + this);
         }
 
@@ -107,28 +101,36 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
     }
 
     private class CollectionIterator implements ListIterator<T> {
-        private final int toIndex;
-        private final int fromIndex;
         private int current;
         private int next = 0;
         private int prev;
 
-        public CollectionIterator(int fromIndex, int toIndex) {
-            this.next = fromIndex - 1;
-            do next++; while (isRemoved(next) && next < toIndex);
-            this.prev = fromIndex - 1;
-            this.fromIndex = fromIndex;
-            this.toIndex = toIndex;
+        public CollectionIterator(int fromIndex) {
+            this.current = findNext(fromIndex);
+            this.next = findNext(fromIndex);
+            this.prev = findPrev(fromIndex - 1);
+        }
+
+        private int findNext(int index) {
+            while (index < rawSize() && isRemoved(index))
+                index++;
+            return index;
+        }
+
+        private int findPrev(int index) {
+            while (index >= 0 && isRemoved(index))
+                index--;
+            return index;
         }
 
         @Override
         public boolean hasNext() {
-            return next < toIndex;
+            return next < rawSize();
         }
 
         @Override
         public boolean hasPrevious() {
-            return prev >= fromIndex;
+            return prev >= 0;
         }
 
         @Override
@@ -144,7 +146,6 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         @Override
         public void set(T obj) {
             IndexedCollectionBase.this.set(current, obj);
-
         }
 
         @Override
@@ -155,29 +156,26 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         @Override
         public void remove() {
             Preconditions.checkState(current >= 0, "no iteration occurred");
-            removeAt(current);
+            if (removeAt(current))
+                next--;
         }
 
         @Override
         public T previous() {
             if (!hasPrevious())
                 throw new NoSuchElementException();
-            next = current;
-            current = prev;
-            T key = getEntryAt(current);
-            do prev--; while (isRemoved(prev) && prev >= fromIndex);
-            return key;
+            next = current = prev;
+            prev = findPrev(prev - 1);
+            return getEntryAt(current);
         }
 
         @Override
         public T next() {
             if (!hasNext())
                 throw new NoSuchElementException();
-            prev = current;
-            current = next;
-            T key = getEntryAt(current);
-            do next++; while (isRemoved(next) && next < toIndex);
-            return key;
+            prev = current = next;
+            next = findNext(next + 1);
+            return getEntryAt(current);
         }
     }
 }

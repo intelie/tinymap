@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Ignore
@@ -28,8 +29,9 @@ public class Playground {
         Gson gson = new Gson();
 
         long start = System.nanoTime();
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_pps.json")));
-             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader("/home/juanplopes/Downloads/raw_pps.json")))) {
+        String fileName = "/home/juanplopes/Downloads/raw_pps.json";
+        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader(fileName)));
+             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
             reader2.setLenient(true);
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;

@@ -14,7 +14,7 @@ public interface IndexedCollection<T> extends Collection<T> {
 
     T getEntryAt(int index);
 
-    void removeAt(int index);
+    boolean removeAt(int index);
 
     boolean isRemoved(int index);
 
@@ -24,6 +24,4 @@ public interface IndexedCollection<T> extends Collection<T> {
     ListIterator<T> iterator();
 
     ListIterator<T> iterator(int fromIndex);
-
-    ListIterator<T> iterator(int fromIndex, int toIndex);
 }

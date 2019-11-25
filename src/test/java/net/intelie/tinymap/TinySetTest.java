@@ -1,19 +1,15 @@
 package net.intelie.tinymap;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.intelie.introspective.reflect.ReflectionCache;
-import net.intelie.tinymap.support.SerializationHelper;
 import net.intelie.tinymap.support.SetAsserts;
 import org.junit.Test;
-import org.mockito.InOrder;
 
-import java.util.*;
-import java.util.function.BiConsumer;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TinySetTest {
     @Test
@@ -148,7 +144,7 @@ public class TinySetTest {
         }
         //System.out.println(count + "\t" + (total / (double) count) + "\t" + (totalNonExisting / (double) count));
         assertThat(count == 0 ? 0 : total / (double) count).isLessThan(1);
-        assertThat(count == 0 ? 0 : totalNonExisting / (double) count).isLessThan(5);
+        assertThat(count == 0 ? 0 : totalNonExisting / (double) count).isLessThan(2);
     }
 
     private void testCount(int count, boolean withNull) throws Exception {

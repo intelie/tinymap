@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializable {
     public static int tableSize(int length) {
-        return Integer.highestOneBit((int) Math.ceil(length * 4.0 / 3) - 1) * 2;
+        return Integer.highestOneBit(length * 2 - 1) * 2;
     }
 
     private static int hash(Object key) {

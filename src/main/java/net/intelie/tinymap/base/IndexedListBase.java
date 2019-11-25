@@ -54,12 +54,6 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     }
 
     @Override
-    public int addOrGetIndex(T obj) {
-        add(obj);
-        return -1;
-    }
-
-    @Override
     public void add(int index, T obj) {
         Preconditions.checkElementIndex(index, size() + 1);
         for (int i = index; i < rawSize(); i++)
@@ -68,8 +62,9 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     }
 
     @Override
-    public void removeAt(int index) {
+    public boolean removeAt(int index) {
         remove(index);
+        return true;
     }
 
     @Override
@@ -138,11 +133,18 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
 
     public class ViewList extends IndexedListBase<T> implements Serializable {
         private final int fromIndex;
-        private final int toIndex;
+        private int toIndex;
 
         public ViewList(int fromIndex, int toIndex) {
             this.fromIndex = fromIndex;
             this.toIndex = toIndex;
+        }
+
+        @Override
+        public int addOrGetIndex(T obj) {
+            IndexedListBase.this.add(toIndex, obj);
+            toIndex++;
+            return -1;
         }
 
         @Override

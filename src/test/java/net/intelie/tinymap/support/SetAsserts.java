@@ -12,6 +12,7 @@ public class SetAsserts {
     public static void assertSet(Set<String> expected, IndexedSet<String> actual, int removeFrom, int removeTo) throws Exception {
         assertSizes(expected, actual);
         assertElements(expected, actual, removeFrom, removeTo);
+        assertElementsInverse(expected, actual, removeFrom, removeTo);
 
         assertInvalidIndex(actual, -1);
         assertInvalidIndex(actual, actual.rawSize());
@@ -86,7 +87,42 @@ public class SetAsserts {
         assertThat(keysIterator.hasNext()).isFalse();
     }
 
+    private static void assertElementsInverse(Set<?> expectedSet, IndexedSet<?> actual, int removeFrom, int removeTo) {
+        ListIterator<?> keysIterator = actual.iterator(actual.rawSize());
+        ListIterator<?> revIterator = new ArrayList<>(expectedSet).listIterator(actual.size());
+        while (keysIterator.hasNext()) keysIterator.next();
+        while (revIterator.hasNext()) revIterator.next();
+
+        assertThat(keysIterator.nextIndex()).isEqualTo(translateIndex(revIterator.nextIndex(), removeFrom, removeTo));
+        assertThat(keysIterator.previousIndex()).isEqualTo(translateIndex(revIterator.previousIndex(), removeFrom, removeTo));
+
+        int index = expectedSet.size() - 1;
+        while (revIterator.hasPrevious()) {
+            Object entry = revIterator.previous();
+
+            assertThat(actual.getIndex(entry)).isEqualTo(translateIndex(index, removeFrom, removeTo));
+            assertThat(actual.getEntryAt(translateIndex(index, removeFrom, removeTo))).isEqualTo(entry);
+
+            assertThat(keysIterator.hasPrevious()).isTrue();
+            assertThat(keysIterator.previous()).isEqualTo(entry);
+
+            assertThat(keysIterator.nextIndex()).isEqualTo(translateIndex(revIterator.nextIndex(), removeFrom, removeTo));
+            assertThat(keysIterator.previousIndex()).isEqualTo(translateIndex(revIterator.previousIndex(), removeFrom, removeTo));
+
+            index--;
+        }
+
+        assertThat(keysIterator.hasPrevious()).isFalse();
+        assertThatThrownBy(() -> keysIterator.previous()).isInstanceOf(NoSuchElementException.class);
+    }
+
     private static void assertSizes(Set<String> expected, IndexedSet<String> actual) {
         assertThat(actual.size()).isEqualTo(expected.size());
+    }
+
+    private static int translateIndex(int index, int removeFrom, int removeTo) {
+        if (index >= removeFrom)
+            index += (removeTo - removeFrom);
+        return index;
     }
 }

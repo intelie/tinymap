@@ -41,7 +41,7 @@ public class MapAccessTime {
 //        test("Tiny", keys, tiny.build());
 //        test("LinkedHashMap", keys, linked);
 //        test("MutableTiny", keys, mutable);
-        test("HashMap", keys, map);
+//        test("HashMap", keys, map);
 //        test("Guava", keys, guava.build());
     }
 
@@ -49,6 +49,11 @@ public class MapAccessTime {
         for (int i = 0; i < 100000; i++)
             for (String key : keys)
                 map.get(key);
+
+        if (map instanceof TinyMap) {
+            for (String key : keys)
+                ((TinyMap<String, Object>) map).debugCollisions(key);
+        }
 
 
         long startTime = System.nanoTime();

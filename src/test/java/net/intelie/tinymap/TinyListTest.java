@@ -7,8 +7,8 @@ import org.mockito.InOrder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,6 +21,22 @@ public class TinyListTest {
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
         assertThat(reflection.get(TinyList.class).size()).isEqualTo(16);
+    }
+
+    @Test
+    public void testIndexOfAndLastIndexOf() {
+        TinyListBuilder<String> builder = TinyList.builder();
+        builder.add("aaa");
+        builder.add("bbb");
+        builder.add("bbb");
+        builder.add("bbb");
+        builder.add("ccc");
+
+        assertThat(builder.indexOf("bbb")).isEqualTo(builder.build().indexOf("bbb")).isEqualTo(1);
+        assertThat(builder.lastIndexOf("bbb")).isEqualTo(builder.build().lastIndexOf("bbb")).isEqualTo(3);
+
+        assertThat(builder.indexOf("xxx")).isEqualTo(builder.build().indexOf("xxx")).isEqualTo(-1);
+        assertThat(builder.lastIndexOf("xxx")).isEqualTo(builder.build().lastIndexOf("xxx")).isEqualTo(-1);
     }
 
     @Test
@@ -126,5 +142,18 @@ public class TinyListTest {
 
         List<Object> deserialized = SerializationHelper.testDeserialize(serialized);
         assertThat(deserialized).isEqualTo(list);
+    }
+
+    @Test
+    public void immutableIsImmutable() {
+        TinyListBuilder<Object> builder = TinyList.builder();
+        builder.add("aaa");
+        TinyList<Object> map = builder.build();
+
+        assertThatThrownBy(() -> map.clear()).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> map.remove("aaa")).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> map.addAll(Collections.singleton("abc"))).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> map.add("abc")).isInstanceOf(UnsupportedOperationException.class);
+        assertThatThrownBy(() -> map.set(42, "abc")).isInstanceOf(UnsupportedOperationException.class);
     }
 }
