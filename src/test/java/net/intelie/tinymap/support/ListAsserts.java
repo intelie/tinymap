@@ -3,15 +3,17 @@ package net.intelie.tinymap.support;
 import net.intelie.tinymap.base.IndexedCollection;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ListAsserts {
-    public static void assertList(List<String> expected, IndexedCollection<String> actual, int removeFrom, int removeTo) throws Exception {
+    public static void assertList(List<String> expected, IndexedCollection<String> actual) throws Exception {
         assertSizes(expected, actual);
-        assertElements(expected, actual, removeFrom, removeTo);
+        assertElements(expected, actual);
 
         assertInvalidIndex(actual, -1);
         assertInvalidIndex(actual, actual.rawSize());
@@ -68,12 +70,11 @@ public class ListAsserts {
         assertThatThrownBy(() -> actual.removeAt(index)).isInstanceOfAny(UnsupportedOperationException.class, IndexOutOfBoundsException.class);
     }
 
-    private static void assertElements(List<String> expectedSet, IndexedCollection<String> actual, int removeFrom, int removeTo) {
+    private static void assertElements(List<String> expectedSet, IndexedCollection<String> actual) {
         Iterator<String> keysIterator = actual.iterator();
 
         int index = 0;
         for (String entry : expectedSet) {
-            if (index == removeFrom) index = removeTo;
             assertThat(actual.getIndex(entry)).isEqualTo(index);
             assertThat(actual.getEntryAt(index)).isEqualTo(entry);
 

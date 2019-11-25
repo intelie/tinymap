@@ -3,7 +3,9 @@ package net.intelie.tinymap.base;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
@@ -156,7 +158,7 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         return sb.append('}').toString();
     }
 
-    private class ValuesView extends IndexedCollectionBase<V> implements Serializable {
+    private class ValuesView extends IndexedCollectionBase<V> implements Serializable, IndexedCollectionBase.NoAdditiveChange<V> {
         @Override
         public V getEntryAt(int index) {
             return getValueAt(index);
@@ -188,7 +190,7 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
     }
 
-    private class KeysView extends IndexedSetBase<K> implements Serializable {
+    private class KeysView extends IndexedSetBase<K> implements Serializable, IndexedCollectionBase.NoAdditiveChange<K> {
         @Override
         public int getIndex(Object key) {
             return IndexedMapBase.this.getIndex(key);
@@ -225,7 +227,9 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
     }
 
-    private class EntriesView extends IndexedSetBase<Entry<K, V>> implements Serializable {
+    private class EntriesView extends IndexedSetBase<Entry<K, V>> implements Serializable, IndexedCollectionBase.NoAdditiveChange<Entry<K, V>> {
+
+
         @Override
         public int getIndex(Object key) {
             if (!(key instanceof Entry<?, ?>))

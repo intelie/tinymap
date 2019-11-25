@@ -35,7 +35,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
 
     public abstract int debugCollisions(Object key);
 
-    public static class Empty<T> extends TinySet<T> {
+    public static class Empty<T> extends TinySet<T> implements TinySet.Immutable<T> {
         @Override
         public int debugCollisions(Object key) {
             return 0;
@@ -57,7 +57,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
         }
     }
 
-    private static abstract class ArrayTableSet<T, A> extends TinySet<T> {
+    private static abstract class ArrayTableSet<T, A> extends TinySet<T> implements TinySet.Immutable<T> {
         protected final Object[] keys;
         protected final A table;
 

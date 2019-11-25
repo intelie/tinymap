@@ -3,10 +3,11 @@ package net.intelie.tinymap;
 import net.intelie.tinymap.base.IndexedListBase;
 import net.intelie.tinymap.util.Preconditions;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
-public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableBuilder<TinyListBuilder<T>, TinyList<T>> {
-    private final Adapter<T> adapter = new Adapter<>();
+public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableBuilder<TinyListBuilder<T>, TinyList<T>>, Serializable {
+    private static final Adapter<?> adapter = new Adapter<>();
     @SuppressWarnings("unchecked")
     private Object[] values = new Object[4];
     private int size = 0;
@@ -17,8 +18,14 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
         if (index == values.length)
             values = Arrays.copyOf(values, values.length * 2);
         values[index] = obj;
-        size++;
         return ~index;
+    }
+
+    @Override
+    public T set(int index, T obj) {
+        T old = getEntryAt(index);
+        values[index] = obj;
+        return old;
     }
 
     @Override
@@ -33,10 +40,9 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
 
     @Override
     public T removeLast() {
-        Object old = values[size - 1];
-        values[size - 1] = null;
+        T old = set(size - 1, null);
         size--;
-        return (T) old;
+        return old;
     }
 
     @Override
@@ -44,9 +50,10 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
         return new TinyList<>(Arrays.copyOf(values, size));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Adapter<T> adapter() {
-        return adapter;
+        return (Adapter<T>) adapter;
     }
 
     public void clear() {

@@ -8,6 +8,19 @@ import java.util.ArrayList;
 public class TinyListBuilderTest {
 
     @Test
+    public void addIndexedOnLast() throws Exception {
+        TinyListBuilder<String> builder = new TinyListBuilder<>();
+        ArrayList<String> expectedMap = new ArrayList<>();
+
+        expectedMap.add(0, "aaa0");
+        builder.add(0, "aaa0");
+        expectedMap.add(0, "aaa1");
+        builder.add(0, "aaa1");
+
+        ListAsserts.assertList(expectedMap, builder);
+    }
+
+    @Test
     public void testBuildEmpty() throws Exception {
         assertListWithCount(0, false);
         assertListWithCount(0, true);
@@ -17,14 +30,12 @@ public class TinyListBuilderTest {
     public void testBuildMedium() throws Exception {
         assertListWithCount(1000, false);
         assertListWithCount(1000, true);
-        assertListWithCount(1000, true, 200, 500);
     }
 
     @Test
     public void testBuildAlmostThere() throws Exception {
         assertListWithCount(255, false);
         assertListWithCount(255, true);
-        assertListWithCount(255, true, 100, 200);
     }
 
 
@@ -59,8 +70,8 @@ public class TinyListBuilderTest {
             expectedMap.remove("aaa" + i);
         }
 
-        ListAsserts.assertList(expectedMap, builder, removeFrom, removeTo);
-        ListAsserts.assertList(expectedMap, builder.build(), 0, 0);
+        ListAsserts.assertList(expectedMap, builder);
+        ListAsserts.assertList(expectedMap, builder.build());
     }
 
 

@@ -38,7 +38,6 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
         return hash;
     }
 
-
     @Override
     public final boolean isRemoved(int index) {
         return false;
@@ -55,24 +54,27 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     }
 
     @Override
-    public T set(int index, T obj) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
-    }
-
-    @Override
-    public T removeLast() {
-        throw new UnsupportedOperationException("modification not supported: " + this);
+    public int addOrGetIndex(T obj) {
+        add(obj);
+        return -1;
     }
 
     @Override
     public void add(int index, T obj) {
+        Preconditions.checkElementIndex(index, size() + 1);
         for (int i = index; i < rawSize(); i++)
             obj = set(i, obj);
         add(obj);
     }
 
     @Override
+    public void removeAt(int index) {
+        remove(index);
+    }
+
+    @Override
     public T remove(int index) {
+        Preconditions.checkElementIndex(index, rawSize());
         T obj = removeLast();
         for (int i = rawSize() - 1; i >= index; i--)
             obj = set(i, obj);
@@ -114,6 +116,23 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     public void forEach(Consumer<? super T> action) {
         for (int i = 0; i < rawSize(); i++) {
             action.accept(getEntryAt(i));
+        }
+    }
+
+    public interface Immutable<T> extends IndexedList<T> {
+        @Override
+        default T set(int index, T obj) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+        @Override
+        default T removeLast() {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+        @Override
+        default int addOrGetIndex(T obj) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
         }
     }
 

@@ -18,21 +18,6 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
     }
 
     @Override
-    public void removeAt(int index) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
-    }
-
-    @Override
-    public boolean isRemoved(int index) {
-        return false;
-    }
-
-    @Override
-    public int rawSize() {
-        return size();
-    }
-
-    @Override
     public boolean isEmpty() {
         return size() == 0;
     }
@@ -65,10 +50,6 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         }
     }
 
-    public int addOrGetIndex(T obj) {
-        throw new UnsupportedOperationException("modification not supported: " + this);
-    }
-
     @Override
     public boolean add(T obj) {
         return addOrGetIndex(obj) < 0;
@@ -82,9 +63,47 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         return true;
     }
 
-    @Override
-    public void clear() {
-        throw new UnsupportedOperationException("modification not supported: " + this);
+
+    public interface NoAdditiveChange<T> extends IndexedCollection<T> {
+        @Override
+        default int addOrGetIndex(T obj) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+        @Override
+        default void add(int index, T obj) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+        @Override
+        default T set(int index, T obj) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+    }
+
+    public interface Immutable<T> extends NoAdditiveChange<T> {
+
+        @Override
+        default void clear() {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+        @Override
+        default void removeAt(int index) {
+            throw new UnsupportedOperationException("modification not supported: " + this);
+        }
+
+
+        @Override
+        default boolean isRemoved(int index) {
+            return false;
+        }
+
+        @Override
+        default int rawSize() {
+            return size();
+        }
+
     }
 
     private class CollectionIterator implements ListIterator<T> {
@@ -95,9 +114,8 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         private int prev;
 
         public CollectionIterator(int fromIndex, int toIndex) {
-            this.next = fromIndex;
+            this.next = fromIndex - 1;
             do next++; while (isRemoved(next) && next < toIndex);
-
             this.prev = fromIndex - 1;
             this.fromIndex = fromIndex;
             this.toIndex = toIndex;
@@ -124,14 +142,14 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
         }
 
         @Override
-        public void set(T t) {
-            throw new UnsupportedOperationException("not implemented for ListIterator");
+        public void set(T obj) {
+            IndexedCollectionBase.this.set(current, obj);
 
         }
 
         @Override
         public void add(T obj) {
-            throw new UnsupportedOperationException("not implemented for ListIterator");
+            IndexedCollectionBase.this.add(current, obj);
         }
 
         @Override

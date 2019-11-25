@@ -20,7 +20,7 @@ public class TinyListTest {
     @Test
     public void testSizes() {
         ReflectionCache reflection = new ReflectionCache();
-        assertThat(reflection.get(TinyList.class).size()).isEqualTo(20);
+        assertThat(reflection.get(TinyList.class).size()).isEqualTo(16);
     }
 
     @Test
