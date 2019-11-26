@@ -6,7 +6,7 @@
 
     <groupId>net.intelie.tinymap</groupId>
     <artifactId>tinymap</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.2</version>
 
     <name>TinyMap</name>
     <description>Memory-Efficient Immutable HashMaps</description>
