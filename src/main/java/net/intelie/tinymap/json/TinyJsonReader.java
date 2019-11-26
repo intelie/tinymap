@@ -19,6 +19,7 @@ package net.intelie.tinymap.json;
 import net.intelie.tinymap.util.Preconditions;
 
 import java.io.Closeable;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -147,7 +148,7 @@ public class TinyJsonReader implements Closeable {
             pathIndices[stackSize - 1] = 0;
             peeked = PEEKED_NONE;
         } else {
-            throw new IllegalStateException("Expected BEGIN_ARRAY but was " + peek() + locationString());
+            throw new IOException("Expected BEGIN_ARRAY but was " + peek() + locationString());
         }
     }
 
@@ -161,7 +162,7 @@ public class TinyJsonReader implements Closeable {
             pathIndices[stackSize - 1]++;
             peeked = PEEKED_NONE;
         } else {
-            throw new IllegalStateException("Expected END_ARRAY but was " + peek() + locationString());
+            throw new IOException("Expected END_ARRAY but was " + peek() + locationString());
         }
     }
 
@@ -174,7 +175,7 @@ public class TinyJsonReader implements Closeable {
             push(JsonScope.EMPTY_OBJECT);
             peeked = PEEKED_NONE;
         } else {
-            throw new IllegalStateException("Expected BEGIN_OBJECT but was " + peek() + locationString());
+            throw new IOException("Expected BEGIN_OBJECT but was " + peek() + locationString());
         }
     }
 
@@ -189,7 +190,7 @@ public class TinyJsonReader implements Closeable {
             pathIndices[stackSize - 1]++;
             peeked = PEEKED_NONE;
         } else {
-            throw new IllegalStateException("Expected END_OBJECT but was " + peek() + locationString());
+            throw new IOException("Expected END_OBJECT but was " + peek() + locationString());
         }
     }
 
@@ -331,7 +332,7 @@ public class TinyJsonReader implements Closeable {
                 pos--;
             }
         } else if (peekStack == JsonScope.CLOSED) {
-            throw new IllegalStateException("JsonReader is closed");
+            throw new IOException("JsonReader is closed");
         }
 
         int c = nextNonWhitespace(true);
@@ -567,7 +568,7 @@ public class TinyJsonReader implements Closeable {
         } else if (p == PEEKED_DOUBLE_QUOTED_NAME) {
             result = nextQuotedValue('"');
         } else {
-            throw new IllegalStateException("Expected a name but was " + peek() + locationString());
+            throw new IOException("Expected a name but was " + peek() + locationString());
         }
         peeked = PEEKED_NONE;
         StringBuilder target = pathNames[stackSize - 1];
@@ -598,7 +599,7 @@ public class TinyJsonReader implements Closeable {
             result = makeStringFromBuffer(buffer, pos, peekedNumberLength);
             pos += peekedNumberLength;
         } else {
-            throw new IllegalStateException("Expected a string but was " + peek() + locationString());
+            throw new IOException("Expected a string but was " + peek() + locationString());
         }
         peeked = PEEKED_NONE;
         pathIndices[stackSize - 1]++;
@@ -625,15 +626,15 @@ public class TinyJsonReader implements Closeable {
             pathIndices[stackSize - 1]++;
             return false;
         }
-        throw new IllegalStateException("Expected a boolean but was " + peek() + locationString());
+        throw new IOException("Expected a boolean but was " + peek() + locationString());
     }
 
     /**
      * Consumes the next token from the JSON stream and asserts that it is a
      * literal null.
      *
-     * @throws IllegalStateException if the next token is not null or if this
-     *                               reader is closed.
+     * @throws IOException if the next token is not null or if this
+     *                     reader is closed.
      */
     public void nextNull() throws IOException {
         int p = peeked;
@@ -644,7 +645,7 @@ public class TinyJsonReader implements Closeable {
             peeked = PEEKED_NONE;
             pathIndices[stackSize - 1]++;
         } else {
-            throw new IllegalStateException("Expected null but was " + peek() + locationString());
+            throw new IOException("Expected null but was " + peek() + locationString());
         }
     }
 
@@ -670,7 +671,7 @@ public class TinyJsonReader implements Closeable {
         } else if (p == PEEKED_UNQUOTED) {
             builder = nextUnquotedValue();
         } else if (p != PEEKED_BUFFERED) {
-            throw new IllegalStateException("Expected a double but was " + peek() + locationString());
+            throw new IOException("Expected a double but was " + peek() + locationString());
         }
 
         peeked = PEEKED_BUFFERED;
@@ -679,7 +680,7 @@ public class TinyJsonReader implements Closeable {
         //Preconditions.checkState(Double.parseDouble(builder.toString()) == result);
 
         if (!lenient && (Double.isNaN(result) || Double.isInfinite(result))) {
-            throw new IllegalStateException(
+            throw new IOException(
                     "JSON forbids NaN and infinities: " + result + locationString());
         }
         builder.setLength(0);
@@ -1036,7 +1037,7 @@ public class TinyJsonReader implements Closeable {
             }
         }
         if (throwOnEof) {
-            throw new IllegalStateException("End of input" + locationString());
+            throw new EOFException("End of input" + locationString());
         } else {
             return -1;
         }
@@ -1203,7 +1204,7 @@ public class TinyJsonReader implements Closeable {
     }
 
     private IOException syntaxError(String message) throws IOException {
-        throw new IllegalStateException(message + locationString());
+        throw new IOException(message + locationString());
     }
 
     private void consumeNonExecutePrefix() throws IOException {

@@ -3,7 +3,6 @@ package net.intelie.tinymap.json;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.MalformedJsonException;
 import net.intelie.tinymap.ObjectCache;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,7 @@ public class TinyJsonDecoderTest {
     public void testInnerInvalidJson() throws IOException {
         TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{a:[{c:/}]}}"));
         assertThatThrownBy(() -> decoder.nextObject())
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(IOException.class)
                 .hasMessageContaining("Expected value");
     }
 
@@ -147,16 +146,10 @@ public class TinyJsonDecoderTest {
                 expectedFn.apply(expectedReader);
                 fail("must throw");
             } catch (Exception e) {
-                if (e instanceof MalformedJsonException)
-                    assertThatThrownBy(() -> actualFn.apply(reader))
-                            .isInstanceOf(IllegalStateException.class)
-                            .hasMessage(e.getMessage())
-                            .hasMessageContaining(exception);
-                else
-                    assertThatThrownBy(() -> actualFn.apply(reader))
-                            .isInstanceOf(e.getClass())
-                            .hasMessage(e.getMessage())
-                            .hasMessageContaining(exception);
+                assertThatThrownBy(() -> actualFn.apply(reader))
+                        .isInstanceOf(IOException.class)
+                        .hasMessage(e.getMessage())
+                        .hasMessageContaining(exception);
             }
         }
 

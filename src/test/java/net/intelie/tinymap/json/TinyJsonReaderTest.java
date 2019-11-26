@@ -2,6 +2,7 @@ package net.intelie.tinymap.json;
 
 import junit.framework.TestCase;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -161,7 +162,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -178,12 +179,12 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             new TinyJsonReader(reader("")).beginArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (EOFException expected) {
         }
         try {
             new TinyJsonReader(reader("")).beginObject();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (EOFException expected) {
         }
     }
 
@@ -251,7 +252,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -262,7 +263,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -306,7 +307,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextDouble();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -317,7 +318,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextDouble();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -350,7 +351,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -394,7 +395,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         assertEquals("truey", reader.nextString().toString());
         reader.endArray();
@@ -567,7 +568,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -579,7 +580,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (EOFException expected) {
         }
     }
 
@@ -590,7 +591,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.close();
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         try {
@@ -598,7 +599,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.close();
             reader.beginObject();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         try {
@@ -609,7 +610,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.close();
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -619,54 +620,54 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         assertEquals("a", reader.nextName().toString());
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.beginArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.endArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.beginObject();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.endObject();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         assertEquals(true, reader.nextBoolean());
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.beginArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         try {
             reader.endArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
         reader.endObject();
         assertEquals(JsonToken.END_DOCUMENT, reader.peek());
@@ -691,7 +692,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextNull();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -701,7 +702,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -712,7 +713,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("{\"a\"=>true}"));
@@ -721,7 +722,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -746,7 +747,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("{\"a\"=>true}"));
@@ -755,7 +756,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -784,7 +785,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[# comment \n true]"));
@@ -792,7 +793,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[/* comment */ true]"));
@@ -800,7 +801,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -827,7 +828,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[# comment \n true]"));
@@ -835,7 +836,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[/* comment */ true]"));
@@ -843,7 +844,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -853,7 +854,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -870,7 +871,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -880,7 +881,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -897,7 +898,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -907,7 +908,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -917,7 +918,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -934,7 +935,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -951,7 +952,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -962,7 +963,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.nextBoolean();
             reader.nextBoolean();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -981,7 +982,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.skipValue();
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -993,7 +994,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.nextBoolean();
             reader.nextName().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1014,7 +1015,7 @@ public final class TinyJsonReaderTest extends TestCase {
             reader.skipValue();
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1025,7 +1026,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextNull();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[,true]"));
@@ -1033,7 +1034,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextNull();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[true,]"));
@@ -1042,7 +1043,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextNull();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[,]"));
@@ -1050,7 +1051,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextNull();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1092,7 +1093,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[,true]"));
@@ -1100,7 +1101,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[true,]"));
@@ -1109,7 +1110,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
 
         reader = new TinyJsonReader(reader("[,]"));
@@ -1117,7 +1118,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1128,7 +1129,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1150,7 +1151,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1192,7 +1193,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.beginArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1201,7 +1202,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.skipValue();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1228,7 +1229,7 @@ public final class TinyJsonReaderTest extends TestCase {
             assertEquals(")", reader.nextString().toString());
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1244,7 +1245,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.endArray();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1301,7 +1302,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader1.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
             assertEquals(message, expected.getMessage());
         }
 
@@ -1313,7 +1314,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader2.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
             assertEquals(message, expected.getMessage());
         }
     }
@@ -1330,7 +1331,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
             assertEquals("Expected value at line 1 column 14 path $[1].a[2]", expected.getMessage());
         }
     }
@@ -1341,7 +1342,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             assertEquals(1d, reader.nextDouble());
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1408,7 +1409,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1418,7 +1419,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1428,7 +1429,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1441,7 +1442,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1480,7 +1481,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (EOFException expected) {
         }
     }
 
@@ -1556,7 +1557,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1569,7 +1570,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.peek();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1580,45 +1581,45 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testMalformedDocuments() throws IOException {
-        assertDocument("{]", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{,", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{{", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{[", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{:", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\":}", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\"::", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\":,", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\"=}", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\"=>}", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\"=>\"string\":", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\"=>\"string\"=", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\"=>\"string\"=>", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\"=>\"string\",", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
+        assertDocument("{]", BEGIN_OBJECT, IOException.class);
+        assertDocument("{,", BEGIN_OBJECT, IOException.class);
+        assertDocument("{{", BEGIN_OBJECT, IOException.class);
+        assertDocument("{[", BEGIN_OBJECT, IOException.class);
+        assertDocument("{:", BEGIN_OBJECT, IOException.class);
+        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\":}", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\"::", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\":,", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\"=}", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\"=>}", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\"=>\"string\":", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\"=>\"string\"=", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\"=>\"string\"=>", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\"=>\"string\",", BEGIN_OBJECT, NAME, STRING, IOException.class);
         assertDocument("{\"name\"=>\"string\",\"name\"", BEGIN_OBJECT, NAME, STRING, NAME);
-        assertDocument("[}", BEGIN_ARRAY, IllegalStateException.class);
+        assertDocument("[}", BEGIN_ARRAY, IOException.class);
         assertDocument("[,]", BEGIN_ARRAY, NULL, NULL, END_ARRAY);
-        assertDocument("{", BEGIN_OBJECT, IllegalStateException.class);
-        assertDocument("{\"name\"", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{'name'", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{'name',", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("{name", BEGIN_OBJECT, NAME, IllegalStateException.class);
-        assertDocument("[", BEGIN_ARRAY, IllegalStateException.class);
-        assertDocument("[string", BEGIN_ARRAY, STRING, IllegalStateException.class);
-        assertDocument("[\"string\"", BEGIN_ARRAY, STRING, IllegalStateException.class);
-        assertDocument("['string'", BEGIN_ARRAY, STRING, IllegalStateException.class);
-        assertDocument("[123", BEGIN_ARRAY, NUMBER, IllegalStateException.class);
-        assertDocument("[123,", BEGIN_ARRAY, NUMBER, IllegalStateException.class);
-        assertDocument("{\"name\":123", BEGIN_OBJECT, NAME, NUMBER, IllegalStateException.class);
-        assertDocument("{\"name\":123,", BEGIN_OBJECT, NAME, NUMBER, IllegalStateException.class);
-        assertDocument("{\"name\":\"string\"", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\":\"string\",", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\":'string'", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\":'string',", BEGIN_OBJECT, NAME, STRING, IllegalStateException.class);
-        assertDocument("{\"name\":false", BEGIN_OBJECT, NAME, BOOLEAN, IllegalStateException.class);
-        assertDocument("{\"name\":false,,", BEGIN_OBJECT, NAME, BOOLEAN, IllegalStateException.class);
+        assertDocument("{", BEGIN_OBJECT, IOException.class);
+        assertDocument("{\"name\"", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{\"name\",", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{'name'", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{'name',", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("{name", BEGIN_OBJECT, NAME, IOException.class);
+        assertDocument("[", BEGIN_ARRAY, IOException.class);
+        assertDocument("[string", BEGIN_ARRAY, STRING, IOException.class);
+        assertDocument("[\"string\"", BEGIN_ARRAY, STRING, IOException.class);
+        assertDocument("['string'", BEGIN_ARRAY, STRING, IOException.class);
+        assertDocument("[123", BEGIN_ARRAY, NUMBER, IOException.class);
+        assertDocument("[123,", BEGIN_ARRAY, NUMBER, IOException.class);
+        assertDocument("{\"name\":123", BEGIN_OBJECT, NAME, NUMBER, IOException.class);
+        assertDocument("{\"name\":123,", BEGIN_OBJECT, NAME, NUMBER, IOException.class);
+        assertDocument("{\"name\":\"string\"", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\":\"string\",", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\":'string'", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\":'string',", BEGIN_OBJECT, NAME, STRING, IOException.class);
+        assertDocument("{\"name\":false", BEGIN_OBJECT, NAME, BOOLEAN, IOException.class);
+        assertDocument("{\"name\":false,,", BEGIN_OBJECT, NAME, BOOLEAN, IOException.class);
     }
 
     /**
@@ -1633,7 +1634,7 @@ public final class TinyJsonReaderTest extends TestCase {
         try {
             reader.nextString().toString();
             fail();
-        } catch (IllegalStateException expected) {
+        } catch (IOException expected) {
         }
     }
 
@@ -1659,11 +1660,11 @@ public final class TinyJsonReaderTest extends TestCase {
                 assertEquals(123.0, reader.nextDouble());
             } else if (expectation == NULL) {
                 reader.nextNull();
-            } else if (expectation == IllegalStateException.class) {
+            } else if (expectation == IOException.class) {
                 try {
                     reader.peek();
                     fail();
-                } catch (IllegalStateException expected) {
+                } catch (IOException expected) {
                 }
             } else {
                 throw new AssertionError();
