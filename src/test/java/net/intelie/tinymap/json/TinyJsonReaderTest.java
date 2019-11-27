@@ -12,8 +12,15 @@ import static net.intelie.tinymap.json.JsonToken.*;
 
 @SuppressWarnings("resource")
 public final class TinyJsonReaderTest extends TestCase {
+    private TinyJsonReader reader;
+
+    @Override
+    public void setUp() throws Exception {
+        reader = new TinyJsonReader();
+    }
+
     public void testReadArray() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true, true]"));
+        reader.resetTo(reader("[true, true]"));
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
         assertEquals(true, reader.nextBoolean());
@@ -22,7 +29,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testReadEmptyArray() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[]"));
+        reader.resetTo(reader("[]"));
         reader.beginArray();
         assertFalse(reader.hasNext());
         reader.endArray();
@@ -30,7 +37,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testReadObject() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\": \"android\", \"b\": \"banana\"}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -42,7 +49,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testReadEmptyObject() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{}"));
+        reader.resetTo(reader("{}"));
         reader.beginObject();
         assertFalse(reader.hasNext());
         reader.endObject();
@@ -50,7 +57,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipArray() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -62,7 +69,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipArrayAfterPeek() throws Exception {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -75,14 +82,14 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipTopLevelObject() throws Exception {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\": [\"one\", \"two\", \"three\"], \"b\": 123}"));
         reader.skipValue();
         assertEquals(JsonToken.END_DOCUMENT, reader.peek());
     }
 
     public void testSkipObject() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\": { \"c\": [], \"d\": [true, true, {}] }, \"b\": \"banana\"}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -96,7 +103,7 @@ public final class TinyJsonReaderTest extends TestCase {
     public void testSkipObjectAfterPeek() throws Exception {
         String json = "{" + "  \"one\": { \"num\": 1 }"
                 + ", \"two\": { \"num\": 2 }" + ", \"three\": { \"num\": 3 }" + "}";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginObject();
         assertEquals("one", reader.nextName().toString());
         assertEquals(BEGIN_OBJECT, reader.peek());
@@ -111,7 +118,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipInteger() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\":123456789,\"b\":-123456789}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -123,7 +130,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipDouble() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "{\"a\":-123.456e-789,\"b\":123456789.0}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -139,7 +146,7 @@ public final class TinyJsonReaderTest extends TestCase {
                 "   \"hello\": true,\n" +
                 "   \"foo\": [\"world\"]\n" +
                 "}";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginObject();
         assertEquals("hello", reader.nextName().toString());
         assertEquals(true, reader.nextBoolean());
@@ -157,21 +164,12 @@ public final class TinyJsonReaderTest extends TestCase {
                 + "   \"foo\": [\"world\"]\n"
                 + "}";
 
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginObject();
         try {
             reader.nextName().toString();
             fail();
         } catch (IOException expected) {
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void testNulls() {
-        try {
-            new TinyJsonReader(null);
-            fail();
-        } catch (NullPointerException expected) {
         }
     }
 
@@ -209,7 +207,7 @@ public final class TinyJsonReaderTest extends TestCase {
                 + "\"\\u0019\","
                 + "\"\\u20Ac\""
                 + "]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         assertEquals("a", reader.nextString().toString());
         assertEquals("a\"", reader.nextString().toString());
@@ -236,7 +234,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testUnescapingInvalidCharacters() throws IOException {
         String json = "[\"\\u000g\"]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -247,7 +245,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testUnescapingTruncatedCharacters() throws IOException {
         String json = "[\"\\u000";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -258,7 +256,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testUnescapingTruncatedSequence() throws IOException {
         String json = "[\"\\";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -268,7 +266,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testIntegersWithFractionalPartSpecified() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[1.0,1.0,1.0]"));
+        reader.resetTo(reader("[1.0,1.0,1.0]"));
         reader.beginArray();
         assertEquals(1.0, reader.nextDouble());
         assertEquals(1.0, reader.nextDouble());
@@ -285,7 +283,7 @@ public final class TinyJsonReaderTest extends TestCase {
                 + "2.2250738585072014E-308,"
                 + "3.141592653589793,"
                 + "2.718281828459045]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         assertEquals(-0.0, reader.nextDouble());
         assertEquals(1.0, reader.nextDouble());
@@ -302,7 +300,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testStrictNonFiniteDoubles() throws IOException {
         String json = "[NaN]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.nextDouble();
@@ -313,7 +311,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testStrictQuotedNonFiniteDoubles() throws IOException {
         String json = "[\"NaN\"]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.nextDouble();
@@ -324,7 +322,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testLenientNonFiniteDoubles() throws IOException {
         String json = "[NaN, -Infinity, Infinity]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.setLenient(true);
         reader.beginArray();
         assertTrue(Double.isNaN(reader.nextDouble()));
@@ -335,7 +333,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testLenientQuotedNonFiniteDoubles() throws IOException {
         String json = "[\"NaN\", \"-Infinity\", \"Infinity\"]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.setLenient(true);
         reader.beginArray();
         assertTrue(Double.isNaN(reader.nextDouble()));
@@ -346,7 +344,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testStrictNonFiniteDoublesWithSkipValue() throws IOException {
         String json = "[NaN]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         try {
             reader.skipValue();
@@ -361,7 +359,7 @@ public final class TinyJsonReaderTest extends TestCase {
                 + "-1,-1,-1,"
                 + "-9223372036854775808,"
                 + "9223372036854775807]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         assertEquals(0.0, reader.nextDouble());
         assertEquals(0.0, reader.nextDouble());
@@ -379,7 +377,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testBooleans() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true,false]"));
+        reader.resetTo(reader("[true,false]"));
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
         assertEquals(false, reader.nextBoolean());
@@ -388,7 +386,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testPeekingUnquotedStringsPrefixedWithBooleans() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[truey]"));
+        reader.resetTo(reader("[truey]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -439,7 +437,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     private void assertNotANumber(String s) throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[" + s + "]"));
+        reader.resetTo(reader("[" + s + "]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -448,7 +446,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testPeekingUnquotedStringsPrefixedWithIntegers() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[12.34e5x]"));
+        reader.resetTo(reader("[12.34e5x]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -466,7 +464,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testPeekLongMinValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[-9223372036854775808]"));
+        reader.resetTo(reader("[-9223372036854775808]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(NUMBER, reader.peek());
@@ -474,7 +472,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testPeekLongMaxValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[9223372036854775807]"));
+        reader.resetTo(reader("[9223372036854775807]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(NUMBER, reader.peek());
@@ -488,7 +486,7 @@ public final class TinyJsonReaderTest extends TestCase {
      * @throws Exception
      */
     public void testNegativeZero() throws Exception {
-        TinyJsonReader reader = new TinyJsonReader(reader("[-0]"));
+        reader.resetTo(reader("[-0]"));
         reader.setLenient(false);
         reader.beginArray();
         assertEquals(NUMBER, reader.peek());
@@ -500,7 +498,7 @@ public final class TinyJsonReaderTest extends TestCase {
      * long parsing uses Double.parseDouble() for fractional values.
      */
     public void disabled_testPeekLargerThanLongMaxValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[9223372036854775808]"));
+        reader.resetTo(reader("[9223372036854775808]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(NUMBER, reader.peek());
@@ -516,7 +514,7 @@ public final class TinyJsonReaderTest extends TestCase {
      * long parsing uses Double.parseDouble() for fractional values.
      */
     public void disabled_testPeekLargerThanLongMinValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[-9223372036854775809]"));
+        reader.resetTo(reader("[-9223372036854775809]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(NUMBER, reader.peek());
@@ -534,14 +532,14 @@ public final class TinyJsonReaderTest extends TestCase {
      */
     public void disabled_testHighPrecisionLong() throws IOException {
         String json = "[9223372036854775806.000]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         assertEquals(9223372036854775806L, reader.nextDouble());
         reader.endArray();
     }
 
     public void testQuotedNumberWithEscape() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"12\u00334\"]"));
+        reader.resetTo(reader("[\"12\u00334\"]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -549,7 +547,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testMixedCaseLiterals() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[True,TruE,False,FALSE,NULL,nulL]"));
+        reader.resetTo(reader("[True,TruE,False,FALSE,NULL,nulL]"));
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
         assertEquals(true, reader.nextBoolean());
@@ -562,7 +560,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testMissingValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":}"));
+        reader.resetTo(reader("{\"a\":}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         try {
@@ -573,7 +571,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testPrematureEndOfInput() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true,"));
+        reader.resetTo(reader("{\"a\":true,"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         assertEquals(true, reader.nextBoolean());
@@ -586,7 +584,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testPrematurelyClosed() throws IOException {
         try {
-            TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":[]}"));
+            reader.resetTo(reader("{\"a\":[]}"));
             reader.beginObject();
             reader.close();
             reader.nextName().toString();
@@ -595,7 +593,7 @@ public final class TinyJsonReaderTest extends TestCase {
         }
 
         try {
-            TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":[]}"));
+            reader.resetTo(reader("{\"a\":[]}"));
             reader.close();
             reader.beginObject();
             fail();
@@ -603,7 +601,7 @@ public final class TinyJsonReaderTest extends TestCase {
         }
 
         try {
-            TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true}"));
+            reader.resetTo(reader("{\"a\":true}"));
             reader.beginObject();
             reader.nextName().toString();
             reader.peek();
@@ -615,7 +613,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testNextFailuresDoNotAdvance() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true}"));
+        reader.resetTo(reader("{\"a\":true}"));
         reader.beginObject();
         try {
             reader.nextString().toString();
@@ -675,7 +673,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testDoubleMismatchFailuresDoNotAdvance() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"1x5\"]"));
+        reader.resetTo(reader("[\"1x5\"]"));
         reader.beginArray();
         try {
             reader.nextDouble();
@@ -687,7 +685,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStringNullIsNotNull() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"null\"]"));
+        reader.resetTo(reader("[\"null\"]"));
         reader.beginArray();
         try {
             reader.nextNull();
@@ -697,7 +695,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testNullLiteralIsNotAString() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[null]"));
+        reader.resetTo(reader("[null]"));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -707,7 +705,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictNameValueSeparator() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\"=true}"));
+        reader.resetTo(reader("{\"a\"=true}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         try {
@@ -727,7 +725,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientNameValueSeparator() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\"=true}"));
+        reader.resetTo(reader("{\"a\"=true}"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -741,7 +739,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictNameValueSeparatorWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\"=true}"));
+        reader.resetTo(reader("{\"a\"=true}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         try {
@@ -761,7 +759,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testCommentsInStringValue() throws Exception {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"// comment\"]"));
+        reader.resetTo(reader("[\"// comment\"]"));
         reader.beginArray();
         assertEquals("// comment", reader.nextString().toString());
         reader.endArray();
@@ -780,7 +778,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictComments() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[// comment \n true]"));
+        reader.resetTo(reader("[// comment \n true]"));
         reader.beginArray();
         try {
             reader.nextBoolean();
@@ -806,7 +804,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientComments() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[// comment \n true]"));
+        reader.resetTo(reader("[// comment \n true]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
@@ -823,7 +821,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictCommentsWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[// comment \n true]"));
+        reader.resetTo(reader("[// comment \n true]"));
         reader.beginArray();
         try {
             reader.skipValue();
@@ -849,7 +847,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictUnquotedNames() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{a:true}"));
+        reader.resetTo(reader("{a:true}"));
         reader.beginObject();
         try {
             reader.nextName().toString();
@@ -859,14 +857,14 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientUnquotedNames() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{a:true}"));
+        reader.resetTo(reader("{a:true}"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
     }
 
     public void testStrictUnquotedNamesWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{a:true}"));
+        reader.resetTo(reader("{a:true}"));
         reader.beginObject();
         try {
             reader.skipValue();
@@ -876,7 +874,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictSingleQuotedNames() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{'a':true}"));
+        reader.resetTo(reader("{'a':true}"));
         reader.beginObject();
         try {
             reader.nextName().toString();
@@ -886,14 +884,14 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientSingleQuotedNames() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{'a':true}"));
+        reader.resetTo(reader("{'a':true}"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
     }
 
     public void testStrictSingleQuotedNamesWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{'a':true}"));
+        reader.resetTo(reader("{'a':true}"));
         reader.beginObject();
         try {
             reader.skipValue();
@@ -903,7 +901,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictUnquotedStrings() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[a]"));
+        reader.resetTo(reader("[a]"));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -913,7 +911,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictUnquotedStringsWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[a]"));
+        reader.resetTo(reader("[a]"));
         reader.beginArray();
         try {
             reader.skipValue();
@@ -923,14 +921,14 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientUnquotedStrings() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[a]"));
+        reader.resetTo(reader("[a]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals("a", reader.nextString().toString());
     }
 
     public void testStrictSingleQuotedStrings() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("['a']"));
+        reader.resetTo(reader("['a']"));
         reader.beginArray();
         try {
             reader.nextString().toString();
@@ -940,14 +938,14 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientSingleQuotedStrings() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("['a']"));
+        reader.resetTo(reader("['a']"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals("a", reader.nextString().toString());
     }
 
     public void testStrictSingleQuotedStringsWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("['a']"));
+        reader.resetTo(reader("['a']"));
         reader.beginArray();
         try {
             reader.skipValue();
@@ -957,7 +955,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictSemicolonDelimitedArray() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true;true]"));
+        reader.resetTo(reader("[true;true]"));
         reader.beginArray();
         try {
             reader.nextBoolean();
@@ -968,7 +966,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientSemicolonDelimitedArray() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true;true]"));
+        reader.resetTo(reader("[true;true]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
@@ -976,7 +974,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictSemicolonDelimitedArrayWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true;true]"));
+        reader.resetTo(reader("[true;true]"));
         reader.beginArray();
         try {
             reader.skipValue();
@@ -987,7 +985,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictSemicolonDelimitedNameValuePair() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true;\"b\":true}"));
+        reader.resetTo(reader("{\"a\":true;\"b\":true}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         try {
@@ -999,7 +997,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientSemicolonDelimitedNameValuePair() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true;\"b\":true}"));
+        reader.resetTo(reader("{\"a\":true;\"b\":true}"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -1008,7 +1006,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictSemicolonDelimitedNameValuePairWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":true;\"b\":true}"));
+        reader.resetTo(reader("{\"a\":true;\"b\":true}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         try {
@@ -1020,7 +1018,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictUnnecessaryArraySeparators() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true,,true]"));
+        reader.resetTo(reader("[true,,true]"));
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
         try {
@@ -1056,7 +1054,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientUnnecessaryArraySeparators() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true,,true]"));
+        reader.resetTo(reader("[true,,true]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
@@ -1087,7 +1085,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictUnnecessaryArraySeparatorsWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[true,,true]"));
+        reader.resetTo(reader("[true,,true]"));
         reader.beginArray();
         assertEquals(true, reader.nextBoolean());
         try {
@@ -1123,7 +1121,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictMultipleTopLevelValues() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[] []"));
+        reader.resetTo(reader("[] []"));
         reader.beginArray();
         reader.endArray();
         try {
@@ -1134,7 +1132,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientMultipleTopLevelValues() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[] true {}"));
+        reader.resetTo(reader("[] true {}"));
         reader.setLenient(true);
         reader.beginArray();
         reader.endArray();
@@ -1145,7 +1143,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictMultipleTopLevelValuesWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[] []"));
+        reader.resetTo(reader("[] []"));
         reader.beginArray();
         reader.endArray();
         try {
@@ -1183,13 +1181,13 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testTopLevelValueTypeWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("true"));
+        reader.resetTo(reader("true"));
         reader.skipValue();
         assertEquals(JsonToken.END_DOCUMENT, reader.peek());
     }
 
     public void testStrictNonExecutePrefix() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(")]}'\n []"));
+        reader.resetTo(reader(")]}'\n []"));
         try {
             reader.beginArray();
             fail();
@@ -1198,7 +1196,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictNonExecutePrefixWithSkipValue() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(")]}'\n []"));
+        reader.resetTo(reader(")]}'\n []"));
         try {
             reader.skipValue();
             fail();
@@ -1207,7 +1205,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientNonExecutePrefix() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(")]}'\n []"));
+        reader.resetTo(reader(")]}'\n []"));
         reader.setLenient(true);
         reader.beginArray();
         reader.endArray();
@@ -1215,7 +1213,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientNonExecutePrefixWithLeadingWhitespace() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("\r\n \t)]}'\n []"));
+        reader.resetTo(reader("\r\n \t)]}'\n []"));
         reader.setLenient(true);
         reader.beginArray();
         reader.endArray();
@@ -1223,7 +1221,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientPartialNonExecutePrefix() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(")]}' []"));
+        reader.resetTo(reader(")]}' []"));
         reader.setLenient(true);
         try {
             assertEquals(")", reader.nextString().toString());
@@ -1234,13 +1232,13 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testBomIgnoredAsFirstCharacterOfDocument() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("\ufeff[]"));
+        reader.resetTo(reader("\ufeff[]"));
         reader.beginArray();
         reader.endArray();
     }
 
     public void testBomForbiddenAsOtherCharacterInDocument() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\ufeff]"));
+        reader.resetTo(reader("[\ufeff]"));
         reader.beginArray();
         try {
             reader.endArray();
@@ -1320,7 +1318,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testFailWithPositionDeepPath() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[1,{\"a\":[2,3,}"));
+        reader.resetTo(reader("[1,{\"a\":[2,3,}"));
         reader.beginArray();
         reader.nextDouble();
         reader.beginObject();
@@ -1337,7 +1335,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictVeryLongNumber() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[0." + repeat('9', 8192) + "]"));
+        reader.resetTo(reader("[0." + repeat('9', 8192) + "]"));
         reader.beginArray();
         try {
             assertEquals(1d, reader.nextDouble());
@@ -1347,7 +1345,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientVeryLongNumber() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[0." + repeat('9', 8192) + "]"));
+        reader.resetTo(reader("[0." + repeat('9', 8192) + "]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -1358,7 +1356,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testVeryLongUnquotedLiteral() throws IOException {
         String literal = "a" + repeat('b', 8192) + "c";
-        TinyJsonReader reader = new TinyJsonReader(reader("[" + literal + "]"));
+        reader.resetTo(reader("[" + literal + "]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(literal, reader.nextString().toString());
@@ -1367,7 +1365,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     public void testDeeplyNestedArrays() throws IOException {
         // this is nested 40 levels deep; Gson is tuned for nesting is 30 levels deep or fewer
-        TinyJsonReader reader = new TinyJsonReader(reader(
+        reader.resetTo(reader(
                 "[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]"));
         for (int i = 0; i < 40; i++) {
             reader.beginArray();
@@ -1388,7 +1386,7 @@ public final class TinyJsonReaderTest extends TestCase {
             json = String.format(array, json);
         }
 
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         for (int i = 0; i < 40; i++) {
             reader.beginObject();
             assertEquals("a", reader.nextName().toString());
@@ -1404,7 +1402,7 @@ public final class TinyJsonReaderTest extends TestCase {
 
     // http://code.google.com/p/google-gson/issues/detail?id=409
     public void testStringEndingInSlash() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("/"));
+        reader.resetTo(reader("/"));
         reader.setLenient(true);
         try {
             reader.peek();
@@ -1414,7 +1412,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testDocumentWithCommentEndingInSlash() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("/* foo *//"));
+        reader.resetTo(reader("/* foo *//"));
         reader.setLenient(true);
         try {
             reader.peek();
@@ -1424,7 +1422,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStringWithLeadingSlash() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("/x"));
+        reader.resetTo(reader("/x"));
         reader.setLenient(true);
         try {
             reader.peek();
@@ -1434,7 +1432,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testUnterminatedObject() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":\"android\"x"));
+        reader.resetTo(reader("{\"a\":\"android\"x"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -1451,7 +1449,7 @@ public final class TinyJsonReaderTest extends TestCase {
         Arrays.fill(stringChars, 'x');
         String string = new String(stringChars);
         String json = "[\"" + string + "\"]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.beginArray();
         assertEquals(string, reader.nextString().toString());
         reader.endArray();
@@ -1462,7 +1460,7 @@ public final class TinyJsonReaderTest extends TestCase {
         Arrays.fill(stringChars, 'x');
         String string = new String(stringChars);
         String json = "[" + string + "]";
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(string, reader.nextString().toString());
@@ -1474,7 +1472,7 @@ public final class TinyJsonReaderTest extends TestCase {
         Arrays.fill(stringChars, 'x');
         String string = new String(stringChars);
         String json = "[" + string;
-        TinyJsonReader reader = new TinyJsonReader(reader(json));
+        reader.resetTo(reader(json));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(string, reader.nextString().toString());
@@ -1486,7 +1484,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipVeryLongUnquotedString() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[" + repeat('x', 8192) + "]"));
+        reader.resetTo(reader("[" + repeat('x', 8192) + "]"));
         reader.setLenient(true);
         reader.beginArray();
         reader.skipValue();
@@ -1494,49 +1492,49 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testSkipTopLevelUnquotedString() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(repeat('x', 8192)));
+        reader.resetTo(reader(repeat('x', 8192)));
         reader.setLenient(true);
         reader.skipValue();
         assertEquals(JsonToken.END_DOCUMENT, reader.peek());
     }
 
     public void testSkipVeryLongQuotedString() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"" + repeat('x', 8192) + "\"]"));
+        reader.resetTo(reader("[\"" + repeat('x', 8192) + "\"]"));
         reader.beginArray();
         reader.skipValue();
         reader.endArray();
     }
 
     public void testSkipTopLevelQuotedString() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("\"" + repeat('x', 8192) + "\""));
+        reader.resetTo(reader("\"" + repeat('x', 8192) + "\""));
         reader.setLenient(true);
         reader.skipValue();
         assertEquals(JsonToken.END_DOCUMENT, reader.peek());
     }
 
     public void testStringAsNumberWithTruncatedExponent() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[123e]"));
+        reader.resetTo(reader("[123e]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
     }
 
     public void testStringAsNumberWithDigitAndNonDigitExponent() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[123e4b]"));
+        reader.resetTo(reader("[123e4b]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
     }
 
     public void testStringAsNumberWithNonDigitExponent() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[123eb]"));
+        reader.resetTo(reader("[123eb]"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
     }
 
     public void testEmptyStringName() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"\":true}"));
+        reader.resetTo(reader("{\"\":true}"));
         reader.setLenient(true);
         assertEquals(BEGIN_OBJECT, reader.peek());
         reader.beginObject();
@@ -1550,7 +1548,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testStrictExtraCommasInMaps() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":\"b\",}"));
+        reader.resetTo(reader("{\"a\":\"b\",}"));
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
         assertEquals("b", reader.nextString().toString());
@@ -1562,7 +1560,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     public void testLenientExtraCommasInMaps() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("{\"a\":\"b\",}"));
+        reader.resetTo(reader("{\"a\":\"b\",}"));
         reader.setLenient(true);
         reader.beginObject();
         assertEquals("a", reader.nextName().toString());
@@ -1627,7 +1625,7 @@ public final class TinyJsonReaderTest extends TestCase {
      * during peek rather than during nextString().
      */
     public void testUnterminatedStringFailure() throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader("[\"string"));
+        reader.resetTo(reader("[\"string"));
         reader.setLenient(true);
         reader.beginArray();
         assertEquals(STRING, reader.peek());
@@ -1639,7 +1637,7 @@ public final class TinyJsonReaderTest extends TestCase {
     }
 
     private void assertDocument(String document, Object... expectations) throws IOException {
-        TinyJsonReader reader = new TinyJsonReader(reader(document));
+        reader.resetTo(reader(document));
         reader.setLenient(true);
         for (Object expectation : expectations) {
             if (expectation == BEGIN_OBJECT) {

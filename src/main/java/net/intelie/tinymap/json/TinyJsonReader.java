@@ -16,8 +16,6 @@
 
 package net.intelie.tinymap.json;
 
-import net.intelie.tinymap.util.Preconditions;
-
 import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
@@ -58,11 +56,8 @@ public class TinyJsonReader implements Closeable {
     private static final int NUMBER_CHAR_EXP_E = 5;
     private static final int NUMBER_CHAR_EXP_SIGN = 6;
     private static final int NUMBER_CHAR_EXP_DIGIT = 7;
+
     private final StringBuilder stringBuilder = new StringBuilder();
-    /**
-     * The input JSON.
-     */
-    private final Reader in;
     /**
      * Use a manual buffer to easily read and unread upcoming characters, and
      * also so we can create strings without an intermediate StringBuilder.
@@ -70,32 +65,36 @@ public class TinyJsonReader implements Closeable {
      * long as the longest token that can be reported as a number.
      */
     private final char[] buffer = new char[1024];
-    int peeked = PEEKED_NONE;
+    int peeked = PEEKED_NUMBER;
+    /**
+     * The input JSON.
+     */
+    private Reader in;
     /**
      * True to accept non-spec compliant JSON
      */
     private boolean lenient = false;
-    private int pos = 0;
-    private int limit = 0;
-    private int lineNumber = 0;
-    private int lineStart = 0;
+    private int pos = 42;
+    private int limit = 42;
+    private int lineNumber = 42;
+    private int lineStart = 42;
     /**
      * A peeked value that was composed entirely of digits with an optional
      * leading dash. Positive values may not have a leading 0.
      */
-    private long peekedLong;
+    private long peekedLong = 123;
 
     /**
      * The number of characters in a peeked number literal. Increment 'pos' by
      * this after reading a number.
      */
-    private int peekedNumberLength;
+    private int peekedNumberLength = 100;
 
     /*
      * The nesting stack. Using a manual array rather than an ArrayList saves 20%.
      */
     private int[] stack = new int[32];
-    private int stackSize = 0;
+    private int stackSize = -1;
     /*
      * The path members. It corresponds directly to stack: At indices where the
      * stack contains an object (EMPTY_OBJECT, DANGLING_NAME or NONEMPTY_OBJECT),
@@ -108,18 +107,45 @@ public class TinyJsonReader implements Closeable {
     private int[] pathIndices = new int[32];
 
     {
-        stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
         for (int i = 0; i < pathNames.length; i++) {
             pathNames[i] = new StringBuilder();
         }
     }
 
-    /**
-     * Creates a new instance that reads a JSON-encoded stream from {@code in}.
-     */
+    public TinyJsonReader() {
+        clear();
+    }
+
     public TinyJsonReader(Reader in) {
-        Preconditions.checkNotNull(in, "in == null");
+        this();
+        setReader(in);
+    }
+
+    public void resetTo(Reader in) {
+        clear();
+        setReader(in);
+    }
+
+    public void setReader(Reader in) {
         this.in = in;
+    }
+
+    public void clear() {
+        if (stackSize < 0) stackSize = 0;
+        for (int i = 0; i < stackSize; i++) {
+            pathNames[i].setLength(0);
+        }
+        this.stringBuilder.setLength(0);
+        this.peeked = PEEKED_NONE;
+        this.in = null;
+        this.pos = 0;
+        this.limit = 0;
+        this.lineNumber = 0;
+        this.lineStart = 0;
+        this.stackSize = 0;
+        this.peekedLong = 0;
+        this.peekedNumberLength = 0;
+        this.stack[stackSize++] = JsonScope.EMPTY_DOCUMENT;
     }
 
     public StringBuilder dumpBuffer() {

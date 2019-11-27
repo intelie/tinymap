@@ -12,10 +12,15 @@ public class TinyJsonDecoder extends TinyJsonReader {
     private final Deque<TinyMapBuilder<String, Object>> maps = new ArrayDeque<>();
     private final Deque<TinyListBuilder<Object>> lists = new ArrayDeque<>();
 
-    public TinyJsonDecoder(ObjectCache cache, Reader reader) {
-        super(reader);
-        setLenient(true);
+    public TinyJsonDecoder(ObjectCache cache) {
         this.cache = cache;
+        clear();
+        setLenient(true);
+    }
+
+    public TinyJsonDecoder(ObjectCache cache, Reader reader) {
+        this(cache);
+        setReader(reader);
     }
 
     public Object nextObject() throws IOException {
