@@ -15,10 +15,41 @@ public class ObjectCacheTest {
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
 
+        assertThat(cache.objectHits()).isEqualTo(1);
+        assertThat(cache.objectMisses()).isEqualTo(1);
+
+
         builder1.add("aaa");
         builder2.add("aaa");
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
+
+        assertThat(cache.objectHits()).isEqualTo(2);
+        assertThat(cache.objectMisses()).isEqualTo(2);
+
+    }
+
+    @Test
+    public void testListCacheHitWithWeakReference() {
+        ObjectCache cache = new ObjectCache(1024, 4, false);
+
+        TinyListBuilder<Object> builder1 = TinyList.builder();
+        TinyListBuilder<Object> builder2 = TinyList.builder();
+
+        assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
+
+        assertThat(cache.objectHits()).isEqualTo(1);
+        assertThat(cache.objectMisses()).isEqualTo(1);
+
+
+        builder1.add("aaa");
+        builder2.add("aaa");
+
+        assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
+
+        assertThat(cache.objectHits()).isEqualTo(2);
+        assertThat(cache.objectMisses()).isEqualTo(2);
+
     }
 
     @Test
@@ -85,5 +116,8 @@ public class ObjectCacheTest {
         Double cached2 = cache.get(Double.parseDouble("123.456"));
 
         assertThat(cached1).isSameAs(cached2);
+
+        assertThat(cache.doubleHits()).isEqualTo(1);
+        assertThat(cache.doubleMisses()).isEqualTo(1);
     }
 }
