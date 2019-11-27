@@ -5,7 +5,6 @@ import net.intelie.tinymap.util.DoubleCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 
 import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ObjectCache {
@@ -15,7 +14,6 @@ public class ObjectCache {
 
     private final AtomicLong hits = new AtomicLong();
     private final AtomicLong misses = new AtomicLong();
-    private final boolean useSoftReference;
 
     public ObjectCache() {
         this(1 << 14);
@@ -26,17 +24,12 @@ public class ObjectCache {
     }
 
     public ObjectCache(int bucketCount, int bucketSize) {
-        this(bucketCount, bucketSize, true);
-    }
-
-    public ObjectCache(int bucketCount, int bucketSize, boolean useSoftReference) {
         this.data = new CacheData<>(bucketCount, bucketSize);
         this.doubleCache = new DoubleCache(bucketCount, bucketSize, 512);
-        this.useSoftReference = useSoftReference;
     }
 
     private <B, T> T eq(Bucket bucket, CacheAdapter<B, T> adapter, B builder, int hash) {
-        if (bucket == null || bucket.hash() != hash)
+        if (bucket == null || bucket.hash != hash)
             return null;
         return adapter.contentEquals(builder, bucket.get());
     }
@@ -89,44 +82,15 @@ public class ObjectCache {
         }
         misses.incrementAndGet();
         cached = adapter.build(builder, this);
-        return data.finishCached(makeBucket(hash, cached), cached, n);
+        return data.finishCached(new Bucket(cached, hash), cached, n);
     }
 
-    private Bucket makeBucket(int hash, Object cached) {
-        return useSoftReference ? new SoftBucket(cached, hash) : new WeakBucket(cached, hash);
-    }
-
-    private interface Bucket {
-        int hash();
-
-        Object get();
-    }
-
-    private static class WeakBucket extends WeakReference<Object> implements Bucket {
+    private static final class Bucket extends SoftReference<Object> {
         private final int hash;
 
-        private WeakBucket(Object value, int hash) {
+        private Bucket(Object value, int hash) {
             super(value);
             this.hash = hash;
-        }
-
-        @Override
-        public int hash() {
-            return hash;
-        }
-    }
-
-    private static class SoftBucket extends SoftReference<Object> implements Bucket {
-        private final int hash;
-
-        private SoftBucket(Object value, int hash) {
-            super(value);
-            this.hash = hash;
-        }
-
-        @Override
-        public int hash() {
-            return hash;
         }
     }
 }

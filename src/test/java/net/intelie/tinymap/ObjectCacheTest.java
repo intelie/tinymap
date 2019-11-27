@@ -30,29 +30,6 @@ public class ObjectCacheTest {
     }
 
     @Test
-    public void testListCacheHitWithWeakReference() {
-        ObjectCache cache = new ObjectCache(1024, 4, false);
-
-        TinyListBuilder<Object> builder1 = TinyList.builder();
-        TinyListBuilder<Object> builder2 = TinyList.builder();
-
-        assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
-
-        assertThat(cache.objectHits()).isEqualTo(1);
-        assertThat(cache.objectMisses()).isEqualTo(1);
-
-
-        builder1.add("aaa");
-        builder2.add("aaa");
-
-        assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
-
-        assertThat(cache.objectHits()).isEqualTo(2);
-        assertThat(cache.objectMisses()).isEqualTo(2);
-
-    }
-
-    @Test
     public void testMapCacheHit() {
         ObjectCache cache = new ObjectCache();
 
