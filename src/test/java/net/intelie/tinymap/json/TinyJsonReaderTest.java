@@ -1620,6 +1620,10 @@ public final class TinyJsonReaderTest extends TestCase {
         assertDocument("{\"name\":false,,", BEGIN_OBJECT, NAME, BOOLEAN, IOException.class);
     }
 
+    public void testCloseNullReader() throws IOException {
+        reader.close();
+    }
+
     /**
      * This test behave slightly differently in Gson 2.2 and earlier. It fails
      * during peek rather than during nextString().

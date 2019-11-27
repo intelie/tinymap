@@ -875,10 +875,11 @@ public class TinyJsonReader implements Closeable {
      * Closes this JSON reader and the underlying {@link Reader}.
      */
     public void close() throws IOException {
-        peeked = PEEKED_NONE;
+        if (in != null)
+            in.close();
+        clear();
         stack[0] = JsonScope.CLOSED;
         stackSize = 1;
-        in.close();
     }
 
     /**
