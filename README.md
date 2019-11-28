@@ -30,7 +30,7 @@ dependency to your `pom.xml` file:
 <dependency>
     <groupId>net.intelie.tinymap</groupId>
     <artifactId>tinymap</artifactId>
-    <version>0.4</version>
+    <version>0.6</version>
 </dependency>
 ```
 
