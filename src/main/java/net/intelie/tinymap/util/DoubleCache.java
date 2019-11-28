@@ -50,6 +50,7 @@ public class DoubleCache {
 
     private Double getCached(double value, Double boxed) {
         if (value >= -smallCacheAmplitude && value < smallCacheAmplitude && value == (int) value) {
+            hits.incrementAndGet();
             if (Double.doubleToLongBits(value) == 0x8000000000000000L)
                 return NEG_ZERO;
             return smallCache[(int) value + smallCacheAmplitude];
