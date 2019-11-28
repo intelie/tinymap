@@ -4,7 +4,7 @@ import net.intelie.tinymap.util.CacheData;
 import net.intelie.tinymap.util.DoubleCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 
-import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ObjectCache {
@@ -85,7 +85,7 @@ public class ObjectCache {
         return data.finishCached(new Bucket(cached, hash), cached, n);
     }
 
-    private static final class Bucket extends SoftReference<Object> {
+    private static final class Bucket extends WeakReference<Object> {
         private final int hash;
 
         private Bucket(Object value, int hash) {
