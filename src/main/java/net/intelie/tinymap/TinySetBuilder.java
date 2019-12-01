@@ -10,7 +10,15 @@ import java.util.Objects;
 
 public class TinySetBuilder<T> extends IndexedSetBase<T> implements
         CacheableBuilder<TinySetBuilder<T>, TinySet<T>>, Serializable, IndexedCollectionBase.NoAdditiveChange<T> {
+    private static final long serialVersionUID = 1L;
+
     private static final Object TOMBSTONE = new Serializable() {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String toString() {
+            return "TOMBSTONE";
+        }
     };
     private static final Adapter<?> adapter = new Adapter<>();
 
@@ -117,7 +125,7 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
         int hash = hash(key) & mask;
 
         for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask]) {
-            if (Objects.equals(keys[i], key))
+            if (Objects.equals(key, keys[i]))
                 return i;
         }
         return ~hash;
@@ -179,7 +187,7 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
         @SuppressWarnings("unchecked")
         @Override
         public TinySet<T> contentEquals(TinySetBuilder<T> builder, Object cached) {
-            if (!(cached instanceof TinySet<?>) || builder.size() != ((TinySet) cached).size())
+            if (!(cached instanceof TinySet<?>) || builder.size() != ((TinySet<?>) cached).size())
                 return null;
             TinySet<?> set = (TinySet<?>) cached;
             int j = 0;

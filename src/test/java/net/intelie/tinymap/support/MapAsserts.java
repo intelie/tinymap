@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 
 public class MapAsserts {
     public static void assertMap(Map<String, Object> expected, IndexedMap<String, Object> actual, int removeFrom, int removeTo) throws Exception {
@@ -89,6 +88,11 @@ public class MapAsserts {
             assertThat(actual.getIndex(entry.getKey())).isEqualTo(index);
             assertThat(actual.getKeyAt(index)).isEqualTo(entry.getKey());
             assertThat(actual.getValueAt(index)).isEqualTo(entry.getValue());
+            IndexedMap.Entry<String, Object> actualEntry = actual.getEntryAt(index);
+            assertThat(actualEntry).isEqualTo(entry);
+            assertThat(actualEntry.getIndex()).isEqualTo(index);
+            assertThat(actualEntry.isRemoved()).isEqualTo(false);
+
             assertThat(actual.containsKey(entry.getKey())).isTrue();
 
             assertThat(keysIterator.hasNext()).isTrue();

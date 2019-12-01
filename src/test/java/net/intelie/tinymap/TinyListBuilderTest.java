@@ -4,10 +4,13 @@ import net.intelie.tinymap.support.ListAsserts;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TinyListBuilderTest {
 
@@ -22,6 +25,26 @@ public class TinyListBuilderTest {
         builder.add(0, "aaa1");
 
         ListAsserts.assertList(expectedMap, builder);
+    }
+
+    @Test
+    public void cantRemoveWithoutIteration() {
+        ArrayList<String> expected = new ArrayList<>();
+        TinyListBuilder<String> builder = new TinyListBuilder<>();
+
+        for (int i = 0; i < 10; i++) {
+            expected.add("aaa" + i);
+            builder.add("aaa" + i);
+        }
+
+        Iterator<String> expectedIt = expected.listIterator();
+        assertThatThrownBy(() -> expectedIt.remove())
+                .isInstanceOf(IllegalStateException.class);
+
+        ListIterator<String> it = builder.iterator();
+        assertThatThrownBy(() -> it.remove())
+                .isInstanceOf(IllegalStateException.class);
+
     }
 
     @Test

@@ -7,7 +7,7 @@ public abstract class IndexedSetBase<T> extends IndexedCollectionBase<T> impleme
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Set) || size() != ((Set) o).size()) return false;
+        if (!(o instanceof Set<?>) || size() != ((Set<?>) o).size()) return false;
 
         for (Object obj : ((Set) o))
             if (getIndex(obj) < 0)

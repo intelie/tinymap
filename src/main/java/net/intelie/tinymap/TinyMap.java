@@ -6,6 +6,8 @@ import net.intelie.tinymap.util.TinyMapGenerated;
 import java.io.Serializable;
 
 public abstract class TinyMap<K, V> extends IndexedMapBase<K, V> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final TinySet<K> keys;
 
     protected TinyMap(TinySet<K> keys) {

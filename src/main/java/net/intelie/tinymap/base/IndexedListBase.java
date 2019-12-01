@@ -12,19 +12,23 @@ import java.util.function.Consumer;
 public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implements IndexedList<T> {
     @Override
     public boolean addAll(int index, Collection<? extends T> collection) {
-        for (T obj : collection)
+        boolean added = false;
+        for (T obj : collection) {
             add(index++, obj);
-        return collection.size() > 0;
+            added = true;
+        }
+        return added;
     }
 
     @Override
     public boolean equals(Object that) {
         if (this == that) return true;
-        if (!(that instanceof List) || size() != ((List) that).size()) return false;
+        if (!(that instanceof List<?>) || size() != ((List<?>) that).size()) return false;
 
         List<?> list = (List<?>) that;
-        for (int i = 0; i < rawSize(); i++) {
-            if (!Objects.equals(getEntryAt(i), list.get(i)))
+        int index = 0;
+        for (Object obj : list) {
+            if (!Objects.equals(obj, get(index++)))
                 return false;
         }
         return true;
@@ -79,7 +83,7 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     @Override
     public int indexOf(Object o) {
         for (int i = 0; i < rawSize(); i++)
-            if (Objects.equals(getEntryAt(i), o))
+            if (Objects.equals(o, getEntryAt(i)))
                 return i;
         return -1;
     }
@@ -87,7 +91,7 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     @Override
     public int lastIndexOf(Object o) {
         for (int i = rawSize() - 1; i >= 0; i--)
-            if (Objects.equals(getEntryAt(i), o))
+            if (Objects.equals(o, getEntryAt(i)))
                 return i;
         return -1;
     }
@@ -132,6 +136,8 @@ public abstract class IndexedListBase<T> extends IndexedCollectionBase<T> implem
     }
 
     public class ViewList extends IndexedListBase<T> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final int fromIndex;
         private int toIndex;
 

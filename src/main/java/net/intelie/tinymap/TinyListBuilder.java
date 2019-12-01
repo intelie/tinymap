@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableBuilder<TinyListBuilder<T>, TinyList<T>>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     private static final Adapter<?> adapter = new Adapter<>();
     @SuppressWarnings("unchecked")
     private Object[] values = new Object[4];
@@ -79,7 +81,7 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
 
         @Override
         public TinyList<T> contentEquals(TinyListBuilder<T> builder, Object cached) {
-            if (!(cached instanceof TinyList<?>) || builder.size != ((TinyList) cached).size())
+            if (!(cached instanceof TinyList<?>) || builder.size != ((TinyList<?>) cached).size())
                 return null;
             TinyList<T> list = (TinyList<T>) cached;
             for (int i = 0; i < builder.size; i++) {

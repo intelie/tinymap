@@ -12,7 +12,7 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
     @Override
     public int getIndex(Object key) {
         for (int i = 0; i < rawSize(); i++)
-            if (!isRemoved(i) && Objects.equals(getEntryAt(i), key))
+            if (!isRemoved(i) && Objects.equals(key, getEntryAt(i)))
                 return i;
         return -1;
     }
@@ -102,11 +102,11 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
 
     private class CollectionIterator implements ListIterator<T> {
         private int current;
-        private int next = 0;
+        private int next;
         private int prev;
 
         public CollectionIterator(int fromIndex) {
-            this.current = findNext(fromIndex);
+            this.current = -1;
             this.next = findNext(fromIndex);
             this.prev = findPrev(fromIndex - 1);
         }
@@ -145,12 +145,14 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
 
         @Override
         public void set(T obj) {
+            Preconditions.checkState(current >= 0, "no iteration occurred");
             IndexedCollectionBase.this.set(current, obj);
         }
 
         @Override
         public void add(T obj) {
-            IndexedCollectionBase.this.add(current, obj);
+            IndexedCollectionBase.this.add(next++, obj);
+            current = -1;
         }
 
         @Override
@@ -158,6 +160,7 @@ public abstract class IndexedCollectionBase<T> extends AbstractCollection<T> imp
             Preconditions.checkState(current >= 0, "no iteration occurred");
             if (removeAt(current))
                 next--;
+            current = -1;
         }
 
         @Override

@@ -40,7 +40,7 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     @Override
     public boolean containsValue(Object value) {
         for (int i = 0; i < rawSize(); i++)
-            if (!isRemoved(i) && Objects.equals(getValueAt(i), value))
+            if (!isRemoved(i) && Objects.equals(value, getValueAt(i)))
                 return true;
         return false;
     }
@@ -48,7 +48,7 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     @Override
     public Entry<K, V> getEntryAt(int index) {
         Preconditions.checkElementIndex(index, rawSize());
-        return new ListEntry(index);
+        return new IndexedEntry(index);
     }
 
     @Override
@@ -119,17 +119,17 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     }
 
     @Override
-    public IndexedSet<Entry<K, V>> entrySet() {
+    public IndexedSet<Map.Entry<K, V>> entrySet() {
         return new EntriesView();
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Map) || size() != ((Map) o).size()) return false;
+        if (!(o instanceof Map<?, ?>) || size() != ((Map<?, ?>) o).size()) return false;
 
-        for (Entry<?, ?> entry : ((Map<?, ?>) o).entrySet())
-            if (!Objects.equals(getUnsafe(entry.getKey(), SENTINEL), entry.getValue()))
+        for (Map.Entry<?, ?> entry : ((Map<?, ?>) o).entrySet())
+            if (!Objects.equals(entry.getValue(), getUnsafe(entry.getKey(), SENTINEL)))
                 return false;
         return true;
     }
@@ -159,6 +159,8 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     }
 
     private class ValuesView extends IndexedCollectionBase<V> implements Serializable, IndexedCollectionBase.NoAdditiveChange<V> {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public V getEntryAt(int index) {
             return getValueAt(index);
@@ -192,6 +194,8 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     }
 
     private class KeysView extends IndexedSetBase<K> implements Serializable, IndexedCollectionBase.NoAdditiveChange<K> {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int getIndex(Object key) {
             return IndexedMapBase.this.getIndex(key);
@@ -229,14 +233,16 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
     }
 
-    private class EntriesView extends IndexedSetBase<Entry<K, V>> implements Serializable, IndexedCollectionBase.NoAdditiveChange<Entry<K, V>> {
+    private class EntriesView extends IndexedSetBase<Map.Entry<K, V>> implements Serializable, IndexedCollectionBase.NoAdditiveChange<Map.Entry<K, V>> {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int getIndex(Object key) {
-            if (!(key instanceof Entry<?, ?>))
+            if (!(key instanceof Map.Entry<?, ?>))
                 return -1;
-            Entry<?, ?> entry = (Entry<?, ?>) key;
+            Map.Entry<?, ?> entry = (Map.Entry<?, ?>) key;
             int index = IndexedMapBase.this.getIndex(entry.getKey());
-            if (index < 0 || Objects.equals(getValueAt(index), entry.getValue()))
+            if (index < 0 || Objects.equals(entry.getValue(), getValueAt(index)))
                 return index;
             return -1;
         }
@@ -273,10 +279,12 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         }
     }
 
-    private class ListEntry implements Entry<K, V>, Serializable {
+    private class IndexedEntry implements IndexedMap.Entry<K, V>, Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final int index;
 
-        public ListEntry(int index) {
+        public IndexedEntry(int index) {
             this.index = index;
         }
 
@@ -298,9 +306,9 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
-            if (!(o instanceof Entry<?, ?>)) return false;
-            Entry<?, ?> that = (Entry<?, ?>) o;
-            return Objects.equals(getKey(), that.getKey()) && Objects.equals(getValue(), that.getValue());
+            if (!(o instanceof Map.Entry<?, ?>)) return false;
+            Map.Entry<?, ?> that = (Map.Entry<?, ?>) o;
+            return Objects.equals(that.getKey(), getKey()) && Objects.equals(that.getValue(), getValue());
         }
 
         @Override
@@ -311,6 +319,16 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         @Override
         public String toString() {
             return getKey() + "=" + getValue();
+        }
+
+        @Override
+        public int getIndex() {
+            return index;
+        }
+
+        @Override
+        public boolean isRemoved() {
+            return IndexedMapBase.this.isRemoved(index);
         }
     }
 }

@@ -5,6 +5,8 @@ import net.intelie.tinymap.base.IndexedListBase;
 import java.io.Serializable;
 
 public class TinyList<T> extends IndexedListBase<T> implements Serializable, IndexedListBase.Immutable<T> {
+    private static final long serialVersionUID = 1L;
+
     private final Object[] values;
 
     public TinyList(Object[] values) {

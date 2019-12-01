@@ -48,6 +48,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size1<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
 
         public Size1(TinySet<K> keys, Object v0) {
@@ -69,6 +71,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size2<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
 
@@ -94,6 +98,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size3<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -123,6 +129,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size4<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -156,6 +164,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size5<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -193,6 +203,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size6<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -234,6 +246,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size7<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -279,6 +293,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size8<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -328,6 +344,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size9<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -381,6 +399,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size10<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -438,6 +458,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size11<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -499,6 +521,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size12<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -564,6 +588,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size13<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -633,6 +659,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size14<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -706,6 +734,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size15<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -783,6 +813,8 @@ public abstract class TinyMapGenerated {
     }
 
     public static class Size16<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private final Object v0;
         private final Object v1;
         private final Object v2;
@@ -865,6 +897,8 @@ public abstract class TinyMapGenerated {
 
 
     public static class SizeAny<K, V> extends TinyMap<K, V> {
+        private static final long serialVersionUID = 1L;
+
         public final Object[] values;
 
         public SizeAny(TinySet<K> keys, Object[] values) {

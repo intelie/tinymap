@@ -1,5 +1,6 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.base.IndexedMap;
 import net.intelie.tinymap.support.MapAsserts;
 import net.intelie.tinymap.support.SerializationHelper;
 import org.junit.Test;
@@ -25,6 +26,21 @@ public class TinyMapBuilderTest {
 
         assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
         assertThat(builder.build()).isEqualTo(Collections.singletonMap("abc", 456));
+    }
+
+    @Test
+    public void testRemovedEntry() {
+        TinyMapBuilder<String, Object> builder = TinyMap.builder();
+        for (int i = 0; i < 10; i++) {
+            builder.put("aaa" + i, i);
+        }
+
+        builder.removeAt(5);
+
+        IndexedMap.Entry<?, ?> entry = builder.getEntryAt(5);
+        assertThat(entry.getKey().toString()).isEqualTo("TOMBSTONE");
+        assertThat(entry.getValue().toString()).isEqualTo("TOMBSTONE");
+        assertThat(entry.isRemoved()).isTrue();
     }
 
     @Test

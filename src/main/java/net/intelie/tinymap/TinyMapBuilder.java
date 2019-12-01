@@ -7,7 +7,11 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements CacheableBuilder<TinyMapBuilder<K, V>, TinyMap<K, V>>, Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static final Object TOMBSTONE = new Serializable() {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String toString() {
             return "TOMBSTONE";
@@ -25,6 +29,8 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
     public TinyMapBuilder(int expectedSize) {
         values = new Object[expectedSize];
         keys = new TinySetBuilder<K>(expectedSize) {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public void compact() {
                 if (size() == rawSize()) return;
@@ -145,7 +151,7 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
         @SuppressWarnings("unchecked")
         @Override
         public TinyMap<K, V> contentEquals(TinyMapBuilder<K, V> builder, Object cached) {
-            if (!(cached instanceof TinyMap<?, ?>) || builder.size() != ((TinyMap) cached).size())
+            if (!(cached instanceof TinyMap<?, ?>) || builder.size() != ((TinyMap<?, ?>) cached).size())
                 return null;
             TinyMap<?, ?> map = (TinyMap<?, ?>) cached;
             int j = 0;

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ListLazyTests {
     @Test
@@ -32,13 +33,17 @@ public class ListLazyTests {
 
             it.next();
             it.remove();
-            assertThat(it.next()).isEqualTo("aaa31");
-            assertThat(it.previous()).isEqualTo("aaa31");
+            assertThatThrownBy(() -> it.remove()).isInstanceOf(IllegalStateException.class);
+            it.next();
+            it.remove();
+            assertThat(it.next()).isEqualTo("aaa32");
+            assertThat(it.previous()).isEqualTo("aaa32");
             assertThat(it.previous()).isEqualTo("aaa29");
         });
         tester.itv(x -> {
             ListIterator<Object> it = x.listIterator(30);
             it.add("bbb30");
+            it.add("bbb31");
         });
         tester.itv(x -> {
             ListIterator<Object> it = x.listIterator();

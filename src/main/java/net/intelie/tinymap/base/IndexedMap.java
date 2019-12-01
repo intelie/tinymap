@@ -25,5 +25,11 @@ public interface IndexedMap<K, V> extends Map<K, V> {
     IndexedSet<K> keySet();
 
     @Override
-    IndexedSet<Entry<K, V>> entrySet();
+    IndexedSet<Map.Entry<K, V>> entrySet();
+
+    interface Entry<K, V> extends Map.Entry<K, V> {
+        int getIndex();
+
+        boolean isRemoved();
+    }
 }

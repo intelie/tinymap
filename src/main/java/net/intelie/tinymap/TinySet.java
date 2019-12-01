@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     public static int tableSize(int length) {
         return Integer.highestOneBit(length * 2 - 1) * 2;
     }
@@ -36,6 +38,8 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
     public abstract int debugCollisions(Object key);
 
     public static class Empty<T> extends TinySet<T> implements TinySet.Immutable<T> {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int debugCollisions(Object key) {
             return 0;
@@ -58,6 +62,8 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
     }
 
     private static abstract class ArrayTableSet<T, A> extends TinySet<T> implements TinySet.Immutable<T> {
+        private static final long serialVersionUID = 1L;
+
         protected final Object[] keys;
         protected final A table;
 
@@ -90,6 +96,8 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
     }
 
     public static class Small<T> extends ArrayTableSet<T, byte[]> {
+        private static final long serialVersionUID = 1L;
+
         private Small(Object[] keys) {
             super(keys);
         }
@@ -113,7 +121,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return collisions;
             return collisions;
         }
@@ -125,13 +133,15 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFF; i < 0xFF; i = table[hash = (hash + ++collisions) & mask] & 0xFF)
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return i;
             return ~hash;
         }
     }
 
     public static class Medium<T> extends ArrayTableSet<T, short[]> {
+        private static final long serialVersionUID = 1L;
+
         private Medium(Object[] keys) {
             super(keys);
         }
@@ -155,7 +165,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return collisions;
             return collisions;
         }
@@ -167,13 +177,15 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash] & 0xFFFF; i < 0xFFFF; i = table[hash = (hash + ++collisions) & mask] & 0xFFFF)
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return i;
             return ~hash;
         }
     }
 
     public static class Large<T> extends ArrayTableSet<T, int[]> {
+        private static final long serialVersionUID = 1L;
+
         private Large(Object[] keys) {
             super(keys);
         }
@@ -197,7 +209,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return collisions;
             return collisions;
         }
@@ -209,7 +221,7 @@ public abstract class TinySet<T> extends IndexedSetBase<T> implements Serializab
             int hash = hash(key) & mask;
             int collisions = 0;
             for (int i = table[hash]; i >= 0; i = table[hash = (hash + ++collisions) & mask])
-                if (Objects.equals(keys[i], key))
+                if (Objects.equals(key, keys[i]))
                     return i;
             return ~hash;
         }

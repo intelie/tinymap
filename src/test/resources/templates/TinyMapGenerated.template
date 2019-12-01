@@ -21,6 +21,8 @@ public abstract class TinyMapGenerated {
 
 <#list 1..16 as n>
     public static class Size${n}<K, V> extends TinyMap<K, V> implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         <#list 0..n-1 as i>
         private final Object v${i};
         </#list>
@@ -50,6 +52,8 @@ public abstract class TinyMapGenerated {
 </#list>
 
     public static class SizeAny<K, V> extends TinyMap<K, V> {
+        private static final long serialVersionUID = 1L;
+
         public final Object[] values;
 
         public SizeAny(TinySet<K> keys, Object[] values) {
