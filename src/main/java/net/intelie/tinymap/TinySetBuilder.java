@@ -81,6 +81,7 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
             table[inverse[i]] = -1;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T getEntryAt(int index) {
         Preconditions.checkElementIndex(index, rawSize);
@@ -131,7 +132,6 @@ public class TinySetBuilder<T> extends IndexedSetBase<T> implements
         return ~hash;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean removeAt(int index) {
         Preconditions.checkElementIndex(index, rawSize);

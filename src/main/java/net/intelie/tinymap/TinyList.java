@@ -22,6 +22,7 @@ public class TinyList<T> extends IndexedListBase<T> implements Serializable, Ind
         return values.length;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T getEntryAt(int index) {
         return (T) values[index];

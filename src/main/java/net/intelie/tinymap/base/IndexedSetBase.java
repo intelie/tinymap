@@ -9,7 +9,7 @@ public abstract class IndexedSetBase<T> extends IndexedCollectionBase<T> impleme
         if (this == o) return true;
         if (!(o instanceof Set<?>) || size() != ((Set<?>) o).size()) return false;
 
-        for (Object obj : ((Set) o))
+        for (Object obj : ((Set<?>) o))
             if (getIndex(obj) < 0)
                 return false;
         return true;

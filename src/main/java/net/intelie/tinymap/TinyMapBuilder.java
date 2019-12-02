@@ -68,7 +68,6 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
         return keys.getIndex(key);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public K getKeyAt(int index) {
         return keys.getEntryAt(index);

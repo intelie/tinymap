@@ -4,6 +4,7 @@ import net.intelie.tinymap.*;
 
 import java.util.*;
 
+@SuppressWarnings("unchecked")
 public class ObjectOptimizer {
     private final ObjectCache cache;
     private final Deque<TinyMapBuilder<?, ?>> maps = new ArrayDeque<>();

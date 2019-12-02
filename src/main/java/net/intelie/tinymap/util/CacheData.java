@@ -29,6 +29,7 @@ public class CacheData<T> {
         return bucketSize;
     }
 
+    @SuppressWarnings("unchecked")
     public T get(int index) {
         return (T) cache[index];
     }

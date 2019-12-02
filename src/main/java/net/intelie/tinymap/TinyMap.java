@@ -31,7 +31,6 @@ public abstract class TinyMap<K, V> extends IndexedMapBase<K, V> implements Seri
         return keys.debugCollisions(key);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public K getKeyAt(int index) {
         return keys.getEntryAt(index);

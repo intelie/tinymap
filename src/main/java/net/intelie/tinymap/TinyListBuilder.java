@@ -10,7 +10,6 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
     private static final long serialVersionUID = 1L;
 
     private static final Adapter<?> adapter = new Adapter<>();
-    @SuppressWarnings("unchecked")
     private Object[] values = new Object[4];
     private int size = 0;
 
@@ -30,6 +29,7 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
         return old;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T getEntryAt(int index) {
         Preconditions.checkElementIndex(index, size);
@@ -79,6 +79,7 @@ public class TinyListBuilder<T> extends IndexedListBase<T> implements CacheableB
             return hash;
         }
 
+        @SuppressWarnings("unchecked")
         @Override
         public TinyList<T> contentEquals(TinyListBuilder<T> builder, Object cached) {
             if (!(cached instanceof TinyList<?>) || builder.size != ((TinyList<?>) cached).size())
