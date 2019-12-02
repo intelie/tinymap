@@ -3,7 +3,7 @@ package net.intelie.tinymap.util;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DoubleCache {
-    private final Double NEG_ZERO = -0.0;
+    private static final Double NEG_ZERO = -0.0;
     private final int smallCacheAmplitude;
     private final Double[] smallCache;
     private final CacheData<Double> data;
