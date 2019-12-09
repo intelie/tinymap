@@ -3,14 +3,14 @@
 Memory-Efficient Immutable HashMap
 
 This library provides a straightforward open-addressing ordered hash table implementation. That implementation, along
-with an aggressive caching strategy (also provided here) can lead to incredibly low memory usage for semi-structured 
+with an aggressive object reuse strategy (also provided here) can lead to incredibly low memory usage for semi-structured 
 hashmaps.
 
 That is very useful to represent small immutable events. 
 
 The main advantage in TinyMap is that you can reuse not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical `HashMap`.
 
-Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles reuse), and using TinyMap caching everything (even map keys).
+Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles reuse), and using TinyMap reuse everything (even map keys).
 
 ![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=1134324197&format=image)
 
@@ -48,7 +48,7 @@ Guava's ImmutableMap (408 bytes) and LinkedHashMap (528 bytes).
 
 ### Optimizing existing map (with reuse)
 
-TinyMap can leverage aggressive caching to avoid representing same maps, keySets, or even Strings multiple times.
+TinyMap can leverage aggressive object reuse to avoid representing same maps, keySets, or even Strings multiple times.
 
 ```java
 ArrayList<Object> list = new ArrayList<>();
