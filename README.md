@@ -8,9 +8,9 @@ hashmaps.
 
 That is very useful to represent small immutable events. 
 
-The main advantage in TinyMap is that you can cache not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical `HashMap`.
+The main advantage in TinyMap is that you can reuse not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical `HashMap`.
 
-Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles cache), and using TinyMap caching everything (even map keys).
+Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles reuse), and using TinyMap caching everything (even map keys).
 
 ![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=1134324197&format=image)
 
@@ -34,7 +34,7 @@ dependency to your `pom.xml` file:
 </dependency>
 ```
 
-### Building a new map (without caches)
+### Building a new map (without reuse)
 
 ```java
 TinyMap<Object, Object> built = TinyMap.builder()
@@ -46,7 +46,7 @@ TinyMap<Object, Object> built = TinyMap.builder()
 This map uses exactly 384 bytes in Java 8, considering all its object tree. This is already better than 
 Guava's ImmutableMap (408 bytes) and LinkedHashMap (528 bytes).
 
-### Optimizing existing map (with cache)
+### Optimizing existing map (with reuse)
 
 TinyMap can leverage aggressive caching to avoid representing same maps, keySets, or even Strings multiple times.
 

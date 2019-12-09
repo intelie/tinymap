@@ -1,4 +1,6 @@
-package net.intelie.tinymap;
+package net.intelie.tinymap.support;
+
+import net.intelie.tinymap.ObjectCache;
 
 import java.util.*;
 

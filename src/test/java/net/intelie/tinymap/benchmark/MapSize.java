@@ -1,13 +1,9 @@
 package net.intelie.tinymap.benchmark;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import net.intelie.tinymap.JavaOptimizer;
-import net.intelie.tinymap.ObjectCache;
-import net.intelie.tinymap.TinyMapBuilder;
+import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.support.TestSizeUtils;
-import net.intelie.tinymap.TinyMap;
 import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Ignore;
 import org.junit.Test;

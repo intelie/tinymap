@@ -2,10 +2,9 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import net.intelie.tinymap.JavaOptimizer;
+import net.intelie.tinymap.support.ImmutableOptimizer;
+import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.ObjectCache;
-import net.intelie.tinymap.json.JsonToken;
-import net.intelie.tinymap.json.TinyJsonDecoder;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Ignore;
@@ -25,7 +24,7 @@ public class MapSizeReal {
     public void gson() throws IOException {
         List<Object> objs = new ArrayList<>();
         Gson gson = new Gson();
-        String fileName = "/home/juanplopes/Downloads/dumps/everything50k.json";
+        String fileName = "/home/juanplopes/Downloads/rtolive.json";
         try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
             reader.setLenient(true);
             while (reader.peek() != com.google.gson.stream.JsonToken.END_DOCUMENT) {
@@ -35,6 +34,7 @@ public class MapSizeReal {
 
         int step = objs.size() / 100;
         List<Object> gsonList = new ArrayList<>();
+
         for (int i = 0; i < objs.size(); i += step) {
             for (int j = 0; j < Math.min(step, objs.size() - i); j++) {
                 gsonList.add(objs.get(i + j));
@@ -42,9 +42,20 @@ public class MapSizeReal {
 
             List<Object> javaList = new JavaOptimizer(null).optimizeList(gsonList);
             List<Object> javaOptList = new JavaOptimizer(new ObjectCache()).optimizeList(gsonList);
-            List<Object> tinyList = new ObjectOptimizer(new ObjectCache()).optimizeList(gsonList);
 
-            print(i + step, gsonList, javaList, javaOptList, tinyList);
+            List<Object> immutableList = new ImmutableOptimizer(null).optimizeList(gsonList);
+            List<Object> immutableOptList = new ImmutableOptimizer(new ObjectCache()).optimizeList(gsonList);
+
+            List<Object> tinyList = new ObjectOptimizer(null).optimizeList(gsonList);
+            List<Object> tinyOptList = new ObjectOptimizer(new ObjectCache()).optimizeList(gsonList);
+
+            print(i + step,
+                    javaList,
+                    immutableList,
+                    tinyList,
+                    javaOptList,
+                    immutableOptList,
+                    tinyOptList);
         }
 
     }
