@@ -32,6 +32,20 @@ public class ObjectOptimizerTest {
     }
 
     @Test
+    public void testOptimizeSimpleMapNoCache() {
+        LinkedHashMap<String, Object> obj = new LinkedHashMap<>();
+        obj.put("aaa", Arrays.asList(123, "456"));
+        obj.put("bbb", Collections.singletonMap("ccc", 111));
+        obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
+        obj.put("ggg", ImmutableSet.of("eee", 222, "fff", 333.0));
+
+        ObjectOptimizer optimizer = new ObjectOptimizer(null);
+        Object optimized = optimizer.optimize(obj);
+
+        assertThat(optimized).isEqualTo(obj);
+    }
+
+    @Test
     public void testOptimizeSimpleMapWithException() {
         RuntimeException ex = new RuntimeException("abc");
         Map map = mock(Map.class);

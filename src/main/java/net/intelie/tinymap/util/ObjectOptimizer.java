@@ -17,9 +17,9 @@ public class ObjectOptimizer {
 
     public Object optimize(Object object) {
         if (object instanceof CharSequence)
-            return cache.get((CharSequence) object);
+            return cache != null ? cache.get((CharSequence) object) : object.toString();
         if (object instanceof Double)
-            return cache.get(((Double) object));
+            return cache != null ? cache.get(((Double) object)) : (Double) object;
         if (object instanceof Set<?>)
             return optimizeSet((Iterable<?>) object);
         if (object instanceof List<?>)
@@ -35,7 +35,7 @@ public class ObjectOptimizer {
             object.forEach((k, v) -> {
                 map.put((K) optimize(k), (V) optimize(v));
             });
-            return cache.get(map);
+            return cache != null ? cache.get(map) : map.build();
         } finally {
             map.clear();
             maps.add(map);
@@ -54,7 +54,7 @@ public class ObjectOptimizer {
             object.forEach(x -> {
                 list.add((T) optimize(x));
             });
-            return cache.get(list);
+            return cache != null ? cache.get(list) : list.build();
         } finally {
             list.clear();
             lists.add(list);
@@ -74,7 +74,7 @@ public class ObjectOptimizer {
             object.forEach(x -> {
                 set.add((T) optimize(x));
             });
-            return cache.get(set);
+            return cache != null ? cache.get(set) : set.build();
         } finally {
             set.clear();
             sets.add(set);

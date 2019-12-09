@@ -47,7 +47,7 @@ public class Playground {
 
         System.out.println((System.nanoTime() - start) / 1e9);
         System.out.println(objs.equals(objs2));
-        System.out.println(TestSizeUtils.formattedSize(objs2));
-        TestSizeUtils.dump(objs);
+        //System.out.println(TestSizeUtils.formattedSize(objs2));
+        TestSizeUtils.dump(objs2);
     }
 }

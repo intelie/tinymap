@@ -25,8 +25,8 @@ public class TestSizeUtils {
         return formatBytes(size(obj));
     }
 
-    public static String formattedSizeNoStrings(Object obj) {
-        return formatBytes(sizeNoStrings(obj));
+    public static String formattedSizeOnlyStructure(Object obj) {
+        return formatBytes(sizeOnlyStructure(obj));
     }
 
     public static long size(Object obj) {
@@ -46,12 +46,12 @@ public class TestSizeUtils {
         return total;
     }
 
-    public static long sizeNoStrings(Object obj) {
+    public static long sizeOnlyStructure(Object obj) {
         ObjectSizer sizer = new ObjectSizer(new ReflectionCache(), new IdentityVisitedSet(), 1 << 20);
         sizer.resetTo(obj);
         long total = 0;
         while (sizer.moveNext()) {
-            if (!sizer.type().equals(String.class))
+            if (!sizer.type().equals(String.class) && !sizer.type().equals(Double.class))
                 total += sizer.bytes();
         }
         assert sizer.skipped() == 0;

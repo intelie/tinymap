@@ -25,13 +25,11 @@ public class MapSizeReal {
     public void gson() throws IOException {
         List<Object> objs = new ArrayList<>();
         Gson gson = new Gson();
-        long start = System.nanoTime();
-        String fileName = "/home/juanplopes/Downloads/dumps/raw_star.json";
+        String fileName = "/home/juanplopes/Downloads/dumps/everything50k.json";
         try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
             reader.setLenient(true);
             while (reader.peek() != com.google.gson.stream.JsonToken.END_DOCUMENT) {
-                List obj = gson.fromJson(reader, List.class);
-                objs.addAll(obj);
+                objs.addAll(gson.<List>fromJson(reader, List.class));
             }
         }
 
@@ -53,7 +51,7 @@ public class MapSizeReal {
 
     private void print(int i, Object... values) {
         System.out.println(i + "\t" + Arrays.stream(values)
-                .mapToLong(TestSizeUtils::sizeNoStrings)
+                .mapToLong(TestSizeUtils::size)
                 .mapToObj(String::valueOf)
                 .collect(Collectors.joining("\t")));
     }
