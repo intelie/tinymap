@@ -8,15 +8,11 @@ hashmaps.
 
 That is very useful to represent small immutable events. 
 
-Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap (with and without strings and doubles cache), and using TinyMap caching everything (even map keys).
+The main advantage in TinyMap is that you can cache not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical `HashMap`.
+
+Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles cache), and using TinyMap caching everything (even map keys).
 
 ![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=1134324197&format=image)
-
-Below you can find the memory cost of each `java.util.Map` implementation. Please note that both Guava's ImmutableMap and TinyMap keep the insertion order, just like LinkedHashMap and unlike a simple HashMap.
-
-![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=2125978251&format=image)
-
-Also note that this is just the hash table structure costs. This can be further improved by introducing aggressive value caching as seen before.
 
 ### Are there any downsides?
 
