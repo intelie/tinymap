@@ -37,14 +37,18 @@ dependency to your `pom.xml` file:
 ### Building a new map (without reuse)
 
 ```java
-TinyMap<Object, Object> built = TinyMap.builder()
-        .put("key1", "value1")
-        .put("key2", TinyList.builder().add(42.0).add("subvalue").build())
-        .build();
+TinyMapBuilder<String, Object> builder = TinyMap.builder();
+builder.put("key1", "value1");
+builder.put("key2", "value2");
+builder.put("key3", 333);
+
+TinyMap<String, Object> map = builder.build();
 ```
 
 This map uses exactly 384 bytes in Java 8, considering all its object tree. This is already better than 
-Guava's ImmutableMap (408 bytes) and LinkedHashMap (528 bytes).
+Guava's ImmutableMap (488 bytes) and LinkedHashMap (512 bytes).
+
+Also note that `TinyMapBuilder<K, V>` is also a `Map<K, V>` and can be used as such.
 
 ### Optimizing existing map (with reuse)
 
@@ -65,7 +69,7 @@ ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
 TinyList<Object> tinyList = optimizer.optimizeList(list);
 ```
 
-The optimized version uses almost 60% less memory than the pure Java version (137.19 KB vs 348.75 KB).
+The optimized version uses almost 80% less memory than the pure Java version (105.95 KB vs 504.86 KB).
 
 ### Parsing JSON
 

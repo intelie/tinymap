@@ -14,9 +14,9 @@ public class JavaOptimizer {
 
     public Object optimize(Object object) {
         if (object instanceof CharSequence)
-            return cache != null ? cache.get((CharSequence) object) : object.toString();
+            return cache != null ? cache.get((CharSequence) object) : new StringBuilder().append(object).toString();
         if (object instanceof Double)
-            return cache != null ? cache.get(((Double) object)) : (Double) object;
+            return cache != null ? cache.get(((Double) object)) : new Double((Double) object);
         if (object instanceof List<?>)
             return optimizeList((Iterable<?>) object);
         if (object instanceof Map<?, ?>)
