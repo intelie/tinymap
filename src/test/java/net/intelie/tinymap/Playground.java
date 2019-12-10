@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,5 +50,13 @@ public class Playground {
         System.out.println(objs.equals(objs2));
         //System.out.println(TestSizeUtils.formattedSize(objs2));
         TestSizeUtils.dump(objs2);
+    }
+
+    @Test
+    public void name() throws IOException {
+ObjectCache cache = new ObjectCache();
+try (TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{abc:123}"))) {
+    System.out.println(decoder.nextObject());
+}
     }
 }

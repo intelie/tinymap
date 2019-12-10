@@ -8,9 +8,9 @@ hashmaps.
 
 That is very useful to represent small immutable events. 
 
-The main advantage in TinyMap is that you can reuse not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical `HashMap`.
+The main advantage in TinyMap is that it can reuse not only keys and values, but also entire maps, keysets, and lists. This can lead to a representation up to 97% smaller than a typical HashMap.
 
-Below you can compare the memory requirements of loading 50K events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap (with and without strings and doubles reuse), and using TinyMap reuse everything (even map keys).
+Below you can compare the memory requirements of loading 50,000 events as Gson's LinkedTreeMap, converting them to LinkedHashMap, guava's ImmutableMap, and TinyMap, both with and without objects reuse.
 
 ![](https://docs.google.com/spreadsheets/d/e/2PACX-1vQGaL2vuiOAxMH8809j4HiYPfK1uxSYpNIYNQAl-_eGbvhBC2BJR2bE_-sbAhBkq-xFpTzTa3hcUZ9i/pubchart?oid=1134324197&format=image)
 
@@ -69,4 +69,13 @@ The optimized version uses almost 60% less memory than the pure Java version (13
 
 ### Parsing JSON
 
-TODO 
+TinyMap includes a JSON parser that creates TinyMap/TinyList objects directly, without need for subsequent optimization.
+
+Reading a JSON is as easy as passing a Reader to TinyJsonDecoder:
+
+```java
+ObjectCache cache = new ObjectCache();
+try (TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{abc:123}"))) {
+    System.out.println(decoder.nextObject());
+} 
+```
