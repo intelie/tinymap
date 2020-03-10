@@ -120,8 +120,11 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
 
     @Override
     public TinyMap<K, V> build() {
-        TinySet<K> keys = this.keys.build();
-        return buildWithKeys(keys);
+        return buildWithKeys(buildKeys());
+    }
+
+    public TinySet<K> buildKeys() {
+        return this.keys.build();
     }
 
     public TinyMap<K, V> buildWithKeys(TinySet<K> keys) {
