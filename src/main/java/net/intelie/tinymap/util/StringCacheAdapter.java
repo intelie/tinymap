@@ -6,6 +6,8 @@ import net.intelie.tinymap.ObjectCache;
 public class StringCacheAdapter implements CacheAdapter<CharSequence, String> {
     @Override
     public int contentHashCode(CharSequence cs) {
+        if (cs instanceof String)
+            return cs.hashCode();
         int length = cs.length();
         int hash = 0;
         for (int i = 0; i < length; i++)

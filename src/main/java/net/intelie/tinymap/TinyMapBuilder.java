@@ -124,8 +124,9 @@ public class TinyMapBuilder<K, V> extends IndexedMapBase<K, V> implements Cachea
         return buildWithKeys(keys);
     }
 
-    private TinyMap<K, V> buildWithKeys(TinySet<K> keys) {
+    public TinyMap<K, V> buildWithKeys(TinySet<K> keys) {
         compact();
+        Preconditions.checkArgument(keys.size() == size(), "Must have same size");
         return TinyMap.createUnsafe(keys, Arrays.copyOf(values, keys.size()));
     }
 
