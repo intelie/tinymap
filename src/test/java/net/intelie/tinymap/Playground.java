@@ -1,12 +1,12 @@
 package net.intelie.tinymap;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import net.intelie.tinymap.json.JsonToken;
 import net.intelie.tinymap.json.TinyJsonDecoder;
 import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.support.TestSizeUtils;
+import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -14,11 +14,7 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.*;
-
-import static java.lang.System.exit;
-import static java.lang.System.out;
 
 @Ignore
 public class Playground {
@@ -28,7 +24,7 @@ public class Playground {
         List<Object> objs2 = new ArrayList<>();
 
 
-        ObjectCache cache = new ObjectCache(1 << 20);
+        ObjectCache cache = new DefaultObjectCache(1 << 20);
 
         Gson gson = new Gson();
 
@@ -50,7 +46,7 @@ public class Playground {
         System.out.println((System.nanoTime() - start) / 1e9);
         System.out.println(objs.equals(objs2));
         //System.out.println(TestSizeUtils.formattedSize(objs2));
-        TestSizeUtils.dump(objs2);
+        TestSizeUtils.dump(objs);
     }
 
     @Test
@@ -65,7 +61,7 @@ public class Playground {
             list.add(map);
         }
 
-        ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
+        ObjectOptimizer optimizer = new ObjectOptimizer(new DefaultObjectCache());
         TinyList<Object> tinyList = optimizer.optimizeList(list);
 
 

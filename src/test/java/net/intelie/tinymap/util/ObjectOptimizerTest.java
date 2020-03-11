@@ -2,7 +2,6 @@ package net.intelie.tinymap.util;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import net.intelie.tinymap.ObjectCache;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -25,7 +24,7 @@ public class ObjectOptimizerTest {
         obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
         obj.put("ggg", ImmutableSet.of("eee", 222, "fff", 333.0));
 
-        ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
+        ObjectOptimizer optimizer = new ObjectOptimizer(new DefaultObjectCache());
         Object optimized = optimizer.optimize(obj);
 
         assertThat(optimized).isEqualTo(obj);
@@ -57,7 +56,7 @@ public class ObjectOptimizerTest {
         obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
 
 
-        ObjectOptimizer optimizer = new ObjectOptimizer(new ObjectCache());
+        ObjectOptimizer optimizer = new ObjectOptimizer(new DefaultObjectCache());
         assertThatThrownBy(() -> optimizer.optimize(obj)).isSameAs(ex);
     }
 }

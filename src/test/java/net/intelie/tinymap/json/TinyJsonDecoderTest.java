@@ -3,6 +3,7 @@ package net.intelie.tinymap.json;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.ObjectCache;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +21,7 @@ public class TinyJsonDecoderTest {
     @Before
     public void setUp() throws Exception {
         gson = new Gson();
-        cache = new ObjectCache();
+        cache = new DefaultObjectCache();
     }
 
     @Test

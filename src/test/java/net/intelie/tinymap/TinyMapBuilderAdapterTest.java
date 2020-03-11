@@ -1,5 +1,6 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.DefaultObjectCache;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,7 +64,7 @@ public class TinyMapBuilderAdapterTest {
 
     @Test
     public void testBuildSmallWithCache() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache();
 
         TinyMapBuilder<String, Object> builder1 = new TinyMapBuilder<>();
         builder1.put("aaa", 111);
@@ -80,15 +81,15 @@ public class TinyMapBuilderAdapterTest {
 
     @Test
     public void testBuildExactlySameWithCache() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache();
 
         TinyMapBuilder<String, Object> builder1 = new TinyMapBuilder<>();
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 100; i++)
             builder1.put(cache.get("aaa" + i), cache.get(1000 * i));
         TinyMap<String, Object> map1 = cache.get(builder1);
 
         TinyMapBuilder<String, Object> builder2 = new TinyMapBuilder<>();
-        for (int i = 0; i < 1000; i++)
+        for (int i = 0; i < 100; i++)
             builder2.put(cache.get("aaa" + i), cache.get(1000 * i));
         TinyMap<String, Object> map2 = cache.get(builder2);
 
@@ -97,7 +98,7 @@ public class TinyMapBuilderAdapterTest {
 
     @Test
     public void testBuildMediumWithCache() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache(1 << 20);
 
         TinyMapBuilder<String, Object> builder1 = new TinyMapBuilder<>();
         for (int i = 0; i < 1000; i++)
@@ -111,22 +112,4 @@ public class TinyMapBuilderAdapterTest {
 
         assertThat(map1.sharesKeysWith(map2)).isTrue();
     }
-
-    @Test
-    public void testBuildLargeWithCache() {
-        ObjectCache cache = new ObjectCache(1 << 20);
-
-        TinyMapBuilder<String, Object> builder1 = new TinyMapBuilder<>();
-        for (int i = 0; i < 100000; i++)
-            builder1.put(cache.get("aaa" + i), 100000 * i);
-        TinyMap<String, Object> map1 = cache.get(builder1);
-
-        TinyMapBuilder<String, Object> builder2 = new TinyMapBuilder<>();
-        for (int i = 0; i < 100000; i++)
-            builder2.put(cache.get("aaa" + i), 100000 * i);
-        TinyMap<String, Object> map2 = cache.get(builder2);
-
-        assertThat(map1.sharesKeysWith(map2)).isTrue();
-    }
-
 }

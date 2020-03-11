@@ -1,5 +1,6 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.util.StringCacheAdapter;
 import org.junit.Test;
 
@@ -8,30 +9,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ObjectCacheTest {
     @Test
     public void testListCacheHit() {
-        ObjectCache cache = new ObjectCache();
+        DefaultObjectCache cache = new DefaultObjectCache();
 
         TinyListBuilder<Object> builder1 = TinyList.builder();
         TinyListBuilder<Object> builder2 = TinyList.builder();
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
 
-        assertThat(cache.objectHits()).isEqualTo(1);
-        assertThat(cache.objectMisses()).isEqualTo(1);
-
-
         builder1.add("aaa");
         builder2.add("aaa");
 
         assertThat(cache.get(builder1)).isSameAs(cache.get(builder2)).isEqualTo(builder1.build());
-
-        assertThat(cache.objectHits()).isEqualTo(2);
-        assertThat(cache.objectMisses()).isEqualTo(2);
-
     }
 
     @Test
     public void testMapCacheHit() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache();
 
         TinyMapBuilder<Object, Object> builder1 = TinyMap.builder();
         TinyMapBuilder<Object, Object> builder2 = TinyMap.builder();
@@ -45,56 +38,11 @@ public class ObjectCacheTest {
     }
 
     @Test
-    public void testCacheSecondHit() {
-        StringCacheAdapter stringAdapter = new StringCacheAdapter();
-
-        ObjectCache cache = new ObjectCache();
-        StringBuilder original1 = new StringBuilder("FB");
-        StringBuilder original2 = new StringBuilder("Ea");
-
-        String cached1 = cache.get(original1);
-        String cached2 = cache.get(original2);
-        String cached1b = cache.get(original1);
-
-        assertThat(original1.toString()).isEqualTo(cached1).isNotSameAs(cached1);
-        assertThat(original2.toString()).isEqualTo(cached2).isNotSameAs(cached2);
-
-        assertThat(cached1).isNotEqualTo(cached2);
-        assertThat(stringAdapter.contentHashCode(original1)).isEqualTo(stringAdapter.contentHashCode(cached2));
-
-        assertThat(cached1).isSameAs(cached1b);
-    }
-
-    @Test
-    public void testCacheSecondHitDifferentSize() {
-        StringCacheAdapter stringAdapter = new StringCacheAdapter();
-
-        ObjectCache cache = new ObjectCache();
-        StringBuilder original1 = new StringBuilder("\001!");
-        StringBuilder original2 = new StringBuilder("@");
-
-        String cached1 = cache.get(original1);
-        String cached2 = cache.get(original2);
-        String cached1b = cache.get(original1);
-
-        assertThat(original1.toString()).isEqualTo(cached1).isNotSameAs(cached1);
-        assertThat(original2.toString()).isEqualTo(cached2).isNotSameAs(cached2);
-
-        assertThat(cached1).isNotEqualTo(cached2);
-        assertThat(stringAdapter.contentHashCode(original1)).isEqualTo(stringAdapter.contentHashCode(cached2));
-
-        assertThat(cached1).isSameAs(cached1b);
-    }
-
-    @Test
     public void testDoubleCacheHit() {
-        ObjectCache cache = new ObjectCache();
+        DefaultObjectCache cache = new DefaultObjectCache();
         Double cached1 = cache.get(Double.parseDouble("123.456"));
         Double cached2 = cache.get(Double.parseDouble("123.456"));
 
         assertThat(cached1).isSameAs(cached2);
-
-        assertThat(cache.doubleHits()).isEqualTo(1);
-        assertThat(cache.doubleMisses()).isEqualTo(1);
     }
 }

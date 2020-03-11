@@ -2,9 +2,9 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
+import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.support.ImmutableOptimizer;
 import net.intelie.tinymap.support.JavaOptimizer;
-import net.intelie.tinymap.ObjectCache;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Ignore;
@@ -41,13 +41,13 @@ public class MapSizeReal {
             }
 
             List<Object> javaList = new JavaOptimizer(null).optimizeList(gsonList);
-            List<Object> javaOptList = new JavaOptimizer(new ObjectCache()).optimizeList(gsonList);
+            List<Object> javaOptList = new JavaOptimizer(new DefaultObjectCache()).optimizeList(gsonList);
 
             List<Object> immutableList = new ImmutableOptimizer(null).optimizeList(gsonList);
-            List<Object> immutableOptList = new ImmutableOptimizer(new ObjectCache()).optimizeList(gsonList);
+            List<Object> immutableOptList = new ImmutableOptimizer(new DefaultObjectCache()).optimizeList(gsonList);
 
             List<Object> tinyList = new ObjectOptimizer(null).optimizeList(gsonList);
-            List<Object> tinyOptList = new ObjectOptimizer(new ObjectCache()).optimizeList(gsonList);
+            List<Object> tinyOptList = new ObjectOptimizer(new DefaultObjectCache()).optimizeList(gsonList);
 
             print(i + step,
                     javaList,

@@ -1,5 +1,6 @@
 package net.intelie.tinymap;
 
+import net.intelie.tinymap.util.DefaultObjectCache;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +56,7 @@ public class TinySetBuilderAdapterTest {
 
     @Test
     public void testBuildSmallWithCache() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache();
 
         TinySetBuilder<String> builder1 = new TinySetBuilder<>();
         builder1.add("aaa");
@@ -72,7 +73,7 @@ public class TinySetBuilderAdapterTest {
 
     @Test
     public void testBuildExactlySameWithCache() {
-        ObjectCache cache = new ObjectCache();
+        ObjectCache cache = new DefaultObjectCache(1 << 20);
 
         TinySetBuilder<String> builder1 = new TinySetBuilder<>();
         for (int i = 0; i < 1000; i++)
