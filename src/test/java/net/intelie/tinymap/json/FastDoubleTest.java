@@ -103,9 +103,9 @@ public class FastDoubleTest {
     }
 
     private void assertParseFallback(String s) {
-        double d1 = Double.parseDouble(s);
-        double d2 = FastDouble.parseDouble(s);
-        double d3 = FastDouble.parseDouble(new StringBuilder().append("xxx").append(s).append("xxx"), 3, s.length() + 3);
+        Double d1 = Double.parseDouble(s);
+        Double d2 = FastDouble.parseDouble(s);
+        Double d3 = FastDouble.parseDouble(new StringBuilder().append("xxx").append(s).append("xxx"), 3, s.length() + 3);
 
         assertThat(d2).describedAs(s).isEqualTo(d1);
         assertThat(d3).describedAs(s).isEqualTo(d1);

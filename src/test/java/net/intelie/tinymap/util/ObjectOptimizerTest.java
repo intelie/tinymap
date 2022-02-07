@@ -11,9 +11,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 public class ObjectOptimizerTest {
     @Test
@@ -47,14 +45,13 @@ public class ObjectOptimizerTest {
     @Test
     public void testOptimizeSimpleMapWithException() {
         RuntimeException ex = new RuntimeException("abc");
-        Map map = mock(Map.class);
+        Map<?, ?> map = mock(Map.class);
         doThrow(ex).when(map).forEach(any());
 
         LinkedHashMap<String, Object> obj = new LinkedHashMap<>();
         obj.put("aaa", Arrays.asList(123, "456", Collections.singleton(map)));
         obj.put("bbb", Collections.singletonMap("ccc", "ddd"));
         obj.put("ddd", ImmutableMap.of("eee", 222, "fff", 333.0));
-
 
         ObjectOptimizer optimizer = new ObjectOptimizer(new DefaultObjectCache());
         assertThatThrownBy(() -> optimizer.optimize(obj)).isSameAs(ex);
