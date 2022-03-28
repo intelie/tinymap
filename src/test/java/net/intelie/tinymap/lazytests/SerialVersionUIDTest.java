@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class SerialVersionUIDTest {
     @Test

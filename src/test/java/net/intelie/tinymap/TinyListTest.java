@@ -90,7 +90,8 @@ public class TinyListTest {
         builder.add(123);
         List<Object> map = builder.buildAndClear();
 
-        Consumer consumer = mock(Consumer.class);
+        @SuppressWarnings("unchecked")
+        Consumer<Object> consumer = mock(Consumer.class);
 
         map.forEach(consumer);
 

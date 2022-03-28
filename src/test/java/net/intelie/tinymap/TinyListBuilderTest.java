@@ -38,11 +38,11 @@ public class TinyListBuilderTest {
         }
 
         Iterator<String> expectedIt = expected.listIterator();
-        assertThatThrownBy(() -> expectedIt.remove())
+        assertThatThrownBy(expectedIt::remove)
                 .isInstanceOf(IllegalStateException.class);
 
         ListIterator<String> it = builder.iterator();
-        assertThatThrownBy(() -> it.remove())
+        assertThatThrownBy(it::remove)
                 .isInstanceOf(IllegalStateException.class);
 
     }

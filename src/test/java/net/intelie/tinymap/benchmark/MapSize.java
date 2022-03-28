@@ -11,7 +11,9 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Ignore
@@ -24,7 +26,7 @@ public class MapSize {
         try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
             reader.setLenient(true);
             while (reader.peek() != com.google.gson.stream.JsonToken.END_DOCUMENT) {
-                objs.addAll(gson.<List>fromJson(reader, List.class));
+                objs.addAll(gson.<List<?>>fromJson(reader, List.class));
             }
         }
 

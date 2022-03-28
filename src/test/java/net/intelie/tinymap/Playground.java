@@ -14,7 +14,9 @@ import org.junit.Test;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 @Ignore
 public class Playground {
@@ -38,7 +40,7 @@ public class Playground {
                 objs.addAll(reader.nextList());
 
                 if (reader2.peek() == com.google.gson.stream.JsonToken.END_DOCUMENT) break;
-                List obj = gson.fromJson(reader2, List.class);
+                List<?> obj = gson.fromJson(reader2, List.class);
                 objs2.addAll(obj);
             }
         }

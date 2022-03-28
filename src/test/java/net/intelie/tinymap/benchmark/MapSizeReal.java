@@ -2,10 +2,10 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.support.ImmutableOptimizer;
 import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.support.TestSizeUtils;
+import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.util.ObjectOptimizer;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class MapSizeReal {
         try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
             reader.setLenient(true);
             while (reader.peek() != com.google.gson.stream.JsonToken.END_DOCUMENT) {
-                objs.addAll(gson.<List>fromJson(reader, List.class));
+                objs.addAll(gson.<List<?>>fromJson(reader, List.class));
             }
         }
 

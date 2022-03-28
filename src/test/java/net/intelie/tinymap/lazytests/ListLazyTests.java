@@ -33,7 +33,7 @@ public class ListLazyTests {
 
             it.next();
             it.remove();
-            assertThatThrownBy(() -> it.remove()).isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(it::remove).isInstanceOf(IllegalStateException.class);
             it.next();
             it.remove();
             assertThat(it.next()).isEqualTo("aaa32");
@@ -79,9 +79,7 @@ public class ListLazyTests {
             else
                 return list.remove(69);
         });
-        tester.itv(x -> {
-            x.subList(0, 79).addAll(range(79, 90));
-        });
+        tester.itv(x -> x.subList(0, 79).addAll(range(79, 90)));
 
         assertThat(tester.getBuilder()).containsExactlyElementsOf(
                 range(0, 100)

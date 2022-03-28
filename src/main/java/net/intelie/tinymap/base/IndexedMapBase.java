@@ -11,7 +11,6 @@ import java.util.function.BiConsumer;
 public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
     private static final Object SENTINEL = new Object();
 
-    @SuppressWarnings("unchecked")
     @Override
     public V getOrDefault(Object key, V defaultValue) {
         int index = getIndex(key);
@@ -19,7 +18,6 @@ public abstract class IndexedMapBase<K, V> implements IndexedMap<K, V> {
         return getValueAt(index);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public V get(Object key) {
         int index = getIndex(key);

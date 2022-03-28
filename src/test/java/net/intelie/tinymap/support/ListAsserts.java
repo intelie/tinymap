@@ -92,7 +92,7 @@ public class ListAsserts {
         }
 
         assertThat(keysIterator.hasNext()).isFalse();
-        assertThatThrownBy(() -> keysIterator.next()).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(keysIterator::next).isInstanceOf(NoSuchElementException.class);
     }
 
     private static void assertElementsInverse(List<?> expectedSet, IndexedCollection<?> actual) {
@@ -120,7 +120,7 @@ public class ListAsserts {
         }
 
         assertThat(keysIterator.hasPrevious()).isFalse();
-        assertThatThrownBy(() -> keysIterator.previous()).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(keysIterator::previous).isInstanceOf(NoSuchElementException.class);
     }
 
     private static void assertSizes(List<?> expectedSet, IndexedCollection<?> actual) {

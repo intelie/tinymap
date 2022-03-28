@@ -62,8 +62,8 @@ public class TestSizeUtils {
         ObjectSizer sizer = new ObjectSizer();
         sizer.resetTo(obj);
 
-        Map<Class, AtomicLong> counts = new HashMap<>();
-        Map<Class, AtomicLong> total = new HashMap<>();
+        Map<Class<?>, AtomicLong> counts = new HashMap<>();
+        Map<Class<?>, AtomicLong> total = new HashMap<>();
         Map<UniqueWrapper, AtomicLong> doubleCount = new HashMap<>();
         long skipped = 0;
         long totalCount = 0, uniqueCount = 0, totalBytes = 0, uniqueBytes = 0;
@@ -83,7 +83,7 @@ public class TestSizeUtils {
             }
 
             if (sizer.current() instanceof Map)
-                mapCounts.computeIfAbsent(((Map) sizer.current()).size(), x -> new AtomicLong()).incrementAndGet();
+                mapCounts.computeIfAbsent(((Map<?, ?>) sizer.current()).size(), x -> new AtomicLong()).incrementAndGet();
 
             if (WeakReference.class.isAssignableFrom(sizer.type())) {
                 sizer.skipChildren();
@@ -96,9 +96,13 @@ public class TestSizeUtils {
         System.out.printf("duplicate %10d %10s\n", (totalCount - uniqueCount), formatBytes(totalBytes - uniqueBytes));
 
         System.out.println("histogram:");
-        total.entrySet().stream().sorted(Comparator.comparing(x -> -x.getValue().get())).forEach(entry -> {
-            System.out.printf("  %6d %10s %s\n", counts.get(entry.getKey()).get(), TestSizeUtils.formatBytes(entry.getValue().get()), entry.getKey().getCanonicalName());
-        });
+        total.entrySet()
+                .stream()
+                .sorted(Comparator.comparing(x -> -x.getValue().get()))
+                .forEach(entry -> System.out.printf("  %6d %10s %s\n",
+                        counts.get(entry.getKey()).get(),
+                        TestSizeUtils.formatBytes(entry.getValue().get()),
+                        entry.getKey().getCanonicalName()));
         assert sizer.skipped() == skipped;
 
         sizer.clear();
@@ -109,10 +113,7 @@ public class TestSizeUtils {
                 .filter(x -> x.getValue().get() > 1)
                 .sorted((Comparator.comparing(x -> -x.getValue().get())))
                 .limit(10)
-                .forEach(entry -> {
-                    System.out.println("  " + entry.getKey().obj + "   \t" + entry.getValue().get());
-                });
-
+                .forEach(entry -> System.out.println("  " + entry.getKey().obj + "   \t" + entry.getValue().get()));
     }
 
     private static class UniqueWrapper {

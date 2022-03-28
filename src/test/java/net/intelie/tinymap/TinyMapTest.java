@@ -98,7 +98,8 @@ public class TinyMapTest {
         builder.put("bbb", 456.0);
         TinyMap<String, Object> map = builder.build();
 
-        BiConsumer consumer = mock(BiConsumer.class);
+        @SuppressWarnings("unchecked")
+        BiConsumer<String, Object> consumer = mock(BiConsumer.class);
 
         map.forEach(consumer);
 

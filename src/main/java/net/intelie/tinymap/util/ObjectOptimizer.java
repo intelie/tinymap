@@ -32,9 +32,7 @@ public class ObjectOptimizer {
     public <K, V> TinyMap<K, V> optimizeMap(Map<K, V> object) {
         TinyMapBuilder<K, V> map = makeMapBuilder();
         try {
-            object.forEach((k, v) -> {
-                map.put((K) optimize(k), (V) optimize(v));
-            });
+            object.forEach((k, v) -> map.put((K) optimize(k), (V) optimize(v)));
             return cache != null ? cache.get(map) : map.build();
         } finally {
             map.clear();
@@ -51,9 +49,7 @@ public class ObjectOptimizer {
     public <T> TinyList<T> optimizeList(Iterable<T> object) {
         TinyListBuilder<T> list = makeListBuilder();
         try {
-            object.forEach(x -> {
-                list.add((T) optimize(x));
-            });
+            object.forEach(x -> list.add((T) optimize(x)));
             return cache != null ? cache.get(list) : list.build();
         } finally {
             list.clear();
@@ -71,9 +67,7 @@ public class ObjectOptimizer {
     public <T> TinySet<T> optimizeSet(Iterable<T> object) {
         TinySetBuilder<T> set = makeSetBuilder();
         try {
-            object.forEach(x -> {
-                set.add((T) optimize(x));
-            });
+            object.forEach(x -> set.add((T) optimize(x)));
             return cache != null ? cache.get(set) : set.build();
         } finally {
             set.clear();

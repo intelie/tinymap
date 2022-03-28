@@ -113,7 +113,7 @@ public class SetAsserts {
         }
 
         assertThat(keysIterator.hasPrevious()).isFalse();
-        assertThatThrownBy(() -> keysIterator.previous()).isInstanceOf(NoSuchElementException.class);
+        assertThatThrownBy(keysIterator::previous).isInstanceOf(NoSuchElementException.class);
     }
 
     private static void assertSizes(Set<String> expected, IndexedSet<String> actual) {

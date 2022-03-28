@@ -29,17 +29,13 @@ public class ImmutableOptimizer {
 
     public <K, V> Map<K, V> optimizeMap(Map<K, V> object) {
         ImmutableMap.Builder<K, V> map = ImmutableMap.builder();
-        object.forEach((k, v) -> {
-            map.put((K) optimize(k), (V) optimize(v));
-        });
+        object.forEach((k, v) -> map.put((K) optimize(k), (V) optimize(v)));
         return map.build();
     }
 
     public <T> List<T> optimizeList(Iterable<T> object) {
         ImmutableList.Builder<T> list = ImmutableList.builder();
-        object.forEach(x -> {
-            list.add((T) optimize(x));
-        });
+        object.forEach(x -> list.add((T) optimize(x)));
         return list.build();
     }
 }

@@ -3,8 +3,8 @@ package net.intelie.tinymap.json;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.ObjectCache;
+import net.intelie.tinymap.util.DefaultObjectCache;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class TinyJsonDecoderTest {
     @Test
     public void testInnerInvalidJson() throws IOException {
         TinyJsonDecoder decoder = new TinyJsonDecoder(cache, new StringReader("{a:[{c:/}]}}"));
-        assertThatThrownBy(() -> decoder.nextObject())
+        assertThatThrownBy(decoder::nextObject)
                 .isInstanceOf(IOException.class)
                 .hasMessageContaining("Expected value");
     }

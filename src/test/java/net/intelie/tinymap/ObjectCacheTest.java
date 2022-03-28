@@ -1,7 +1,6 @@
 package net.intelie.tinymap;
 
 import net.intelie.tinymap.util.DefaultObjectCache;
-import net.intelie.tinymap.util.StringCacheAdapter;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
