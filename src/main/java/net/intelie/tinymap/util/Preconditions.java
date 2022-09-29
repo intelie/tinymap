@@ -154,7 +154,7 @@ public abstract class Preconditions {
             if (placeholderStart == -1) {
                 break;
             }
-            builder.append(template.substring(templateStart, placeholderStart));
+            builder.append(template, templateStart, placeholderStart);
             builder.append(args[i++]);
             templateStart = placeholderStart + 2;
         }

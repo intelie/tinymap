@@ -19,7 +19,7 @@ public class TinyJsonDecoderTest {
     private ObjectCache cache;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         gson = new Gson();
         cache = new DefaultObjectCache();
     }

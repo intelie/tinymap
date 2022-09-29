@@ -15,7 +15,7 @@ public final class TinyJsonReaderTest extends TestCase {
     private TinyJsonReader reader;
 
     @Override
-    public void setUp() throws Exception {
+    public void setUp() {
         reader = new TinyJsonReader();
     }
 
