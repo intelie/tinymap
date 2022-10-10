@@ -5,12 +5,13 @@ import com.google.gson.stream.JsonReader;
 import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.util.ObjectOptimizer;
+import net.intelie.tinymap.util.SuppressForbidden;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,7 @@ public class MapSize {
         List<Object> objs = new ArrayList<>();
         Gson gson = new Gson();
         String fileName = "/home/juanplopes/Downloads/dumps/everything50k.json";
-        try (JsonReader reader = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
+        try (JsonReader reader = new JsonReader(Files.newBufferedReader(Paths.get(fileName)))) {
             reader.setLenient(true);
             while (reader.peek() != com.google.gson.stream.JsonToken.END_DOCUMENT) {
                 objs.addAll(gson.<List<?>>fromJson(reader, List.class));
@@ -45,6 +46,7 @@ public class MapSize {
 
     }
 
+    @SuppressForbidden
     private void print(int i, Object... values) {
         System.out.println(i + "\t" + Arrays.stream(values)
                 .mapToLong(TestSizeUtils::sizeOnlyStructure)

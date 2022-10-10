@@ -122,6 +122,33 @@
             </plugin>
 
             <plugin>
+                <groupId>de.thetaphi</groupId>
+                <artifactId>forbiddenapis</artifactId>
+                <version>3.4</version>
+                <configuration>
+                    <bundledSignatures>
+                        <bundledSignature>jdk-unsafe</bundledSignature>
+                        <bundledSignature>jdk-deprecated</bundledSignature>
+                        <bundledSignature>jdk-internal</bundledSignature>
+                        <bundledSignature>jdk-non-portable</bundledSignature>
+                        <bundledSignature>jdk-system-out</bundledSignature>
+                        <bundledSignature>jdk-reflection</bundledSignature>
+                    </bundledSignatures>
+                    <suppressAnnotations>
+                        <suppressAnnotation>net.intelie.tinymap.util.SuppressForbidden</suppressAnnotation>
+                    </suppressAnnotations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                            <goal>testCheck</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>

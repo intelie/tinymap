@@ -3,6 +3,7 @@ package net.intelie.tinymap.support;
 import net.intelie.introspective.ObjectSizer;
 import net.intelie.introspective.reflect.ReflectionCache;
 import net.intelie.introspective.util.IdentityVisitedSet;
+import net.intelie.tinymap.util.SuppressForbidden;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -58,6 +59,7 @@ public class TestSizeUtils {
         return total;
     }
 
+    @SuppressForbidden
     public static void dump(Object obj) {
         ObjectSizer sizer = new ObjectSizer();
         sizer.resetTo(obj);
@@ -91,15 +93,15 @@ public class TestSizeUtils {
             }
         }
         System.out.println(mapCounts);
-        System.out.printf("total     %10d %10s\n", totalCount, formatBytes(totalBytes));
-        System.out.printf("unique    %10d %10s\n", uniqueCount, formatBytes(uniqueBytes));
-        System.out.printf("duplicate %10d %10s\n", (totalCount - uniqueCount), formatBytes(totalBytes - uniqueBytes));
+        System.out.printf((Locale) null, "total     %10d %10s\n", totalCount, formatBytes(totalBytes));
+        System.out.printf((Locale) null, "unique    %10d %10s\n", uniqueCount, formatBytes(uniqueBytes));
+        System.out.printf((Locale) null, "duplicate %10d %10s\n", (totalCount - uniqueCount), formatBytes(totalBytes - uniqueBytes));
 
         System.out.println("histogram:");
         total.entrySet()
                 .stream()
                 .sorted(Comparator.comparing(x -> -x.getValue().get()))
-                .forEach(entry -> System.out.printf("  %6d %10s %s\n",
+                .forEach(entry -> System.out.printf((Locale) null, "  %6d %10s %s\n",
                         counts.get(entry.getKey()).get(),
                         TestSizeUtils.formatBytes(entry.getValue().get()),
                         entry.getKey().getCanonicalName()));

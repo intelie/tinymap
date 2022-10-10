@@ -128,11 +128,7 @@ public class TinyMapBuilderTest {
     @Test
     public void testBuildAlmostThere() throws Exception {
         assertMapWithCount(255, false);
-        try {
-            assertMapWithCount(255, true);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        assertMapWithCount(255, true);
         assertMapWithCount(255, true, 100, 200);
     }
 
@@ -190,6 +186,4 @@ public class TinyMapBuilderTest {
         builder.compact();
         MapAsserts.assertMap(expectedMap, builder, 0, 0);
     }
-
-
 }

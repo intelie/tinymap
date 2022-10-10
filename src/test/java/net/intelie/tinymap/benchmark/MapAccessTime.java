@@ -2,9 +2,10 @@ package net.intelie.tinymap.benchmark;
 
 import com.google.common.collect.ImmutableMap;
 import net.intelie.introspective.ThreadResources;
+import net.intelie.tinymap.TinyMap;
 import net.intelie.tinymap.TinyMapBuilder;
 import net.intelie.tinymap.support.TestSizeUtils;
-import net.intelie.tinymap.TinyMap;
+import net.intelie.tinymap.util.SuppressForbidden;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -45,6 +46,7 @@ public class MapAccessTime {
 //        test("Guava", keys, guava.build());
     }
 
+    @SuppressForbidden
     private void test(String name, String[] keys, Map<String, Object> map) {
         for (int i = 0; i < 100000; i++)
             for (String key : keys)

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.Locale;
 
 import static net.intelie.tinymap.json.JsonToken.*;
 
@@ -1383,7 +1384,7 @@ public final class TinyJsonReaderTest extends TestCase {
         String array = "{\"a\":%s}";
         String json = "true";
         for (int i = 0; i < 40; i++) {
-            json = String.format(array, json);
+            json = String.format((Locale) null, array, json);
         }
 
         reader.resetTo(reader(json));

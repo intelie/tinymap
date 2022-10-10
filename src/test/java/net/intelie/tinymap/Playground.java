@@ -8,17 +8,19 @@ import net.intelie.tinymap.support.JavaOptimizer;
 import net.intelie.tinymap.support.TestSizeUtils;
 import net.intelie.tinymap.util.DefaultObjectCache;
 import net.intelie.tinymap.util.ObjectOptimizer;
+import net.intelie.tinymap.util.SuppressForbidden;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 @Ignore
+@SuppressForbidden
 public class Playground {
     @Test
     public void gson() throws IOException {
@@ -32,8 +34,8 @@ public class Playground {
 
         long start = System.nanoTime();
         String fileName = "/home/juanplopes/Downloads/dumps/everything50k.json";
-        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, new BufferedReader(new FileReader(fileName)));
-             JsonReader reader2 = new JsonReader(new BufferedReader(new FileReader(fileName)))) {
+        try (TinyJsonDecoder reader = new TinyJsonDecoder(cache, Files.newBufferedReader(Paths.get(fileName)));
+             JsonReader reader2 = new JsonReader(Files.newBufferedReader(Paths.get(fileName)))) {
             reader2.setLenient(true);
             while (true) {
                 if (reader.peek() == JsonToken.END_DOCUMENT) break;
