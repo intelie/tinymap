@@ -60,7 +60,7 @@ public class MapAsserts {
     private static void assertForEach(Map<String, Object> expected, IndexedMap<String, Object> actual) {
         Iterator<Map.Entry<String, Object>> expectedIterator = expected.entrySet().iterator();
         actual.forEach((k, v) -> {
-            assertThat(expectedIterator.hasNext());
+            assertThat(expectedIterator).hasNext();
             Map.Entry<String, Object> expectedEntry = expectedIterator.next();
             assertThat(k).isEqualTo(expectedEntry.getKey());
             assertThat(v).isEqualTo(expectedEntry.getValue());

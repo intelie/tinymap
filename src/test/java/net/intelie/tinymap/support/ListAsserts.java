@@ -58,7 +58,7 @@ public class ListAsserts {
     private static void assertForEach(List<?> expectedSet, IndexedCollection<?> actual) {
         Iterator<?> expectedIterator = expectedSet.iterator();
         actual.forEach(obj -> {
-            assertThat(expectedIterator.hasNext());
+            assertThat(expectedIterator).hasNext();
             Object expectedEntry = expectedIterator.next();
             assertThat(obj).isEqualTo(expectedEntry);
         });

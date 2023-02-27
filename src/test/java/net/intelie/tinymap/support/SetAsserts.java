@@ -58,7 +58,7 @@ public class SetAsserts {
     private static void assertForEach(Set<String> expected, IndexedSet<String> actual) {
         Iterator<String> expectedIterator = expected.iterator();
         actual.forEach(obj -> {
-            assertThat(expectedIterator.hasNext());
+            assertThat(expectedIterator).hasNext();
             String expectedEntry = expectedIterator.next();
             assertThat(obj).isEqualTo(expectedEntry);
         });
