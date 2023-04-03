@@ -124,7 +124,7 @@
             <plugin>
                 <groupId>de.thetaphi</groupId>
                 <artifactId>forbiddenapis</artifactId>
-                <version>3.4</version>
+                <version>3.5.1</version>
                 <configuration>
                     <bundledSignatures>
                         <bundledSignature>jdk-unsafe</bundledSignature>
@@ -157,7 +157,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M9</version>
+                <version>3.0.0</version>
                 <configuration>
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
@@ -170,12 +170,12 @@
 
             <plugin>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.1</version>
             </plugin>
 
             <plugin>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.1</version>
             </plugin>
 
             <plugin>
@@ -185,12 +185,12 @@
 
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.3.1</version>
             </plugin>
 
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
-               <version>4.0.0-M5</version>
+               <version>4.0.0-M6</version>
             </plugin>
         </plugins>
     </build>
@@ -206,7 +206,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
-                        <version>3.0.0-M9</version>
+                        <version>3.0.0</version>
                         <configuration>
                             <useSystemClassLoader>false</useSystemClassLoader>
                             <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/jdk.internal.misc=ALL-UNNAMED</argLine>
